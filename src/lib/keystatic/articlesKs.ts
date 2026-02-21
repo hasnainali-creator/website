@@ -1,43 +1,4 @@
 import { collection, fields } from "@keystatic/core";
-import fs from 'fs';
-import path from 'path';
-
-// Helper to read categories and their sub-categories from the filesystem
-function getCategoriesData() {
-  // Use absolute path or relative to project root
-  const categoriesPath = path.join(process.cwd(), 'src/content/categories');
-  const allSubCategories: { label: string; value: string }[] = [];
-
-  if (fs.existsSync(categoriesPath)) {
-    try {
-      const dirs = fs.readdirSync(categoriesPath);
-      for (const slug of dirs) {
-        const indexPath = path.join(categoriesPath, slug, 'index.json');
-        if (fs.existsSync(indexPath)) {
-          const data = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-          const mainTitle = data.title || slug;
-          const subs = data.subCategories || [];
-
-          if (subs.length > 0) {
-            subs.forEach((sub: string) => {
-              allSubCategories.push({
-                label: `${mainTitle} > ${sub}`,
-                value: sub
-              });
-            });
-          }
-        }
-      }
-    } catch (e) {
-      console.error("Error reading categories for CMS dropdown:", e);
-    }
-  }
-
-  // Sort alphabetically by label
-  return allSubCategories.sort((a, b) => a.label.localeCompare(b.label));
-}
-
-const subCategoryOptions = getCategoriesData();
 
 export const articlesKs = collection({
   label: "Articles",
@@ -74,10 +35,9 @@ export const articlesKs = collection({
       label: "Category",
       collection: "categories",
     }),
-    subCategory: fields.select({
+    subCategory: fields.text({
       label: "Sub-category",
-      description: "Select the sub-category. It will show as Category > Sub-category (e.g. Finance > USA Tax).",
-      options: subCategoryOptions,
+      description: "Enter the sub-category name manually (e.g., Football, Cricket).",
     }),
     publishedTime: fields.datetime({
       label: "Published Time",
