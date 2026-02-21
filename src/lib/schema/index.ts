@@ -11,6 +11,7 @@ export const articleSchema = (image: ImageFunction) =>
     title: z.string().max(60, "Too long, max 60 characters"),
     description: z.string().max(160, "Too long, max 160 characters"),
     category: reference("categories"),
+    subCategory: z.string().optional(),
     authors: z.array(reference("authors")).min(1),
     publishedTime: z.string().datetime().or(z.date()),
   });
@@ -23,12 +24,8 @@ export const viewSchema = z.object({
 
 export const categorySchema = z.object({
   title: z.string(),
-  path: z
-    .string()
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "The string must be a slug (only lowercase letters, numbers, and hyphens)."
-    ),
+  parent: z.string().optional(),
+  subCategories: z.array(z.string()).optional(),
 });
 
 export const authorSchema = (Image: ImageFunction) =>

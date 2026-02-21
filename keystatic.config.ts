@@ -1,4 +1,4 @@
-import { articlesKs, authorsKs, categoriesKs } from "@/lib/keystatic";
+import { articlesKs, authorsKs, categoriesKs, viewsKs } from "./src/lib/keystatic";
 import { config } from "@keystatic/core";
 
 export default config({
@@ -7,13 +7,14 @@ export default config({
   },
   ui: {
     brand: {
-      name: "Astro News",
+      name: "OmnySports",
     },
-    navigation: ["---", "articles", "---", "authors", "categories"],
+    navigation: ["---", "articles", "---", "authors", "categories", "---", "views"],
   },
   collections: {
     articles: articlesKs,
     authors: authorsKs,
     categories: categoriesKs,
+    views: viewsKs,
   },
 });

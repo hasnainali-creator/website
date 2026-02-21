@@ -1,9 +1,9 @@
-# Astro News 📰
+# OmnySports 📰
 
-A news website built with Astro, designed to provide a modern and responsive news reading experience.
+A professional sports news portal built with Astro, designed for high performance and a premium user experience.
 
 > **ℹ️ Info**  
-> Astro news is my first open-source project, so there may be some bugs or issues. I’ll address them as quickly as possible.
+> OmnySports is founded by **Hasnain Ali**. This project is built for professional sports journalism and social omnipresence.
 
 ![Astro News](./src/assets/images/screenshot-astronews.png "Astro News")
 
@@ -17,11 +17,8 @@ Explore the live demo here: [**Live Demo**](https://astro-news-six.vercel.app/)
 
 Follow the steps below to set up and run the project locally:
 
-### Clone the Repository
-
-```bash
-git clone https://github.com/Mrahmani71/astro-news.git
-```
+### Project Setup
+The project is located in the `website` directory.
 
 ### Install Dependencies
 
@@ -101,6 +98,5 @@ This project draws inspiration from the following sources:
 
 Open sourced under the [MIT license](LICENSE.md).
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Mrahmani71/astro-news/issues).
+## 🤝 Founder
+**Hasnain Ali** - Founder of OmnySports.

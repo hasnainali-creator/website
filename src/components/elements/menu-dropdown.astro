@@ -1,6 +1,9 @@
 ---
 import Menu from "@/assets/svgs/menu.astro";
-import { NAVIGATION_LINKS, OTHER_LINKS } from "@/lib/config";
+import { OTHER_LINKS } from "@/lib/config";
+import { categoriesHandler } from "@/lib/handlers/categories";
+
+const categories = categoriesHandler.getNestedCategories();
 ---
 
 <div class="dropdown">
@@ -15,7 +18,7 @@ import { NAVIGATION_LINKS, OTHER_LINKS } from "@/lib/config";
 
   <ul
     tabindex="0"
-    class="menu dropdown-content z-50 bg-base-100 rounded-box w-56 shadow"
+    class="menu dropdown-content z-50 bg-base-100 rounded-box w-64 shadow-2xl border border-base-200 mt-2"
   >
     <li><a href="/" aria-label="Homepage">Home</a></li>
     <li><a href="/articles" aria-label="Articles Page">Articles</a></li>
@@ -25,11 +28,27 @@ import { NAVIGATION_LINKS, OTHER_LINKS } from "@/lib/config";
         <summary>Categories</summary>
         <ul>
           {
-            NAVIGATION_LINKS.map(({ href, text, target }) => (
+            categories.map((category) => (
               <li>
-                <a href={href} target={target ?? "_self"} aria-label={text}>
-                  {text}
-                </a>
+                {category.children && category.children.length > 0 ? (
+                  <details>
+                    <summary>{category.data.title}</summary>
+                    <ul>
+                      <li><a href={`/categories/${category.id}/1`}>{category.data.title} (All)</a></li>
+                      {category.children.map((child) => (
+                        <li>
+                          <a href={child.id.startsWith('/categories') ? `${child.id}/1` : `/categories/${child.id}/1`} aria-label={child.data.title}>
+                            {child.data.title}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : (
+                  <a href={`/categories/${category.id}/1`} aria-label={category.data.title}>
+                    {category.data.title}
+                  </a>
+                )}
               </li>
             ))
           }

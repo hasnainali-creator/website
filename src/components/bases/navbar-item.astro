@@ -3,9 +3,10 @@ import type { Link } from "@/lib/types";
 
 type Props = {
   item: Link;
+  children?: any[];
 };
 const currentPath = Astro.url.pathname;
-const { item } = Astro.props;
+const { item, children } = Astro.props;
 
 function isActive(item: Link, currentPath: string) {
   const segment = currentPath.split("/")[2];
@@ -21,17 +22,52 @@ function isActive(item: Link, currentPath: string) {
 }
 
 function formatHref(href: string) {
+  if (href.startsWith("http")) return href;
   return href === "/" ? "/" : `${href}/1`;
 }
 ---
 
-<li
-  class:list={[
-    "relative after:absolute after:-bottom-2 after:left-0 after:h-[1.5px] after:w-full after:transition-all after:duration-300",
-    isActive(item, currentPath)
-      ? "after:bg-base-content pointer-events-none"
-      : "after:bg-transparent",
-  ]}
->
-  <a href={formatHref(item.href)} aria-label={item.text}>{item.text}</a>
-</li>
+{
+  children && children.length > 0 ? (
+    <li class="dropdown dropdown-hover group">
+      <a 
+        href={formatHref(item.href)}
+        class:list={[
+          "flex items-center gap-1 cursor-pointer transition-colors duration-300 relative after:absolute after:-bottom-2 after:left-0 after:h-[1.5px] after:w-full after:transition-all after:duration-300 px-2 py-1",
+          isActive(item, currentPath) ? "after:bg-base-content text-primary" : "after:bg-transparent hover:text-primary"
+        ]}
+      >
+        <span>{item.text}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down transition-transform group-hover:rotate-180"><path d="m6 9 6 6 6-6"/></svg>
+      </a>
+      <ul 
+        tabindex="0" 
+        class="dropdown-content menu bg-base-100 rounded-box z-[50] w-60 p-2 shadow-xl border border-base-200 mt-2"
+      >
+        <li>
+          <a href={formatHref(item.href)} class="font-bold border-b border-base-200 rounded-none mb-1 hover:bg-primary hover:text-primary-content">
+            View All {item.text}
+          </a>
+        </li>
+        {children.map((child) => (
+          <li>
+            <a href={formatHref(child.id.startsWith('/categories') ? child.id : `/categories/${child.id}`)} class="hover:bg-primary hover:text-primary-content">
+              {child.data.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </li>
+  ) : (
+    <li
+      class:list={[
+        "relative after:absolute after:-bottom-2 after:left-0 after:h-[1.5px] after:w-full after:transition-all after:duration-300",
+        isActive(item, currentPath)
+          ? "after:bg-base-content pointer-events-none"
+          : "after:bg-transparent",
+      ]}
+    >
+      <a href={formatHref(item.href)} aria-label={item.text}>{item.text}</a>
+    </li>
+  )
+}

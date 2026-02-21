@@ -35,7 +35,7 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
       class="text-xl font-serif font-semibold lg:group-hover:underline line-clamp-2"
     >
       <a href={`/articles/${article.id}`}>
-        <span class="absolute inset-0 z-10 pointer-events-none"></span>
+        <span class="absolute inset-0 z-10"></span>
         {article.data.title}
       </a>
     </h3>
@@ -44,7 +44,7 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
     </p>
     <div class="flex items-center text-xs text-base-content/80 mt-2">
       <span class="text-xs text-primary dark:text-secondary"
-        >{category.data.title}</span
+        >{categoriesHandler.getCategoryDisplayPath(article.data.category.id)}</span
       >
       <Divider />
       <span class="text-xs text-base-content/80"

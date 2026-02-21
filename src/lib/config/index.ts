@@ -1,11 +1,11 @@
 import type { Link } from "../types";
 
 export const SITE = {
-  title: "Astro News",
-  description: "A news website built with Astro",
-  author: "Mohammad Rahmani",
-  url: "https://astro-news-six.vercel.app",
-  github: "https://github.com/Mrahmani71/astro-news",
+  title: "OmnySports",
+  description: "Your ultimate destination for sports news, insights, and community highlights.",
+  author: "Hasnain Ali",
+  url: "https://omnysports.vercel.app",
+  github: "https://github.com/hasnainali-creator/website",
   locale: "en-US",
   dir: "ltr",
   charset: "UTF-8",
@@ -66,34 +66,54 @@ export const OTHER_LINKS: Link[] = [
     text: "Cookie Policy",
   },
   {
-    href: "https://astro-news-six.vercel.app/rss.xml",
+    href: "/disclaimer",
+    text: "Disclaimer",
+  },
+  {
+    href: "/editorial-policy",
+    text: "Editorial Policy",
+  },
+  {
+    href: "/accessibility",
+    text: "Accessibility",
+  },
+  {
+    href: "/advertising-policy",
+    text: "Advertising Policy",
+  },
+  {
+    href: "/dmca",
+    text: "DMCA",
+  },
+  {
+    href: "https://omnysports.vercel.app/rss.xml",
     text: "RSS",
   },
   {
-    href: "https://astro-news-six.vercel.app/sitemap-index.xml",
+    href: "https://omnysports.vercel.app/sitemap-index.xml",
     text: "Sitemap",
   },
 ];
 
 export const SOCIAL_LINKS: Link[] = [
   {
-    href: "https://github.com",
-    text: "GitHub",
-    icon: "github",
+    href: "https://instagram.com/omnysports",
+    text: "Instagram",
+    icon: "instagram",
   },
   {
-    href: "httpe://www.t.me",
-    text: "Telegram",
-    icon: "telegram",
-  },
-  {
-    href: "https://twitter.com",
+    href: "https://twitter.com/omnysports",
     text: "Twitter",
     icon: "newTwitter",
   },
   {
-    href: "https://www.facebook.com",
+    href: "https://facebook.com/omnysports",
     text: "Facebook",
     icon: "facebook",
+  },
+  {
+    href: "https://tiktok.com/@omnysports",
+    text: "TikTok",
+    icon: "tiktok",
   },
 ];

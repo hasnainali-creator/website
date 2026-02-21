@@ -34,7 +34,7 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
         class="text-xl font-semibold lg:group-hover:underline underline-offset-2"
       >
         <a href={`/articles/${article.id}`}>
-          <span class="absolute inset-0 z-10 pointer-events-none"></span>
+          <span class="absolute inset-0 z-10"></span>
           {article.data.title}
         </a>
       </h2>
@@ -43,7 +43,8 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
       </p>
     </div>
     <div class="flex items-center text-xs text-base-content/80 mt-2">
-      <span class="text-primary dark:text-secondary">{category.data.title}</span
+      <span class="text-primary dark:text-secondary"
+        >{categoriesHandler.getCategoryDisplayPath(article.data.category.id)}</span
       >
       <Divider />
       <span>{getDateDistance(remarkPluginFrontmatter.lastModified)}</span>

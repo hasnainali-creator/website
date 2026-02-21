@@ -15,8 +15,31 @@ export const getStaticPaths = (async ({ paginate }) => {
 
   return allCategories.flatMap((category) => {
     const filteredArticles = allArticles.filter(
-      (article) => article.data.category.id === category.id
+      (article) => {
+        const artCatId = typeof article.data.category === 'string' 
+            ? article.data.category 
+            : article.data.category.id;
+        
+        return artCatId === category.id || 
+               categoriesHandler.isDescendantOf(artCatId, category.id);
+      }
     );
+
+    if (filteredArticles.length === 0) {
+        return [{
+            params: { category: category.id, page: "1" },
+            props: { 
+                page: { 
+                    data: [],
+                    currentPage: 1,
+                    lastPage: 1,
+                    url: { current: `/categories/${category.id}/1`, prev: undefined, next: undefined }
+                },
+                postsLength: 0 
+            }
+        }];
+    }
+
     return paginate(filteredArticles, {
       params: { category: category.id },
       props: { postsLength: filteredArticles.length },
@@ -37,17 +60,25 @@ const entry = await getEntry("views", "categories");
 if (!entry) {
   return Astro.redirect("/404");
 }
+const categoryInfo = categoriesHandler.oneCategory(params.category);
+const headerTitle = categoriesHandler.getCategoryDisplayPath(categoryInfo.id);
 ---
 
-<ListLayout header={params.category} entry={entry}>
+<ListLayout header={headerTitle} entry={entry}>
   <ul class="flex flex-col gap-2 flex-1">
     {
-      articles.map((article) => (
-        <WideCard
-          article={article}
-          isLast={articles.lastIndexOf(article) === articles.length - 1}
-        />
-      ))
+      articles.length > 0 ? (
+        articles.map((article) => (
+            <WideCard
+            article={article}
+            isLast={articles.lastIndexOf(article) === articles.length - 1}
+            />
+        ))
+      ) : (
+          <div class="py-20 text-center opacity-50">
+              No articles found in this category.
+          </div>
+      )
     }
   </ul>
   {

@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import Divider from "../bases/divider.astro";
+import { categoriesHandler } from "@/lib/handlers/categories";
 
 type Props = {
   article: CollectionEntry<"articles">;
@@ -60,7 +61,7 @@ const { article, isLast } = Astro.props;
       <Divider />
       <small class="flex items-center gap-1">
         <span class="capitalize text-sm">
-          {article.data.category.id}
+          {categoriesHandler.getCategoryDisplayPath(article.data.category.id)}
         </span>
       </small>
     </div>
