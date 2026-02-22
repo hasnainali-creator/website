@@ -24,4 +24,6 @@ export default config({
     categories: categoriesKs,
     views: viewsKs,
   },
+
 });
+
