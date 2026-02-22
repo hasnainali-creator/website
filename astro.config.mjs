@@ -39,6 +39,10 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    define: {
+      'import.meta.env.KEYSTATIC_GITHUB_CLIENT_ID': JSON.stringify('Iv23liJA49xpruzfKcet'),
+      'process.env.KEYSTATIC_GITHUB_CLIENT_ID': JSON.stringify('Iv23liJA49xpruzfKcet')
+    }
   },
 
   adapter: cloudflare()
