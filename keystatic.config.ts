@@ -1,5 +1,10 @@
-import { articlesKs, authorsKs, categoriesKs, viewsKs } from "./src/lib/keystatic";
 import { config } from "@keystatic/core";
+import { articlesKs, authorsKs, categoriesKs, viewsKs } from "./src/lib/keystatic";
+
+// Force correct Client ID to override environment variable issues
+if (typeof process !== 'undefined') {
+  process.env.KEYSTATIC_GITHUB_CLIENT_ID = "Iv23liJA49xpruzfKcet";
+}
 
 export default config({
   storage:
