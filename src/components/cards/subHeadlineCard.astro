@@ -14,7 +14,7 @@ type Props = {
 const { article, isLast, isFirst } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
-const category = categoriesHandler.oneCategory(article.data.category.id);
+const category = categoriesHandler.oneCategory(article.data.category.discriminant);
 ---
 
 <article
@@ -42,7 +42,7 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
     </div>
     <div class="flex items-center text-xs text-base-content/80 mt-1 lg:mt-auto">
       <span class="text-primary dark:text-secondary"
-        >{categoriesHandler.getCategoryDisplayPath(article.data.category.id)}</span
+        >{categoriesHandler.getCategoryDisplayPath(article.data.category.discriminant)}</span
       >
       <Divider />
       <span>{getDateDistance(remarkPluginFrontmatter.lastModified)}</span>
@@ -64,3 +64,4 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
     />
   </div>
 </article>
+

@@ -8,11 +8,12 @@
     });
   }
 
+  /** @param {Event} event */
   function handleSocialShare(event) {
-    const elem = event.currentTarget;
-    const network = elem.getAttribute("data-aw-social-share");
-    const rawUrl = elem.getAttribute("data-aw-url");
-    const rawText = elem.getAttribute("data-aw-text");
+    const elem = /** @type {HTMLElement} */ (event.currentTarget);
+    const network = elem.getAttribute("data-aw-social-share") || "";
+    const rawUrl = elem.getAttribute("data-aw-url") || "";
+    const rawText = elem.getAttribute("data-aw-text") || "";
 
     // Handle clipboard separately as it doesn't need to open a new window
     if (network === "clipboard") {
@@ -37,6 +38,7 @@
     }
   }
 
+  /** @param {string} text */
   function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
@@ -54,11 +56,17 @@
     }
   }
 
+  /**
+   * @param {string} network
+   * @param {string} rawUrl
+   * @param {string} rawText
+   */
   function openSocialShare(network, rawUrl, rawText) {
     const url = encodeURIComponent(rawUrl);
     const text = encodeURIComponent(rawText);
 
     // Social platform URLs mapping
+    /** @type {Object.<string, string>} */
     const platformUrls = {
       facebook: `https://www.facebook.com/sharer.php?u=${url}`,
       twitter: `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
@@ -66,7 +74,7 @@
       whatsapp: `https://wa.me/?text=${text}%20${url}`,
     };
 
-    const href = platformUrls[network];
+    const href = platformUrls[network || ""];
     if (href) {
       // Use window.open for better popup handling
       window.open(
@@ -78,6 +86,7 @@
   }
 
   // Fallback clipboard function for older browsers
+  /** @param {string} text */
   function fallbackCopyTextToClipboard(text) {
     const textArea = document.createElement("textarea");
     textArea.value = text;

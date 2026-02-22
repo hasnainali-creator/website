@@ -4,7 +4,7 @@ export const SITE = {
   title: "OmnySports",
   description: "Your ultimate destination for sports news, insights, and community highlights.",
   author: "Hasnain Ali",
-  url: "https://omnysports.vercel.app",
+  url: "https://omnysports.pages.dev",
   github: "https://github.com/hasnainali-creator/website",
   locale: "en-US",
   dir: "ltr",
@@ -86,11 +86,11 @@ export const OTHER_LINKS: Link[] = [
     text: "DMCA",
   },
   {
-    href: "https://omnysports.vercel.app/rss.xml",
+    href: "https://omnysports.pages.dev/rss.xml",
     text: "RSS",
   },
   {
-    href: "https://omnysports.vercel.app/sitemap-index.xml",
+    href: "https://omnysports.pages.dev/sitemap-index.xml",
     text: "Sitemap",
   },
 ];

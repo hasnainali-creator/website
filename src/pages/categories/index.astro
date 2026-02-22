@@ -20,7 +20,7 @@ const articles = categoriesHandler.allCategoriesWithLatestArticles();
   <ul class="w-full space-y-8 my-6">
     {
       articles.map((category) => {
-        const { path, title, latestArticles } = category.data;
+        const { title, latestArticles } = category.data;
         const articleCount = category.data.count;
         return (
           <div class="flex flex-col items-start gap-4">
@@ -32,7 +32,7 @@ const articles = categoriesHandler.allCategoriesWithLatestArticles();
                 </span>
               </h2>
               <a
-                href={`/categories/${path}/1`}
+                href={`/categories/${category.id}/1`}
                 class="group flex text-sm items-center gap-1 hover:gap-2 transition-all duration-200"
               >
                 See All

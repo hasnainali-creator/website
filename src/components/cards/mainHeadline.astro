@@ -14,7 +14,7 @@ const { article } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
 
-const category = categoriesHandler.oneCategory(article.data.category.id);
+const category = categoriesHandler.oneCategory(article.data.category.discriminant);
 ---
 
 <article class="group relative isolate flex flex-col-reverse md:flex-col gap-4">
@@ -44,10 +44,11 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
     </div>
     <div class="flex items-center text-xs text-base-content/80 mt-2">
       <span class="text-primary dark:text-secondary"
-        >{categoriesHandler.getCategoryDisplayPath(article.data.category.id)}</span
+        >{categoriesHandler.getCategoryDisplayPath(article.data.category.discriminant)}</span
       >
       <Divider />
       <span>{getDateDistance(remarkPluginFrontmatter.lastModified)}</span>
     </div>
   </div>
 </article>
+

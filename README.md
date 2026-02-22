@@ -11,7 +11,7 @@ A professional sports news portal built with Astro, designed for high performanc
 
 ## 🌐 Demo
 
-Explore the live demo here: [**Live Demo**](https://astro-news-six.vercel.app/)
+Explore the live demo here: [**Live Demo**](https://omnysports.pages.dev/)
 
 ## 🚀 Installation
 
@@ -76,7 +76,7 @@ This project leverages cutting-edge web technologies:
 - [TypeScript](https://typescriptlang.org) - Typed JavaScript
 - [MDX](https://mdxjs.com) - Markdown with JSX support
 - [Bun V1.2.10](https://bun.sh) - Fast JavaScript runtime
-- [Vercel](https://vercel.com) - Deployment platform
+- [Cloudflare Pages](https://pages.cloudflare.com) - Deployment platform
 - [HugeIcons](https://hugeicons.com) - Icon library
 
 ## 💡  Inspirations and Code Concepts

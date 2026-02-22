@@ -1,15 +1,22 @@
 ---
 isDraft: false
-isMainHeadline: true
-isSubHeadline: false
+publishing:
+  isMainHeadline: true
+  isSubHeadline: false
+  isFeatured: false
 description: An in-depth look at closures in JavaScript and their applications.
 title: Understanding JavaScript Closures
-cover: '@assets/images/articles/understanding-java-script-closures/cover.avif'
-category: programming
+cover: '../../../assets/images/articles/understanding-java-script-closures/cover.avif'
 publishedTime: 2024-11-11T00:00:00.000Z
 authors:
   - ahmed-khan
   - jane-doe
+category:
+  discriminant: programming
+  value: 
+seo:
+  metaTitle: ""
+  metaDescription: ""
 ---
 Closures are a fundamental concept in JavaScript that allow functions to access variables from their outer scope. This article explains closures, their practical uses, and common pitfalls.
 
@@ -31,3 +38,4 @@ const closureExample = outerFunction("I am from outerFunction");
 closureExample("I am from innerFunction");
 
 ```
+

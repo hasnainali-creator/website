@@ -13,7 +13,7 @@ type Props = {
 const { article, index } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
-const category = categoriesHandler.oneCategory(article.data.category.id);
+const category = categoriesHandler.oneCategory(article.data.category.discriminant);
 ---
 
 <article
@@ -44,7 +44,7 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
     </p>
     <div class="flex items-center text-xs text-base-content/80 mt-2">
       <span class="text-xs text-primary dark:text-secondary"
-        >{categoriesHandler.getCategoryDisplayPath(article.data.category.id)}</span
+        >{categoriesHandler.getCategoryDisplayPath(article.data.category.discriminant)}</span
       >
       <Divider />
       <span class="text-xs text-base-content/80"
@@ -53,3 +53,4 @@ const category = categoriesHandler.oneCategory(article.data.category.id);
     </div>
   </div>
 </article>
+

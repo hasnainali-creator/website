@@ -17,7 +17,7 @@ type Props = {
 
 const { article, readingTime } = Astro.props;
 
-const category = categoriesHandler.oneCategory(article.data.category.id);
+const category = categoriesHandler.oneCategory(article.data.category.discriminant);
 const authors = authorsHandler.getAuthors(article.data.authors);
 ---
 
@@ -38,7 +38,7 @@ const authors = authorsHandler.getAuthors(article.data.authors);
   </div>
   <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
     <ResourcesAdd size="16" />
-    <a href={`/categories/${category.data.path}`} class="a-01 font-semibold"
+    <a href={`/categories/${category.id}`} class="a-01 font-semibold"
       >{category.data.title}</a
     >
   </div>
@@ -113,3 +113,4 @@ const authors = authorsHandler.getAuthors(article.data.authors);
     </div>
   </div>
 </section>
+

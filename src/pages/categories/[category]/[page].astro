@@ -16,9 +16,7 @@ export const getStaticPaths = (async ({ paginate }) => {
   return allCategories.flatMap((category) => {
     const filteredArticles = allArticles.filter(
       (article) => {
-        const artCatId = typeof article.data.category === 'string' 
-            ? article.data.category 
-            : article.data.category.id;
+        const artCatId = article.data.category.discriminant;
         
         return artCatId === category.id || 
                categoriesHandler.isDescendantOf(artCatId, category.id);
@@ -31,9 +29,13 @@ export const getStaticPaths = (async ({ paginate }) => {
             props: { 
                 page: { 
                     data: [],
+                    start: 0,
+                    end: 0,
+                    total: 0,
+                    size: SITE.postsPerPage,
                     currentPage: 1,
                     lastPage: 1,
-                    url: { current: `/categories/${category.id}/1`, prev: undefined, next: undefined }
+                    url: { current: `/categories/${category.id}/1`, prev: undefined, next: undefined, first: undefined, last: undefined }
                 },
                 postsLength: 0 
             }

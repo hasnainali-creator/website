@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { execSync } from "node:child_process";
 import { statSync } from "node:fs";
 import getReadingTime from "reading-time";

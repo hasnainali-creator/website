@@ -61,9 +61,10 @@ const { article, isLast } = Astro.props;
       <Divider />
       <small class="flex items-center gap-1">
         <span class="capitalize text-sm">
-          {categoriesHandler.getCategoryDisplayPath(article.data.category.id)}
+          {categoriesHandler.getCategoryDisplayPath(article.data.category.discriminant)}
         </span>
       </small>
     </div>
   </div>
 </li>
+

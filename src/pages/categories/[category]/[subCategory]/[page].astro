@@ -24,20 +24,14 @@ export const getStaticPaths = (async ({ paginate }) => {
       const filteredArticles = allArticles.filter(
         (article) => {
             // Safely get category ID (handle object or string)
-            const artCatId = typeof article.data.category === 'string' 
-                ? article.data.category 
-                : article.data.category.id;
+            const artCatId = article.data.category.discriminant;
 
             if (artCatId !== category.id) return false;
             
-            const itemSub = article.data.subCategory;
-            if (!itemSub) return false;
-
-            // Handle both string (legacy) and reference object (new dropdown)
-            const artSubId = typeof itemSub === 'string' ? itemSub : itemSub.id;
+            const artSubId = article.data.category.value;
             
             // Standardize both for comparison
-            return toSlug(artSubId) === toSlug(subName);
+            return toSlug(artSubId || "") === toSlug(subName);
         }
       );
 
@@ -48,9 +42,13 @@ export const getStaticPaths = (async ({ paginate }) => {
               props: { 
                   page: { 
                       data: [],
+                      start: 0,
+                      end: 0,
+                      total: 0,
+                      size: SITE.postsPerPage,
                       currentPage: 1,
                       lastPage: 1,
-                      url: { current: `/categories/${category.id}/${subSlug}/1`, prev: undefined, next: undefined }
+                      url: { current: `/categories/${category.id}/${subSlug}/1`, prev: undefined, next: undefined, first: undefined, last: undefined }
                   },
                   postsLength: 0,
                   mainCategory: category.data.title,

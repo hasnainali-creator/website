@@ -55,7 +55,7 @@ export const categoriesHandler = {
     allCategoriesWithLatestArticles: () => {
         return categoriesCollection.map((category) => {
             const articles = articlesHandler.allArticles()
-                .filter((article) => article.data.category.id === category.id);
+                .filter((article) => article.data.category.discriminant === category.id);
             return {
                 ...category,
                 data: {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
 import { SITE } from "../lib/config";

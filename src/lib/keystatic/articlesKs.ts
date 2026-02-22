@@ -1,4 +1,5 @@
 import { collection, fields } from "@keystatic/core";
+import { categoryOptions, subCategoryFields } from "./options";
 
 export const articlesKs = collection({
   label: "Articles",
@@ -11,34 +12,48 @@ export const articlesKs = collection({
       label: "Is this a draft?",
       defaultValue: false,
     }),
-    isMainHeadline: fields.checkbox({
-      label: "Is this a main headline?",
-      defaultValue: false,
-    }),
-    isSubHeadline: fields.checkbox({
-      label: "Is this a sub headline?",
-      defaultValue: false,
+    publishing: fields.object({
+      isMainHeadline: fields.checkbox({
+        label: "Is this a main headline?",
+        defaultValue: false,
+      }),
+      isSubHeadline: fields.checkbox({
+        label: "Is this a sub headline?",
+        defaultValue: false,
+      }),
+      isFeatured: fields.checkbox({
+        label: "Is Featured?",
+        description: "Show this article in the featured section.",
+        defaultValue: false,
+      }),
     }),
     description: fields.text({
-      label: "Description",
+      label: "Description (Summary)",
       validation: { isRequired: true, length: { max: 160 } },
     }),
     title: fields.slug({
       name: { label: "Title", validation: { length: { max: 60 } } },
     }),
     cover: fields.image({
-      label: "Cover",
+      label: "Cover Image",
       directory: "src/assets/images/articles",
       publicPath: "@assets/images/articles/",
     }),
-    category: fields.relationship({
-      label: "Category",
-      collection: "categories",
-    }),
-    subCategory: fields.text({
-      label: "Sub-category",
-      description: "Enter the sub-category name manually (e.g., Football, Cricket).",
-    }),
+    category: fields.conditional(
+      fields.select({
+        label: "Main Category",
+        options: categoryOptions,
+        defaultValue: categoryOptions[0].value,
+      }),
+      Object.fromEntries(
+        categoryOptions.map((opt) => [
+          opt.value,
+          subCategoryFields[opt.value]
+            ? fields.select(subCategoryFields[opt.value]!)
+            : fields.empty(),
+        ])
+      )
+    ),
     publishedTime: fields.datetime({
       label: "Published Time",
       validation: { isRequired: true },
@@ -58,6 +73,19 @@ export const articlesKs = collection({
         },
       }
     ),
+    seo: fields.object({
+      metaTitle: fields.text({
+        label: "Meta Title",
+        description: "Limit of 60 characters",
+        validation: { length: { max: 60 } },
+      }),
+      metaDescription: fields.text({
+        label: "Meta Description",
+        description: "Limit of 160 characters",
+        multiline: true,
+        validation: { length: { max: 160 } },
+      }),
+    }),
     content: fields.mdx({
       label: "Content",
       options: {
@@ -69,3 +97,4 @@ export const articlesKs = collection({
     }),
   },
 });
+

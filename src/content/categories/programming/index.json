@@ -1,6 +1,8 @@
 {
   "title": "Programming",
   "subCategories": [
-    "Languages"
+    "Languages",
+    "JavaScript",
+    "Python"
   ]
 }
