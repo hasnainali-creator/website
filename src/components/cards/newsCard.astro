@@ -1,6 +1,8 @@
 ---
 import { Image } from "astro:assets";
 import Divider from "../bases/divider.astro";
+import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+const catProvider = await categoriesHandler.getProvider();
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import { categoriesHandler } from "@/lib/handlers/categories";
@@ -13,7 +15,6 @@ type Props = {
 const { article, index } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
-const category = categoriesHandler.oneCategory(article.data.category.discriminant);
 ---
 
 <article
@@ -43,8 +44,8 @@ const category = categoriesHandler.oneCategory(article.data.category.discriminan
       {article.data.description}
     </p>
     <div class="flex items-center text-xs text-base-content/80 mt-2">
-      <span class="text-xs text-primary dark:text-secondary"
-        >{categoriesHandler.getCategoryDisplayPath(article.data.category.discriminant)}</span
+      <span class="text-sm font-semibold capitalize"
+        >{catProvider.getDisplayPath(normalizeCategoryData(article.data.category)[0]?.discriminant || "uncategorized")}</span
       >
       <Divider />
       <span class="text-xs text-base-content/80"

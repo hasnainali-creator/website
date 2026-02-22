@@ -3,7 +3,8 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import Divider from "../bases/divider.astro";
-import { categoriesHandler } from "@/lib/handlers/categories";
+import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+const catProvider = await categoriesHandler.getProvider();
 
 type Props = {
   article: CollectionEntry<"articles">;
@@ -61,7 +62,7 @@ const { article, isLast } = Astro.props;
       <Divider />
       <small class="flex items-center gap-1">
         <span class="capitalize text-sm">
-          {categoriesHandler.getCategoryDisplayPath(article.data.category.discriminant)}
+          {catProvider.getDisplayPath(normalizeCategoryData(article.data.category)[0]?.discriminant || "uncategorized")}
         </span>
       </small>
     </div>

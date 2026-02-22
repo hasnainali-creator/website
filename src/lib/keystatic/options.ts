@@ -40,8 +40,11 @@ export const subCategoryFields: Record<string, { label: string; options: readonl
         c.subCategories.length > 0
             ? ({
                 label: "Sub-category",
-                options: c.subCategories.map((s: string) => ({ label: s, value: s })),
-                defaultValue: c.subCategories[0]
+                options: [
+                    { label: "None", value: "" },
+                    ...c.subCategories.map((s: string) => ({ label: s, value: s }))
+                ],
+                defaultValue: ""
             })
             : null
     ])

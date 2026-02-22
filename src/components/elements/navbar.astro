@@ -2,7 +2,8 @@
 import { categoriesHandler } from "@/lib/handlers/categories";
 import NavbarItem from "../bases/navbar-item.astro";
 
-const categories = categoriesHandler.getNestedCategories();
+const catProvider = await categoriesHandler.getProvider();
+const categories = catProvider.getNestedCategories();
 ---
 
 <nav class="navbar-center hidden lg:flex container">

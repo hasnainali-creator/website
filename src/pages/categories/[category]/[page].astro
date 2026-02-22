@@ -2,7 +2,7 @@
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { articlesHandler } from "@/lib/handlers/articles";
-import { categoriesHandler } from "@/lib/handlers/categories";
+import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
 import ListLayout from "@/layouts/list.astro";
 
 import Pagination from "@/components/shared/pagination.astro";
@@ -10,16 +10,18 @@ import WideCard from "@/components/cards/wideCard.astro";
 import { getEntry } from "astro:content";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const allCategories = categoriesHandler.allCategories();
+  const catProvider = await categoriesHandler.getProvider();
+  const allCategories = catProvider.categories;
   const allArticles = articlesHandler.allArticles();
 
   return allCategories.flatMap((category) => {
     const filteredArticles = allArticles.filter(
       (article) => {
-        const artCatId = article.data.category.discriminant;
-        
-        return artCatId === category.id || 
-               categoriesHandler.isDescendantOf(artCatId, category.id);
+        const cats = normalizeCategoryData(article.data.category);
+        return cats.some(cat => {
+            return cat.discriminant === category.id || 
+                   catProvider.isDescendantOf(cat.discriminant, category.id);
+        });
       }
     );
 
@@ -62,8 +64,9 @@ const entry = await getEntry("views", "categories");
 if (!entry) {
   return Astro.redirect("/404");
 }
-const categoryInfo = categoriesHandler.oneCategory(params.category);
-const headerTitle = categoriesHandler.getCategoryDisplayPath(categoryInfo.id);
+const catProvider = await categoriesHandler.getProvider();
+const categoryInfo = catProvider.oneCategory(params.category);
+const headerTitle = catProvider.getDisplayPath(categoryInfo.id);
 ---
 
 <ListLayout header={headerTitle} entry={entry}>

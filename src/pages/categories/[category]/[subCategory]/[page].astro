@@ -2,7 +2,7 @@
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { articlesHandler } from "@/lib/handlers/articles";
-import { categoriesHandler } from "@/lib/handlers/categories";
+import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
@@ -11,7 +11,8 @@ import { getEntry } from "astro:content";
 import { toSlug } from "@/lib/utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const allCategories = categoriesHandler.allCategories();
+  const catProvider = await categoriesHandler.getProvider();
+  const allCategories = catProvider.categories;
   const allArticles = articlesHandler.allArticles();
 
   const paths = allCategories.flatMap((category) => {
@@ -23,15 +24,14 @@ export const getStaticPaths = (async ({ paginate }) => {
       
       const filteredArticles = allArticles.filter(
         (article) => {
-            // Safely get category ID (handle object or string)
-            const artCatId = article.data.category.discriminant;
-
-            if (artCatId !== category.id) return false;
-            
-            const artSubId = article.data.category.value;
-            
-            // Standardize both for comparison
-            return toSlug(artSubId || "") === toSlug(subName);
+            const cats = normalizeCategoryData(article.data.category);
+            return cats.some(cat => {
+                const artCatId = cat.discriminant;
+                if (artCatId !== category.id) return false;
+                
+                const artSubId = cat.value;
+                return toSlug(artSubId || "") === toSlug(subName);
+            });
         }
       );
 
@@ -75,9 +75,6 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page, postsLength, mainCategory, subCategoryName } = Astro.props;
 const params = Astro.params;
 const articles = page.data;
-const pathname = new URL(Astro.request.url).pathname.split("/");
-// Path format is /categories/[category]/[subCategory]/[page]
-// So indices: 0="", 1="categories", 2="category-id", 3="sub-slug"
 const basePath = `categories/${params.category}/${params.subCategory}`;
 
 const entry = await getEntry("views", "categories");

@@ -3,7 +3,8 @@ import Menu from "@/assets/svgs/menu.astro";
 import { OTHER_LINKS } from "@/lib/config";
 import { categoriesHandler } from "@/lib/handlers/categories";
 
-const categories = categoriesHandler.getNestedCategories();
+const catProvider = await categoriesHandler.getProvider();
+const categories = catProvider.getNestedCategories();
 ---
 
 <div class="dropdown">

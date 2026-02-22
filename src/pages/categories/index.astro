@@ -12,7 +12,15 @@ if (!entry) {
 }
 
 // Fetch all articles to extract categories
-const articles = categoriesHandler.allCategoriesWithLatestArticles();
+const catProvider = await categoriesHandler.getProvider();
+const articles = catProvider.categories.map(c => ({
+    ...c,
+    data: {
+        ...c.data,
+        count: catProvider.getLatestArticles(c.id).length,
+        latestArticles: catProvider.getLatestArticles(c.id).slice(0, 3)
+    }
+}));
 ---
 
 {/* Use your BaseLayout and pass the entry for metadata */}

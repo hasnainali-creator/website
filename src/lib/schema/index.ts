@@ -13,10 +13,10 @@ export const articleSchema = (image: ImageFunction) =>
     covert_alt: z.string().optional(),
     title: z.string().max(60, "Too long, max 60 characters"),
     description: z.string().max(160, "Too long, max 160 characters"),
-    category: z.object({
+    category: z.array(z.object({
       discriminant: z.string(),
       value: z.string().nullish(),
-    }),
+    })).min(1),
     publishedTime: z.string().datetime().or(z.date()),
     authors: z.array(reference("authors")).min(1),
     seo: z.object({

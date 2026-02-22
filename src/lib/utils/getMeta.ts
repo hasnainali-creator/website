@@ -26,10 +26,13 @@ export const getMeta = async (
       const { remarkPluginFrontmatter } = await render(collection);
       const authors = authorsHandler.getAuthors(collection.data.authors);
 
+      const metaTitle = collection.data.seo?.metaTitle || collection.data.title;
+      const metaDescription = collection.data.seo?.metaDescription || collection.data.description;
+
       const meta: ArticleMeta = {
-        title: `${capitalizeFirstLetter(collection.data.title)} - ${SITE.title}`,
-        metaTitle: capitalizeFirstLetter(collection.data.title),
-        description: collection.data.description,
+        title: `${capitalizeFirstLetter(metaTitle)} - ${SITE.title}`,
+        metaTitle: capitalizeFirstLetter(metaTitle),
+        description: metaDescription,
         ogImage: collection.data.cover.src,
         ogImageAlt: collection.data.covert_alt || collection.data.title,
         publishedTime: normalizeDate(collection.data.publishedTime),
@@ -39,7 +42,7 @@ export const getMeta = async (
           link: `${author.id}`,
         })),
         type: "article",
-      }
+      };
 
       renderCache.set(collectionId, meta);
 

@@ -39,20 +39,32 @@ export const articlesKs = collection({
       directory: "src/assets/images/articles",
       publicPath: "@assets/images/articles/",
     }),
-    category: fields.conditional(
-      fields.select({
-        label: "Main Category",
-        options: categoryOptions,
-        defaultValue: categoryOptions[0].value,
-      }),
-      Object.fromEntries(
-        categoryOptions.map((opt) => [
-          opt.value,
-          subCategoryFields[opt.value]
-            ? fields.select(subCategoryFields[opt.value]!)
-            : fields.empty(),
-        ])
-      )
+    category: fields.array(
+      fields.conditional(
+        fields.select({
+          label: "Main Category",
+          options: categoryOptions,
+          defaultValue: categoryOptions[0]?.value || '',
+        }),
+        Object.fromEntries(
+          categoryOptions.map((opt) => [
+            opt.value,
+            subCategoryFields[opt.value]
+              ? fields.select(subCategoryFields[opt.value]!)
+              : fields.empty(),
+          ])
+        )
+      ),
+      {
+        label: "Categories",
+        itemLabel: (props) => {
+          // If the branch has a value (sub-category), it will be in props.value.
+          // For fields.select, it's usually just the string value in Keystatic's preview props.
+          const sub = typeof props.value === 'string' ? props.value : (props.value as any)?.value;
+          return sub ? `${props.discriminant} > ${sub}` : props.discriminant;
+        },
+        validation: { length: { min: 1 } },
+      }
     ),
     publishedTime: fields.datetime({
       label: "Published Time",

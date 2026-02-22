@@ -1,10 +1,11 @@
 ---
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
-import Divider from "@/components/bases/divider.astro";
+import Divider from "../bases/divider.astro";
 import { render } from "astro:content";
 import { getDateDistance } from "@/lib/utils/date";
-import { categoriesHandler } from "@/lib/handlers/categories";
+import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+const catProvider = await categoriesHandler.getProvider();
 
 type Props = {
   article: CollectionEntry<"articles">;
@@ -14,7 +15,6 @@ type Props = {
 const { article, isLast, isFirst } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
-const category = categoriesHandler.oneCategory(article.data.category.discriminant);
 ---
 
 <article
@@ -41,9 +41,9 @@ const category = categoriesHandler.oneCategory(article.data.category.discriminan
       </div>
     </div>
     <div class="flex items-center text-xs text-base-content/80 mt-1 lg:mt-auto">
-      <span class="text-primary dark:text-secondary"
-        >{categoriesHandler.getCategoryDisplayPath(article.data.category.discriminant)}</span
-      >
+      <p class="text-sm font-semibold text-primary dark:text-secondary capitalize">
+        {catProvider.getDisplayPath(normalizeCategoryData(article.data.category)[0]?.discriminant || "uncategorized")}
+      </p>
       <Divider />
       <span>{getDateDistance(remarkPluginFrontmatter.lastModified)}</span>
     </div>

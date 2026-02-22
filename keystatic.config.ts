@@ -2,9 +2,16 @@ import { articlesKs, authorsKs, categoriesKs, viewsKs } from "./src/lib/keystati
 import { config } from "@keystatic/core";
 
 export default config({
-  storage: {
-    kind: "local",
-  },
+  storage:
+    process.env.NODE_ENV === "development" || process.env.KEYSTATIC_STORAGE_KIND === "local"
+      ? { kind: "local" }
+      : {
+        kind: "github",
+        repo: {
+          owner: "hasnainali-creator",
+          name: "website",
+        },
+      },
   ui: {
     brand: {
       name: "OmnySports",
