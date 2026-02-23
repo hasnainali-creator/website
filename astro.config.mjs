@@ -7,16 +7,15 @@ import { modifiedTime, readingTime } from "./src/lib/utils/remarks.mjs";
 import { SITE } from "./src/lib/config";
 import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
-import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
 
 import cloudflare from "@astrojs/cloudflare";
 
-const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
+const IS_DEV = import.meta.env.MODE === "development";
 
 const integrations = [mdx(), sitemap(), pagefind()];
 
-if (RUN_KEYSTATIC === "true") {
+if (IS_DEV) {
   integrations.push(react());
   integrations.push(keystatic());
 }
@@ -39,10 +38,6 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
-    define: {
-      'import.meta.env.KEYSTATIC_GITHUB_CLIENT_ID': JSON.stringify('Iv23liJA49xpruzfKcet'),
-      'process.env.KEYSTATIC_GITHUB_CLIENT_ID': JSON.stringify('Iv23liJA49xpruzfKcet')
-    }
   },
 
   adapter: cloudflare()
