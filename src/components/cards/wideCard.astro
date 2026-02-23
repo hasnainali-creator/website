@@ -31,8 +31,8 @@ const { article, isLast } = Astro.props;
     <div class="w-full lg:w-60 aspect-video">
       <Image
         src={article.data.cover}
-        alt={article.data.covert_alt
-          ? article.data.covert_alt
+        alt={article.data.coverAlt
+          ? article.data.coverAlt
           : article.data.title}
         layout="constrained"
         loading={"eager"}

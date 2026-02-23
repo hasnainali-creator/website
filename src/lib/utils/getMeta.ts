@@ -34,7 +34,7 @@ export const getMeta = async (
         metaTitle: capitalizeFirstLetter(metaTitle),
         description: metaDescription,
         ogImage: collection.data.cover.src,
-        ogImageAlt: collection.data.covert_alt || collection.data.title,
+        ogImageAlt: collection.data.coverAlt || collection.data.title,
         publishedTime: normalizeDate(collection.data.publishedTime),
         lastModified: remarkPluginFrontmatter.lastModified,
         authors: authors.map((author) => ({
@@ -42,6 +42,18 @@ export const getMeta = async (
           link: `${author.id}`,
         })),
         type: "article",
+        tags: collection.data.tags || [],
+        keywords: collection.data.seo?.metaKeywords || [
+          ...(collection.data.tags || []),
+          ...collection.data.category.map(c => c.discriminant)
+        ].join(", "),
+        breadcrumbs: [
+          {
+            label: capitalizeFirstLetter(collection.data.category[0]?.discriminant || "uncategorized"),
+            url: `/categories/${collection.data.category[0]?.discriminant || "uncategorized"}/1`
+          },
+          { label: collection.data.title, url: `/articles/${collection.id}` }
+        ]
       };
 
       renderCache.set(collectionId, meta);

@@ -20,8 +20,8 @@ const { remarkPluginFrontmatter } = await render(article);
   <div class="aspect-video overflow-hidden rounded-md">
     <Image
       src={article.data.cover}
-      alt={article.data.covert_alt
-        ? article.data.covert_alt
+      alt={article.data.coverAlt
+        ? article.data.coverAlt
         : article.data.title}
       layout="constrained"
       loading={"eager"}

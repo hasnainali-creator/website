@@ -5,7 +5,6 @@ import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categor
 const catProvider = await categoriesHandler.getProvider();
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
-import { categoriesHandler } from "@/lib/handlers/categories";
 
 type Props = {
   article: CollectionEntry<"articles">;
@@ -23,8 +22,8 @@ const { remarkPluginFrontmatter } = await render(article);
   <div class="aspect-video overflow-hidden rounded-md">
     <Image
       src={article.data.cover}
-      alt={article.data.covert_alt
-        ? article.data.covert_alt
+      alt={article.data.coverAlt
+        ? article.data.coverAlt
         : article.data.title}
       loading={index < 3 ? "eager" : "lazy"}
       layout="constrained"

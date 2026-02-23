@@ -19,7 +19,124 @@ const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
   props.type === "article";
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
+import { categoriesHandler } from "@/lib/handlers/categories";
+const catProvider = await categoriesHandler.getProvider();
+const navCategories = catProvider.getNestedCategories();
+
 const OGImage = new URL(meta.ogImage, Astro.url).href;
+
+const schemaOrg: any = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${Astro.site}#website`,
+      "url": Astro.site,
+      "name": SITE.title,
+      "description": SITE.description,
+      "publisher": {
+        "@id": `${Astro.site}#organization`
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": `${Astro.site}#organization`,
+      "name": SITE.title,
+      "url": Astro.site,
+      "logo": {
+        "@type": "ImageObject",
+        "@id": `${Astro.site}#logo`,
+        "url": new URL("favicon-96x96.png", Astro.site).href,
+        "contentUrl": new URL("favicon-96x96.png", Astro.site).href,
+        "width": 96,
+        "height": 96,
+        "caption": SITE.title
+      },
+      "image": {
+        "@id": `${Astro.site}#logo`
+      },
+      "sameAs": [
+        "https://instagram.com/omnysports",
+        "https://twitter.com/omnysports",
+        "https://facebook.com/omnysports",
+        "https://tiktok.com/@omnysports"
+      ]
+    }
+  ]
+};
+
+if (isArticleMeta(meta)) {
+  schemaOrg["@graph"].push({
+    "@type": "NewsArticle",
+    "@id": `${canonicalURL}#article`,
+    "isPartOf": {
+      "@id": `${Astro.site}#website`
+    },
+    "headline": meta.metaTitle,
+    "datePublished": new Date(meta.publishedTime).toISOString(),
+    "dateModified": new Date(meta.lastModified).toISOString(),
+    "description": meta.description,
+    "mainEntityOfPage": {
+      "@id": canonicalURL
+    },
+    "image": {
+        "@type": "ImageObject",
+        "url": OGImage
+    },
+    "author": meta.authors.map((author) => ({
+      "@type": "Person",
+      "name": author.name,
+      "url": new URL(`authors/${author.link}`, Astro.site).href,
+    })),
+    "publisher": {
+      "@id": `${Astro.site}#organization`
+    },
+  });
+}
+
+// SiteNavigationElement for rich sitelinks
+schemaOrg["@graph"].push({
+  "@type": "ItemList",
+  "@id": `${Astro.site}#primary-navigation`,
+  "name": "Primary Navigation",
+  "itemListElement": [
+    {
+      "@type": "SiteNavigationElement",
+      "position": 1,
+      "name": "Home",
+      "url": Astro.site
+    },
+    ...navCategories.map((cat, index) => ({
+      "@type": "SiteNavigationElement",
+      "position": index + 2,
+      "name": cat.data.title,
+      "url": new URL(`categories/${cat.id}/1`, Astro.site).href
+    }))
+  ]
+});
+
+const schemaOrgString = JSON.stringify(schemaOrg);
+
+const breadcrumbSchema: any = meta.breadcrumbs ? {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": Astro.site
+    },
+    ...meta.breadcrumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      "position": index + 2,
+      "name": crumb.label,
+      "item": new URL(crumb.url, Astro.site).href
+    }))
+  ]
+} : null;
+
+const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchema) : null;
 ---
 
 <head>
@@ -27,13 +144,16 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <meta charset={SITE.charset} />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
+  
+  <!-- Essential SEO Robots for Google News -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <meta name="apple-mobile-web-app-title" content="Astro News" />
+  <meta name="apple-mobile-web-app-title" content={SITE.title} />
   <link rel="manifest" href="/site.webmanifest" />
 
   <!-- RSS & Sitemap -->
@@ -52,6 +172,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <title>{meta.title}</title>
   <meta name="title" content={meta.metaTitle} />
   <meta name="description" content={meta.description} />
+  {meta.keywords && <meta name="keywords" content={meta.keywords} />}
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content={meta.type} />
@@ -60,9 +181,11 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <meta property="og:description" content={meta.description} />
   <meta property="og:image" content={OGImage} />
   <meta property="og:image:alt" content={meta.ogImageAlt} />
+  <meta property="og:site_name" content={SITE.title} />
 
   <!-- Twitter -->
-  <meta property="twitter:site" content={Astro.site} />
+  <meta property="twitter:site" content="@OmnySports" />
+  <meta property="twitter:creator" content="@OmnySports" />
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content={canonicalURL} />
   <meta property="twitter:title" content={meta.metaTitle} />
@@ -94,6 +217,29 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       </>
     ) : null
   }
+
+  <script type="application/ld+json" set:html={schemaOrgString} />
+  {breadcrumbSchemaString && <script type="application/ld+json" set:html={breadcrumbSchemaString} />}
+
+  {/* Technical SEO: Pagination Relations */}
+  {meta.prev && <link rel="prev" href={new URL(meta.prev, Astro.site).href} />}
+  {meta.next && <link rel="next" href={new URL(meta.next, Astro.site).href} />}
+
+  {/* Extreme SEO: SearchAction (Homepage only) */}
+  {Astro.url.pathname === "/" && (
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "url": Astro.site,
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${Astro.site}search?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      })}
+    </script>
+  )}
 
   <ClientRouter />
 </head>

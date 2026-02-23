@@ -9,8 +9,9 @@ export const articleSchema = (image: ImageFunction) =>
       isSubHeadline: z.boolean().default(false),
       isFeatured: z.boolean().default(false),
     }),
+    tags: z.array(z.string()).default([]),
     cover: image(),
-    covert_alt: z.string().optional(),
+    coverAlt: z.string().optional(),
     title: z.string().max(60, "Too long, max 60 characters"),
     description: z.string().max(160, "Too long, max 160 characters"),
     category: z.array(z.object({
@@ -22,6 +23,7 @@ export const articleSchema = (image: ImageFunction) =>
     seo: z.object({
       metaTitle: z.string().optional(),
       metaDescription: z.string().optional(),
+      metaKeywords: z.string().optional(),
     }).optional(),
   });
 

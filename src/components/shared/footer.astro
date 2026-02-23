@@ -2,6 +2,10 @@
 import { NAVIGATION_LINKS, SOCIAL_LINKS, OTHER_LINKS } from "@/lib/config";
 import Hashtag from "@/assets/svgs/hashtag.astro";
 import Icon from "../bases/icon.astro";
+import { categoriesHandler } from "@/lib/handlers/categories";
+
+const catProvider = await categoriesHandler.getProvider();
+const allCategories = catProvider.getNestedCategories();
 ---
 
 <footer
@@ -23,9 +27,9 @@ import Icon from "../bases/icon.astro";
         <a href="/" class="link link-hover">Home</a>
         <a href="/articles" class="link link-hover">Articles</a>
         {
-          NAVIGATION_LINKS.map(({ href, text, target }) => (
-            <a href={href} class="link link-hover" target={target ?? "_self"}>
-              {text}
+          allCategories.map((cat) => (
+            <a href={`/categories/${cat.id}/1`} class="link link-hover">
+              {cat.data.title}
             </a>
           ))
         }

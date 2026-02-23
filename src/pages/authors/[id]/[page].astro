@@ -7,6 +7,7 @@ import ListLayout from "@/layouts/list.astro";
 import WideCard from "@/components/cards/wideCard.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import { getEntry } from "astro:content";
+import { getMeta } from "@/lib/utils/getMeta";
 
 export const getStaticPaths = (({ paginate }) => {
   const allAuthors = authorsHandler.allAuthors();
@@ -36,6 +37,16 @@ if (!entry) {
   return Astro.redirect("/404");
 }
 
+const meta = await getMeta(entry);
+meta.title = `${author.data.name}'s Profile - ${SITE.title}`;
+meta.breadcrumbs = [
+  { label: author.data.name, url: `/authors/${author.id}/1` }
+];
+meta.prev = page.url.prev;
+meta.next = page.url.next;
+
+import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
+
 const [HEADER] = entry.data.blocks;
 ---
 
@@ -48,7 +59,11 @@ const [HEADER] = entry.data.blocks;
       title: `${author.data.name}'s ${entry.data.title}`,
     },
   }}
+  meta={meta}
 >
+  <div class="mb-4">
+    <Breadcrumbs crumbs={meta.breadcrumbs} />
+  </div>
   <section class="flex-1">
     <ul class="flex flex-col gap-4">
       {

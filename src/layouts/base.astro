@@ -3,16 +3,21 @@ import { SITE } from "@/lib/config";
 import Head from "@/components/bases/head.astro";
 import Header from "@/components/shared/header.astro";
 import Footer from "@/components/shared/footer.astro";
-import type { Entry } from "@/lib/types";
+import type { Entry, Meta, ArticleMeta } from "@/lib/types";
 import { getMeta } from "@/lib/utils/getMeta";
 
 type Props = {
-  entry: Entry;
+  entry?: Entry;
+  meta?: Meta | ArticleMeta;
 };
 
-const { entry } = Astro.props;
+const { entry, meta: metaProp } = Astro.props;
 
-const meta = await getMeta(entry);
+const meta = metaProp || (entry ? await getMeta(entry) : undefined);
+
+if (!meta) {
+  throw new Error("BaseLayout requires either an entry or a meta prop.");
+}
 ---
 
 <!doctype html>

@@ -10,6 +10,8 @@ import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categor
 import { authorsHandler } from "@/lib/handlers/authors";
 import Share from "@/components/elements/share.astro";
 
+import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
+
 type Props = {
   article: CollectionEntry<"articles">;
   readingTime: string;
@@ -21,6 +23,11 @@ const authors = authorsHandler.getAuthors(article.data.authors);
 const catProvider = await categoriesHandler.getProvider();
 const cats = normalizeCategoryData(article.data.category);
 const category = catProvider.oneCategory(cats[0]?.discriminant || "uncategorized");
+
+const breadcrumbs = [
+  { label: category.data.title, url: `/categories/${category.id}/1` },
+  { label: article.data.title, url: `/articles/${article.id}` }
+];
 ---
 
 <section
@@ -31,7 +38,7 @@ const category = catProvider.oneCategory(cats[0]?.discriminant || "uncategorized
   >
     <Picture
       src={article.data.cover}
-      alt="article"
+      alt={article.data.coverAlt || article.data.title}
       layout="full-width"
       loading={"eager"}
       formats={["avif", "webp"]}
@@ -41,20 +48,21 @@ const category = catProvider.oneCategory(cats[0]?.discriminant || "uncategorized
   <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
     <ResourcesAdd size="16" />
     {cats[0]?.discriminant && (
-      <a href={`/categories/${cats[0].discriminant}`} class="a-01 font-semibold">
+      <a href={`/categories/${cats[0].discriminant}/1`} class="a-01 font-semibold">
         {catProvider.getDisplayPath(cats[0].discriminant)}
       </a>
     )}
   </div>
   <div class="container max-w-5xl">
-    <h1 class="text-3xl lg:text-4xl font-bold text-left text-pretty">
+    <Breadcrumbs crumbs={breadcrumbs} />
+    <h1 class="text-3xl lg:text-4xl font-bold text-left text-pretty mt-1 lg:mt-2">
       {article.data.title}
     </h1>
     <div class="flex flex-col gap-4 items-start mt-2 lg:mt-6 text-sm">
       <div class="text-base-content/70 flex items-center gap-2">
         <span class="hidden lg:flex items-center gap-1">
           <ResourcesAdd size="15" />
-          <a href={`/categories/${category.id}`} class="a-01 font-semibold"
+          <a href={`/categories/${category.id}/1`} class="a-01 font-semibold"
             >{category.data.title}</a
           >
         </span>

@@ -27,12 +27,17 @@ export type Meta = {
   type: "article" | "website";
   ogImage: string;
   ogImageAlt: string;
+  keywords?: string;
+  breadcrumbs?: { label: string; url: string }[];
+  prev?: string;
+  next?: string;
 };
 
 export type ArticleMeta = Meta & {
   publishedTime: string;
   lastModified: string;
   authors: Author[];
+  tags?: string[];
 };
 
 export type Entry = CollectionEntry<"articles" | "views">;

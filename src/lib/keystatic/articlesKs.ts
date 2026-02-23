@@ -12,6 +12,10 @@ export const articlesKs = collection({
       label: "Is this a draft?",
       defaultValue: false,
     }),
+    tags: fields.array(fields.text({ label: "Tag" }), {
+      label: "Hashtags / Keywords",
+      itemLabel: (props) => props.value,
+    }),
     publishing: fields.object({
       isMainHeadline: fields.checkbox({
         label: "Is this a main headline?",
@@ -38,6 +42,11 @@ export const articlesKs = collection({
       label: "Cover Image",
       directory: "src/assets/images/articles",
       publicPath: "@assets/images/articles/",
+    }),
+    coverAlt: fields.text({
+      label: "Cover Image Alt Text (SEO)",
+      description: "Describe the image briefly for SEO and screen readers. Fallbacks to article title.",
+      validation: { length: { max: 120 } },
     }),
     category: fields.array(
       fields.conditional(
@@ -96,6 +105,10 @@ export const articlesKs = collection({
         description: "Limit of 160 characters",
         multiline: true,
         validation: { length: { max: 160 } },
+      }),
+      metaKeywords: fields.text({
+        label: "Meta Keywords",
+        description: "Comma-separated keywords for SEO.",
       }),
     }),
     content: fields.mdx({

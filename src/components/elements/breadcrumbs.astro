@@ -1,0 +1,40 @@
+---
+type Crumb = {
+  label: string;
+  url: string;
+};
+
+type Props = {
+  crumbs: Crumb[];
+};
+
+const { crumbs } = Astro.props;
+---
+
+<nav aria-label="breadcrumb" class="w-full text-sm pb-2">
+  <ol class="flex items-center gap-2 whitespace-nowrap overflow-x-auto opacity-90" itemscope itemtype="https://schema.org/BreadcrumbList">
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="flex items-center">
+      <a href="/" itemprop="item" class="hover:underline flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
+        <span itemprop="name">Home</span>
+      </a>
+      <meta itemprop="position" content="1" />
+    </li>
+    {
+      crumbs.map((crumb, index) => (
+        <li class="flex items-center gap-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span class="opacity-50 select-none">/</span>
+          {index === crumbs.length - 1 ? (
+            <span class="font-semibold opacity-100 truncate max-w-[200px] sm:max-w-md lg:max-w-xl" itemprop="name" aria-current="page">
+              {crumb.label}
+            </span>
+          ) : (
+            <a href={crumb.url} itemprop="item" class="hover:underline opacity-80 hover:opacity-100 transition-opacity">
+              <span itemprop="name">{crumb.label}</span>
+            </a>
+          )}
+          <meta itemprop="position" content={(index + 2).toString()} />
+        </li>
+      ))
+    }
+  </ol>
+</nav>

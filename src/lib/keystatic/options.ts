@@ -1,10 +1,11 @@
 // Function to get categories and subcategories dynamically from the filesystem
 export function getDynamicCategories() {
     try {
-        const categoryFiles = import.meta.glob('/src/content/categories/*/index.json', { eager: true });
+        const categoryFiles = import.meta.glob('../../content/categories/*/index.json', { eager: true });
 
         return Object.entries(categoryFiles).map(([filepath, content]: [string, any]) => {
-            const parts = filepath.split('/');
+            // Support both / and \ slashes for cross-OS compatibility
+            const parts = filepath.split(/[\\\/]/);
             const catId = parts[parts.length - 2];
 
             let title = catId.charAt(0).toUpperCase() + catId.slice(1);

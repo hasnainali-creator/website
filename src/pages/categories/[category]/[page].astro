@@ -8,6 +8,7 @@ import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
 import { getEntry } from "astro:content";
+import { getMeta } from "@/lib/utils/getMeta";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const catProvider = await categoriesHandler.getProvider();
@@ -67,9 +68,22 @@ if (!entry) {
 const catProvider = await categoriesHandler.getProvider();
 const categoryInfo = catProvider.oneCategory(params.category);
 const headerTitle = catProvider.getDisplayPath(categoryInfo.id);
+
+const meta = await getMeta(entry);
+meta.title = `${headerTitle} - ${SITE.title}`;
+meta.breadcrumbs = [
+  { label: headerTitle, url: `/categories/${categoryInfo.id}/1` }
+];
+meta.prev = page.url.prev;
+meta.next = page.url.next;
+
+import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
 ---
 
-<ListLayout header={headerTitle} entry={entry}>
+<ListLayout header={headerTitle} entry={entry} meta={meta}>
+  <div class="mb-4">
+    <Breadcrumbs crumbs={meta.breadcrumbs} />
+  </div>
   <ul class="flex flex-col gap-2 flex-1">
     {
       articles.length > 0 ? (
