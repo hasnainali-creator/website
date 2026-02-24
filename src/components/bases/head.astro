@@ -56,7 +56,13 @@ const schemaOrg: any = {
         "https://twitter.com/omnysports",
         "https://facebook.com/omnysports",
         "https://tiktok.com/@omnysports"
-      ]
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "url": new URL("contact", Astro.site).href,
+        "email": "contact@omnysports.com"
+      }
     }
   ]
 };
@@ -72,6 +78,9 @@ if (isArticleMeta(meta)) {
     "datePublished": new Date(meta.publishedTime).toISOString(),
     "dateModified": new Date(meta.lastModified).toISOString(),
     "description": meta.description,
+    "copyrightYear": new Date(meta.publishedTime).getFullYear(),
+    "isAccessibleForFree": "True",
+    "articleSection": meta.category?.[0] || "Sports News",
     "mainEntityOfPage": {
       "@id": canonicalURL
     },
@@ -140,6 +149,16 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <meta charset={SITE.charset} />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
+  <meta name="google-site-verification" content="W8AjDFoqY6tOae7A9GdmvTwsRrApr2oONLXibkvtmR8" />
+
+  <!-- Google Analytics 4 (GA4) - Performance Optimized Load -->
+  <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-9564CD2F4L"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9564CD2F4L', { 'anonymize_ip': true });
+  </script>
 
   <!-- Speculation Rules API - The "Holy Grail" of 0ms Speed -->
   <script type="speculationrules">
@@ -226,6 +245,10 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
           property="article:modified_time"
           content={new Date(meta.lastModified).toISOString()}
         />
+        {meta.category?.[0] && <meta property="article:section" content={meta.category[0]} />}
+        {meta.keywords && meta.keywords.split(",").map(tag => (
+          <meta property="article:tag" content={tag.trim()} />
+        ))}
 
         {meta.authors.map((author) => (
           <>

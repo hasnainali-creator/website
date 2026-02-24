@@ -32,6 +32,7 @@ function formatHref(href: string) {
     <li class="dropdown dropdown-hover group">
       <a 
         href={formatHref(item.href)}
+        title={`Explore OmnySports ${item.text}`}
         class:list={[
           "flex items-center gap-1 cursor-pointer transition-colors duration-300 relative after:absolute after:-bottom-2 after:left-0 after:h-[1.5px] after:w-full after:transition-all after:duration-300 px-2 py-1",
           isActive(item, currentPath) ? "after:bg-base-content text-primary" : "after:bg-transparent hover:text-primary"
@@ -45,13 +46,13 @@ function formatHref(href: string) {
         class="dropdown-content menu bg-base-100 rounded-box z-[50] w-60 p-2 shadow-xl border border-base-200 mt-2"
       >
         <li>
-          <a href={formatHref(item.href)} class="font-bold border-b border-base-200 rounded-none mb-1 hover:bg-primary hover:text-primary-content">
+          <a href={formatHref(item.href)} title={`View all articles in ${item.text}`} class="font-bold border-b border-base-200 rounded-none mb-1 hover:bg-primary hover:text-primary-content">
             View All {item.text}
           </a>
         </li>
         {children.map((child) => (
           <li>
-            <a href={formatHref(child.id.startsWith('/categories') ? child.id : `/categories/${child.id}`)} class="hover:bg-primary hover:text-primary-content">
+            <a href={formatHref(child.id.startsWith('/categories') ? child.id : `/categories/${child.id}`)} title={`Read news about ${child.data.title}`} class="hover:bg-primary hover:text-primary-content">
               {child.data.title}
             </a>
           </li>
@@ -67,7 +68,7 @@ function formatHref(href: string) {
           : "after:bg-transparent",
       ]}
     >
-      <a href={formatHref(item.href)} aria-label={item.text}>{item.text}</a>
+      <a href={formatHref(item.href)} aria-label={item.text} title={`Read OmnySports ${item.text}`}>{item.text}</a>
     </li>
   )
 }

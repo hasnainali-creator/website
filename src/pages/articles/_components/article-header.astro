@@ -38,7 +38,7 @@ const breadcrumbs = [
   >
     <Picture
       src={article.data.cover}
-      alt={article.data.coverAlt || article.data.title}
+      alt={article.data.coverAlt || `${article.data.title} - OmnySports News`}
       layout="full-width"
       loading={"eager"}
       fetchpriority="high"
