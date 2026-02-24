@@ -6,7 +6,6 @@ import { modifiedTime, readingTime } from "./src/lib/utils/remarks.mjs";
 import { SITE } from "./src/lib/config";
 import keystatic from "@keystatic/astro";
 import preact from "@astrojs/preact";
-import partytown from "@astrojs/partytown";
 import pagefind from "astro-pagefind";
 import compress from "astro-compress";
 import AstroPWA from '@vite-pwa/astro';
@@ -19,12 +18,6 @@ const integrations = [
   mdx(),
   sitemap(),
   pagefind(),
-  partytown({
-    config: {
-      forward: ["dataLayer.push"],
-      debug: false,
-    },
-  }),
   AstroPWA({
     registerType: 'autoUpdate',
     injectRegister: false,
