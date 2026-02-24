@@ -20,6 +20,7 @@ const integrations = [
   pagefind(),
   AstroPWA({
     registerType: 'autoUpdate',
+    injectRegister: false,
     manifest: false, // Using public manifest if exists
     workbox: {
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
