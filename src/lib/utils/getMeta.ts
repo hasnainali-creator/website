@@ -30,8 +30,8 @@ export const getMeta = async (
       const metaDescription = collection.data.seo?.metaDescription || collection.data.description;
 
       const meta: ArticleMeta = {
-        title: `${capitalizeFirstLetter(metaTitle)} - ${SITE.title}`,
-        metaTitle: capitalizeFirstLetter(metaTitle),
+        title: metaTitle.includes(SITE.title) ? metaTitle : `${metaTitle} | ${SITE.title}`,
+        metaTitle: metaTitle,
         description: metaDescription,
         ogImage: collection.data.cover.src,
         ogImageAlt: collection.data.coverAlt || collection.data.title,
@@ -68,16 +68,19 @@ export const getMeta = async (
         return renderCache.get(cacheKey);
       }
 
+      const metaTitle = collection.data.seo?.metaTitle || collection.data.title;
+      const metaDescription = collection.data.seo?.metaDescription || collection.data.description;
+
       const title = collection.id === "categories" && category
-        ? `${capitalizeFirstLetter(category)} - ${SITE.title}`
+        ? `${capitalizeFirstLetter(category)} | ${SITE.title}`
         : collection.id === "home"
-          ? SITE.title
-          : `${capitalizeFirstLetter(collection.data.title)} - ${SITE.title}`;
+          ? (metaTitle === SITE.title ? `${SITE.title} | ${SITE.description.slice(0, 50)}...` : metaTitle)
+          : `${metaTitle} | ${SITE.title}`;
 
       const meta: Meta = {
         title,
-        metaTitle: capitalizeFirstLetter(collection.data.title),
-        description: collection.data.description,
+        metaTitle: metaTitle,
+        description: metaDescription,
         ogImage: defaultImage.src,
         ogImageAlt: SITE.title,
         type: "website",

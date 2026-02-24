@@ -13,6 +13,7 @@ if (!entry) {
 ---
 
 <BaseLayout entry={entry}>
+  <h1 class="sr-only">{entry.data.seo?.metaTitle || "OmnySports - Your Ultimate Sports News and Insights Portal"}</h1>
   <Headlines />
   <LatestNews />
   <Authors />

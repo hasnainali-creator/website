@@ -19,6 +19,23 @@ export const viewsKs = collection({
                 itemLabel: (props) => props.fields?.name.value ?? "Block",
             }
         ),
+        seo: fields.object({
+            metaTitle: fields.text({
+                label: "Meta Title",
+                description: "Limit of 60 characters",
+                validation: { length: { max: 60 } },
+            }),
+            metaDescription: fields.text({
+                label: "Meta Description",
+                description: "Limit of 160 characters",
+                multiline: true,
+                validation: { length: { max: 160 } },
+            }),
+            metaKeywords: fields.text({
+                label: "Meta Keywords",
+                description: "Comma-separated keywords for SEO.",
+            }),
+        }),
         content: fields.mdx({
             label: "Content",
         }),

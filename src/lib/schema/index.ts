@@ -31,6 +31,11 @@ export const viewSchema = z.object({
   title: z.string(),
   description: z.string(),
   blocks: z.array(z.any()),
+  seo: z.object({
+    metaTitle: z.string().optional(),
+    metaDescription: z.string().optional(),
+    metaKeywords: z.string().optional(),
+  }).optional(),
 });
 
 export const categorySchema = z.object({
