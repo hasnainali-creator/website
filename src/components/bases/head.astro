@@ -278,7 +278,12 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-9564CD2F4L', { 'anonymize_ip': true });
+    gtag('config', 'G-9564CD2F4L', { 
+      'anonymize_ip': true,
+      'allow_ad_personalization_signals': false,
+      'allow_enhanced_conversions': false,
+      'restricted_data_processing': true
+    });
   </script>
 
   <!-- Microsoft Clarity (Off-Main-Thread via Partytown) -->

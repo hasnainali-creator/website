@@ -42,6 +42,8 @@ const {
             width={800}
             height={400}
             format="avif"
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchpriority={index === 0 ? "high" : "auto"}
             class="absolute block w-full h-full object-cover"
           />
         </div>
