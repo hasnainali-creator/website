@@ -150,22 +150,17 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   
   <!-- Critical Font Preloads (Highest Priority - At the top to flatten Network Tree) -->
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
+  <link rel="preload" href="/fonts/source-sans-pro-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
   <link rel="preload" href="/fonts/source-sans-pro-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
+  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
   <meta name="google-site-verification" content="W8AjDFoqY6tOae7A9GdmvTwsRrApr2oONLXibkvtmR8" />
 
-  <!-- Google Analytics & Microsoft Clarity - "Ghost Mode" (Lighthouse Suppression) -->
+  <!-- Google Analytics & Microsoft Clarity - "True Ghost Mode" (Strictly Interaction Only) -->
   <script is:inline>
     (function() {
-      // 1. Detect Lighthouse/PageSpeed to preserve 100/100 score
-      const isBot = /Lighthouse|Google-PageSpeed|HeadlessChrome|Chrome-Lighthouse/i.test(navigator.userAgent);
-      if (isBot) {
-        console.log('OmnySports: Performance Audit detected. Analytics suppressed.');
-        return;
-      }
-
       var trackingLoaded = false;
       function loadTracking() {
         if (trackingLoaded) return;
@@ -190,10 +185,9 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
         })(window, document, "clarity", "script", "vmhn9uvepm");
       }
 
-      // Load on interaction or after 10s (Human only)
+      // Load EXCLUSIVELY on human interaction to guarantee 100/100 Lighthouse score
       const triggers = ['mouseover', 'keydown', 'touchstart', 'scroll', 'mousedown'];
       triggers.forEach(event => window.addEventListener(event, loadTracking, { passive: true, once: true }));
-      setTimeout(loadTracking, 10000);
     })();
   </script>
 
