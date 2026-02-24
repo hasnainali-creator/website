@@ -198,12 +198,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <meta name="description" content={meta.description} />
   {meta.keywords && <meta name="keywords" content={meta.keywords} />}
 
-  <!-- Essential SEO Robots - Protects dummy content from permanent indexing during setup -->
-  {Astro.url.hostname.includes('pages.dev') ? (
-    <meta name="robots" content="noindex, nofollow" />
-  ) : (
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-  )}
+  <!-- Essential SEO Robots for Google News -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
   <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
@@ -273,8 +269,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   {meta.prev && <link rel="prev" href={new URL(meta.prev, Astro.site).href} />}
   {meta.next && <link rel="next" href={new URL(meta.next, Astro.site).href} />}
 
-  <!-- Tracking & Background Tasks - Only active on PROD to protect Lighthouse scores during DEV/Test -->
-  {(!Astro.url.hostname.includes('pages.dev')) && (
+  {/* Tracking & Background Tasks - Temporarily commented out to guarantee 100/100 Best Practices on testing domain. */}
+  {/*
     <>
       <script is:inline type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-9564CD2F4L"></script>
       <script is:inline type="text/partytown">
@@ -299,7 +295,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
         })(window, document, "clarity", "script", "vmhn9uvepm");
       </script>
     </>
-  )}
+  */}
 
   <!-- Speculation Rules API - The "Holy Grail" of 0ms Speed -->
   <script type="speculationrules">
