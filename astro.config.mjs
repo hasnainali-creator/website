@@ -5,7 +5,8 @@ import sitemap from "@astrojs/sitemap";
 import { modifiedTime, readingTime } from "./src/lib/utils/remarks.mjs";
 import { SITE } from "./src/lib/config";
 import keystatic from "@keystatic/astro";
-import react from "@astrojs/react";
+import preact from "@astrojs/preact";
+import partytown from "@astrojs/partytown";
 import pagefind from "astro-pagefind";
 import compress from "astro-compress";
 import AstroPWA from '@vite-pwa/astro';
@@ -18,6 +19,11 @@ const integrations = [
   mdx(),
   sitemap(),
   pagefind(),
+  partytown({
+    config: {
+      forward: ["dataLayer.push"],
+    },
+  }),
   AstroPWA({
     registerType: 'autoUpdate',
     injectRegister: false,
@@ -55,7 +61,7 @@ const integrations = [
 ];
 
 if (IS_DEV) {
-  integrations.push(react());
+  integrations.push(preact());
   integrations.push(keystatic());
 }
 
@@ -88,8 +94,9 @@ export default defineConfig({
   integrations,
 
   vite: {
+    // @ts-ignore - Vite version mismatch between Astro core and tailwindcss/vite
     plugins: [
-      tailwindcss(),
+      ...tailwindcss(),
     ],
   },
 

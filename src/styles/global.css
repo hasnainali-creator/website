@@ -1,17 +1,26 @@
 @import "tailwindcss";
+
+/* 
+ * Tailwind CSS v4 Plugins
+ * Note: If you see 'Unknown at-rule' warnings (Yellow Lines), 
+ * it's because the editor doesn't fully support v4 syntax yet.
+ */
 @plugin "@tailwindcss/typography";
+
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark;
   root: ":root";
   logs: false;
 }
 
+/* Tailwind v4 Modern Variants */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* ---------- Custom Font Definitions ---------- */
 /* Inlined in head.astro to eliminate FOUT chain   */
 /* ------------------------------------------- */
 
+/* Tailwind v4 Theme Configuration */
 @theme {
   /* Font Family */
   --font-sans: "Source Sans Pro", ui-sans-serif, system-ui, sans-serif,
@@ -22,10 +31,12 @@
   --breakpoint-2xl: initial;
 }
 
+/* Tailwind v4 Layer System */
 @layer base {
   :root {
     @apply cursor-default;
   }
+
   html {
     @apply h-full text-[16px];
   }
@@ -49,9 +60,11 @@
   time {
     @apply text-sm;
   }
+
   .prose {
     pre {
       code {
+
         span,
         p {
           @apply break-all;
@@ -61,17 +74,21 @@
   }
 }
 
+/* Tailwind v4 Custom Utilities */
 @utility container {
   margin-inline: auto;
   padding-inline: 1rem;
+
   @media (max-width: 640px) {
     max-width: none;
   }
+
   @media (min-width: 1280px) {
     max-width: 1248px;
   }
 }
 
+/* Custom Component Layers */
 @layer components {
   .a-01 {
     @apply hover:underline decoration-primary;

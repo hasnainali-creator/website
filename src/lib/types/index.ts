@@ -38,6 +38,7 @@ export type ArticleMeta = Meta & {
   lastModified: string;
   authors: Author[];
   tags?: string[];
+  category?: string[];
 };
 
 export type Entry = CollectionEntry<"articles" | "views">;
