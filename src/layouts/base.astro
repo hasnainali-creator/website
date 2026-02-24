@@ -23,9 +23,12 @@ if (!meta) {
 <!doctype html>
 <html lang={SITE.locale} dir={SITE.dir}>
   <Head meta={meta} />
-  <script>
-    import { registerSW } from 'virtual:pwa-register'
-    registerSW({ immediate: true })
+  <script is:inline>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      });
+    }
   </script>
   <body class="flex flex-col">
     <Header />

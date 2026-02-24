@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { Image, Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import Divider from "@/components/bases/divider.astro";
@@ -18,7 +18,7 @@ const { remarkPluginFrontmatter } = await render(article);
 
 <article class="group relative isolate flex flex-col-reverse md:flex-col gap-4">
   <div class="aspect-video overflow-hidden rounded-md">
-    <Image
+    <Picture
       src={article.data.cover}
       alt={article.data.coverAlt
         ? article.data.coverAlt
@@ -26,9 +26,11 @@ const { remarkPluginFrontmatter } = await render(article);
       layout="constrained"
       widths={[400, 800, 1200]}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-      format="webp"
+      formats={["avif", "webp"]}
+      fallbackFormat="jpg"
       loading={"eager"}
       fetchpriority="high"
+      class="w-full h-full object-cover"
     />
   </div>
   <div class="flex flex-col gap-2">
@@ -54,4 +56,3 @@ const { remarkPluginFrontmatter } = await render(article);
     </div>
   </div>
 </article>
-

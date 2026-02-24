@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { Image, Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import Divider from "../bases/divider.astro";
@@ -29,7 +29,7 @@ const { article, isLast } = Astro.props;
     ]}
   >
     <div class="w-full lg:w-60 aspect-video">
-      <Image
+      <Picture
         src={article.data.cover}
         alt={article.data.coverAlt
           ? article.data.coverAlt
@@ -38,9 +38,10 @@ const { article, isLast } = Astro.props;
         loading={"eager"}
         widths={[400, 800]}
         sizes="(max-width: 1024px) 100vw, 400px"
-        format="webp"
+        formats={["avif", "webp"]}
+        fallbackFormat="jpg"
         decoding="async"
-        class="aspect-video rounded w-full h-full"
+        class="aspect-video rounded w-full h-full object-cover"
       />
     </div>
     <div class="flex-1 space-y-2">
@@ -72,4 +73,3 @@ const { article, isLast } = Astro.props;
     </div>
   </div>
 </li>
-

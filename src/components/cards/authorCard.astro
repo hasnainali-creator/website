@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { Image, Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 type Props = {
   author: CollectionEntry<"authors">;
@@ -9,13 +9,14 @@ const { author } = Astro.props;
 ---
 
 <li class="group relative isolate mx-auto w-full">
-  <Image
+  <Picture
     class="w-320 aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md"
     src={author.data.avatar}
     alt={author.data.name}
     layout="constrained"
     loading={"lazy"}
-    format="webp"
+    formats={["avif", "webp"]}
+    fallbackFormat="jpg"
     decoding="async"
     width={320}
     height={320}

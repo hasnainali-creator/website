@@ -78,7 +78,7 @@ export default defineConfig({
 
   image: {
     responsiveStyles: true,
-    breakpoints: [640, 1024, 1280],
+    breakpoints: [640, 1024, 1280, 2560],
     service: {
       entrypoint: "astro/assets/services/sharp"
     }
