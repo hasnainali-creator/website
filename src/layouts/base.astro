@@ -23,6 +23,10 @@ if (!meta) {
 <!doctype html>
 <html lang={SITE.locale} dir={SITE.dir}>
   <Head meta={meta} />
+  <script>
+    import { registerSW } from 'virtual:pwa-register'
+    registerSW({ immediate: true })
+  </script>
   <body class="flex flex-col">
     <Header />
     <main class="flex-1">
