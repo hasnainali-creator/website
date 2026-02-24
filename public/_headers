@@ -1,8 +1,14 @@
-# Caching for optimized assets (Astro build output)
+# System Assets (No Cache for stability/updates)
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+/site.webmanifest
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Optimized assets (Astro build output)
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Caching for local fonts
+# Local fonts
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -17,10 +23,12 @@
   # CDN Cache (Edge Caching) - Instructs Cloudflare to cache HTML for 1 hour
   Cache-Control: public, s-maxage=3600, stale-while-revalidate=600
 
+# Exclude sensitive areas from cache
+/admin/*
+  Cache-Control: no-cache, no-store, must-revalidate
+/keystatic/*
+  Cache-Control: no-cache, no-store, must-revalidate
+
 # Caching for favicons
 /favicon*
-  Cache-Control: public, max-age=31536000, immutable
-
-# Caching for manifest
-/site.webmanifest
   Cache-Control: public, max-age=31536000, immutable
