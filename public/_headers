@@ -1,8 +1,6 @@
 # Caching for optimized assets (Astro build output)
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
-  Link: </fonts/source-sans-pro-latin-400-normal.woff2>; rel=preload; as=font; type=font/woff2; crossorigin
-  Link: </fonts/source-sans-pro-latin-700-normal.woff2>; rel=preload; as=font; type=font/woff2; crossorigin
 
 # Caching for local fonts
 /fonts/*
@@ -12,6 +10,7 @@
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload

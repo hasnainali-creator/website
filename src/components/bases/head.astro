@@ -96,6 +96,10 @@ if (isArticleMeta(meta)) {
     "publisher": {
       "@id": `${Astro.site}#organization`
     },
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [".article-headline", ".article-content"]
+    }
   });
 }
 
@@ -148,11 +152,38 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <!-- Global Metadata -->
   <meta charset={SITE.charset} />
   
-  <!-- Critical Font Preloads (Highest Priority - At the top to flatten Network Tree) -->
-  <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
-  <link rel="preload" href="/fonts/source-sans-pro-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
-  <link rel="preload" href="/fonts/source-sans-pro-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
-  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
+  <!-- Font Architecture (Inlined definitions to eliminate CSS-to-Font chain) -->
+  <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+  <style is:inline>
+    @font-face {
+      font-family: "Source Sans Pro";
+      font-style: normal;
+      font-display: swap;
+      font-weight: 400;
+      src: url("/fonts/source-sans-pro-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Source Sans Pro";
+      font-style: normal;
+      font-display: swap;
+      font-weight: 600;
+      src: url("/fonts/source-sans-pro-latin-600-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Source Sans Pro";
+      font-style: normal;
+      font-display: swap;
+      font-weight: 700;
+      src: url("/fonts/source-sans-pro-latin-700-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Source Serif 4 Variable";
+      font-style: normal;
+      font-display: swap;
+      font-weight: 200 900;
+      src: url("/fonts/source-serif-4-latin-wght-normal.woff2") format("woff2-variations");
+    }
+  </style>
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
