@@ -1,5 +1,6 @@
 ---
 // Carousel.astro
+import { Image } from "astro:assets";
 interface Props {
   images: {
     src: string;
@@ -35,9 +36,12 @@ const {
           data-slide
           aria-hidden={index !== 0}
         >
-          <img
+          <Image
             src={image.src || "/placeholder.svg"}
             alt={image.alt}
+            width={800}
+            height={400}
+            format="webp"
             class="absolute block w-full h-full object-cover"
           />
         </div>

@@ -36,6 +36,8 @@ const { article, isLast } = Astro.props;
           : article.data.title}
         layout="constrained"
         loading={"eager"}
+        format="webp"
+        decoding="async"
         class="aspect-video rounded w-full h-full"
       />
     </div>

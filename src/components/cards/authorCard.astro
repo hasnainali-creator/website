@@ -15,6 +15,8 @@ const { author } = Astro.props;
     alt={author.data.name}
     layout="constrained"
     loading={"lazy"}
+    format="webp"
+    decoding="async"
     width={320}
     height={320}
   />

@@ -41,6 +41,7 @@ const breadcrumbs = [
       alt={article.data.coverAlt || article.data.title}
       layout="full-width"
       loading={"eager"}
+      fetchpriority="high"
       formats={["avif", "webp"]}
       class="w-full h-full object-center"
     />

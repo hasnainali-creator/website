@@ -24,7 +24,9 @@ const { remarkPluginFrontmatter } = await render(article);
         ? article.data.coverAlt
         : article.data.title}
       layout="constrained"
+      format="webp"
       loading={"eager"}
+      fetchpriority="high"
     />
   </div>
   <div class="flex flex-col gap-2">

@@ -27,6 +27,8 @@ const { remarkPluginFrontmatter } = await render(article);
         : article.data.title}
       loading={index < 3 ? "eager" : "lazy"}
       layout="constrained"
+      format="webp"
+      decoding="async"
       class="w-full h-full object-cover"
     />
   </div>

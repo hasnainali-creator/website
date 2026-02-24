@@ -1,0 +1,15 @@
+# Caching for optimized assets (Astro build output)
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Caching for local fonts
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Caching for favicons
+/favicon*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Caching for manifest
+/site.webmanifest
+  Cache-Control: public, max-age=31536000, immutable
