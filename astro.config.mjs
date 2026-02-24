@@ -22,6 +22,7 @@ const integrations = [
   partytown({
     config: {
       forward: ["dataLayer.push"],
+      debug: false,
     },
   }),
   AstroPWA({
