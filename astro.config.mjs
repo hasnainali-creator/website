@@ -21,12 +21,13 @@ const integrations = [
   AstroPWA({
     registerType: 'autoUpdate',
     injectRegister: false,
-    manifest: false, // Using public manifest if exists
+    manifest: false,
     workbox: {
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
       runtimeCaching: [
         {
+          // Google Fonts - Cache forever
           urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
           handler: 'CacheFirst',
           options: {
@@ -34,6 +35,42 @@ const integrations = [
             expiration: {
               maxEntries: 10,
               maxAgeSeconds: 60 * 60 * 24 * 365
+            }
+          }
+        },
+        {
+          // HTML pages - Show cached instantly, update in background
+          urlPattern: /\/(?:articles|categories|authors)\/.*/i,
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'pages-cache',
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 7
+            }
+          }
+        },
+        {
+          // Optimized Images - Cache first for speed
+          urlPattern: /\/_astro\/.*\.(?:avif|webp|jpg|jpeg|png|gif)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'images-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30
+            }
+          }
+        },
+        {
+          // Static assets (JS, CSS) - Cache first
+          urlPattern: /\/_astro\/.*\.(?:js|css)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-assets-cache',
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 30
             }
           }
         }
@@ -70,7 +107,7 @@ export default defineConfig({
 
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: 'hover'
+    defaultStrategy: 'tap'
   },
 
   markdown: {
@@ -94,5 +131,7 @@ export default defineConfig({
     ],
   },
 
-  adapter: cloudflare()
+  adapter: cloudflare({
+    imageService: 'compile'
+  })
 });

@@ -1,0 +1,57 @@
+<script is:inline>
+  /**
+   * Smart Prefetch Optimizer
+   * Mobile: Viewport "Stay" based prefetching (Intersection + Duration)
+   * Only targets article links to avoid unnecessary fetching
+   */
+  (function() {
+    if (typeof window === 'undefined') return;
+
+    var intentDelay = 1500;
+    var prefetched = {};
+
+    function doPrefetch(url) {
+      if (!url || prefetched[url]) return;
+      var link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = url;
+      document.head.appendChild(link);
+      prefetched[url] = true;
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var entry = entries[i];
+        var el = entry.target;
+        var url = el.getAttribute('href');
+
+        if (entry.isIntersecting) {
+          // Store timeout ID on the element using dataset
+          el.dataset.pfTimer = setTimeout(function(targetEl, targetUrl) {
+            doPrefetch(targetUrl);
+            observer.unobserve(targetEl);
+          }, intentDelay, el, url);
+        } else {
+          // Cancel if scrolled away
+          if (el.dataset.pfTimer) {
+            clearTimeout(Number(el.dataset.pfTimer));
+            delete el.dataset.pfTimer;
+          }
+        }
+      }
+    }, { threshold: 0.6 });
+
+    function init() {
+      var links = document.querySelectorAll('a[href^="/articles/"], a[href^="/categories/"]');
+      for (var i = 0; i < links.length; i++) {
+        var href = links[i].getAttribute('href');
+        if (href && !prefetched[href]) {
+          observer.observe(links[i]);
+        }
+      }
+    }
+
+    init();
+    document.addEventListener('astro:page-load', init);
+  })();
+</script>

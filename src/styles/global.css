@@ -94,3 +94,29 @@
     @apply hover:underline decoration-primary;
   }
 }
+
+/* Performance: content-visibility for below-the-fold sections */
+@layer base {
+  /* Smooth scrolling (respects user preference) */
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Below-the-fold sections: skip rendering until user scrolls near them */
+  /* This dramatically improves First Contentful Paint (FCP) */
+  section:nth-of-type(n+2) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
+  }
+
+  /* Footer lazy render */
+  footer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 300px;
+  }
+}
