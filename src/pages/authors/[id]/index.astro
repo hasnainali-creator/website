@@ -2,7 +2,7 @@
 import { authorsHandler } from "@/lib/handlers/authors";
 
 export const getStaticPaths = async () => {
-  const authors = authorsHandler.allAuthors();
+  const authors = await authorsHandler.allAuthors();
 
   return authors.map((author) => ({
     params: { id: author.id },

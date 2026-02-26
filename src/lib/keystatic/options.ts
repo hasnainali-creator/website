@@ -1,18 +1,24 @@
-// Function to get categories and subcategories dynamically from the filesystem
+// Function to get categories and subcategories dynamically from the filesystem for Keystatic options
 export function getDynamicCategories() {
     try {
-        const categoryFiles = import.meta.glob('../../content/categories/*/index.json', { eager: true });
+        // We use import.meta.glob to find index.json files in categories
+        // This runs at build time/dev time to populate Keystatic's schema fields
+        const categoryFiles = import.meta.glob('/src/content/categories/*/index.json', { eager: true });
+        const fileKeys = Object.keys(categoryFiles);
 
-        return Object.entries(categoryFiles).map(([filepath, content]: [string, any]) => {
-            // Support both / and \ slashes for cross-OS compatibility
+        return fileKeys.map((filepath) => {
+            const content: any = categoryFiles[filepath];
+            // Extract the category ID from the path (folder name)
             const parts = filepath.split(/[\\\/]/);
             const catId = parts[parts.length - 2];
 
-            let title = catId.charAt(0).toUpperCase() + catId.slice(1);
+            // Default title is the slugified folder name
+            let title = catId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             let subs: string[] = [];
 
             const data = content.default || content;
             if (data) {
+                // If title exists in JSON, use it, otherwise keep the folder name title
                 title = data.title || title;
                 if (Array.isArray(data.subCategories)) {
                     subs = data.subCategories;
@@ -26,7 +32,7 @@ export function getDynamicCategories() {
             };
         });
     } catch (e) {
-        console.error("Error reading categories via glob", e);
+        console.error("Error reading categories via dynamic glob:", e);
         return [];
     }
 }
@@ -35,18 +41,16 @@ const cats = getDynamicCategories();
 
 export const categoryOptions = cats.map(c => ({ label: c.title, value: c.id }));
 
-export const subCategoryFields: Record<string, { label: string; options: readonly { label: string; value: string }[]; defaultValue: string } | null> = Object.fromEntries(
+export const subCategoryFields: Record<string, any> = Object.fromEntries(
     cats.map(c => [
         c.id,
-        c.subCategories.length > 0
-            ? ({
-                label: "Sub-category",
-                options: [
-                    { label: "None", value: "" },
-                    ...c.subCategories.map((s: string) => ({ label: s, value: s }))
-                ],
-                defaultValue: ""
-            })
-            : null
+        {
+            label: "Sub-category",
+            options: [
+                { label: "None", value: "" },
+                ...c.subCategories.map((s: string) => ({ label: s, value: s }))
+            ],
+            defaultValue: ""
+        }
     ])
 );

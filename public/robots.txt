@@ -3,4 +3,5 @@ Allow: /
 Disallow: /admin/
 Disallow: /keystatic/
 
+# Sitemap location
 Sitemap: https://omnysports.pages.dev/sitemap-index.xml

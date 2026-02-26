@@ -31,9 +31,7 @@ const { article, isLast } = Astro.props;
     <div class="w-full lg:w-60 aspect-video">
       <Picture
         src={article.data.cover}
-        alt={article.data.coverAlt
-          ? article.data.coverAlt
-          : article.data.title}
+        alt={article.data.coverAlt || article.data.title || "Sports News Article"}
         layout="constrained"
         loading={"eager"}
         widths={[400, 800]}

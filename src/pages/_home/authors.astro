@@ -3,7 +3,7 @@ import AuthorCard from "@/components/cards/authorCard.astro";
 import HeaderSection from "./headerSection.astro";
 import { authorsHandler } from "@/lib/handlers/authors";
 
-const authors = authorsHandler.limitAurhors(6);
+const authors = await authorsHandler.limitAuthors(6);
 ---
 
 <section class="container py-12" data-pagefind-ignore="all">

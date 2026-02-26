@@ -3,11 +3,11 @@ import { collection, fields } from "@keystatic/core";
 export const authorsKs = collection({
   label: "Authors",
   slugField: "name",
-  path: "src/content/authors/*/",
+  path: "src/content/authors/*/index",
   format: { contentField: "content" },
   entryLayout: "form",
   schema: {
-    name: fields.slug({ name: { label: "Name" } }),
+    name: fields.text({ label: "Name", validation: { isRequired: true } }),
     job: fields.text({ label: "Job" }),
     avatar: fields.image({
       label: "Avatar",

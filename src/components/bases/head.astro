@@ -35,7 +35,7 @@ const schemaOrg: any = {
       }
     },
     {
-      "@type": "Organization",
+      "@type": "NewsMediaOrganization",
       "@id": `${Astro.site}#organization`,
       "name": SITE.title,
       "url": Astro.site,
@@ -74,11 +74,11 @@ if (isArticleMeta(meta)) {
     "isPartOf": {
       "@id": `${Astro.site}#website`
     },
-    "headline": meta.metaTitle,
-    "datePublished": new Date(meta.publishedTime).toISOString(),
-    "dateModified": new Date(meta.lastModified).toISOString(),
-    "description": meta.description,
-    "copyrightYear": new Date(meta.publishedTime).getFullYear(),
+    "headline": meta.metaTitle || meta.title || "News Article",
+    "datePublished": new Date(meta.publishedTime || Date.now()).toISOString(),
+    "dateModified": new Date(meta.lastModified || meta.publishedTime || Date.now()).toISOString(),
+    "description": meta.description || SITE.description,
+    "copyrightYear": new Date(meta.publishedTime || Date.now()).getFullYear(),
     "isAccessibleForFree": "True",
     "articleSection": meta.category?.[0] || "Sports News",
     "mainEntityOfPage": {
@@ -88,7 +88,7 @@ if (isArticleMeta(meta)) {
         "@type": "ImageObject",
         "url": OGImage
     },
-    "author": meta.authors.map((author) => ({
+    "author": (meta.authors && meta.authors.length > 0 ? meta.authors : [{name: SITE.author, link: 'admin'}]).map((author) => ({
       "@type": "Person",
       "name": author.name,
       "url": new URL(`authors/${author.link}`, Astro.site).href,
@@ -118,7 +118,7 @@ schemaOrg["@graph"].push({
     ...navCategories.map((cat, index) => ({
       "@type": "SiteNavigationElement",
       "position": index + 2,
-      "name": cat.data.title,
+      "name": cat.data.title || cat.id,
       "url": new URL(`categories/${cat.id}/1`, Astro.site).href
     }))
   ]
@@ -139,7 +139,7 @@ const breadcrumbSchema: any = meta.breadcrumbs ? {
     ...meta.breadcrumbs.map((crumb, index) => ({
       "@type": "ListItem",
       "position": index + 2,
-      "name": crumb.label,
+      "name": crumb.label || "Page",
       "item": new URL(crumb.url, Astro.site).href
     }))
   ]
@@ -226,6 +226,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <meta property="og:description" content={meta.description} />
   <meta property="og:image" content={OGImage} />
   <meta property="og:image:alt" content={meta.ogImageAlt} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content={SITE.title} />
 
   <!-- Twitter -->

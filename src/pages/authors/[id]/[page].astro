@@ -9,9 +9,9 @@ import Pagination from "@/components/shared/pagination.astro";
 import { getEntry } from "astro:content";
 import { getMeta } from "@/lib/utils/getMeta";
 
-export const getStaticPaths = (({ paginate }) => {
-  const allAuthors = authorsHandler.allAuthors();
-  const allArticles = articlesHandler.allArticles();
+export const getStaticPaths = (async ({ paginate }) => {
+  const allAuthors = await authorsHandler.allAuthors();
+  const allArticles = await articlesHandler.allArticles();
 
   return allAuthors.flatMap((author) => {
     const filteredArticles = allArticles.filter((article) =>
@@ -31,7 +31,7 @@ const pathname = new URL(Astro.request.url).pathname.split("/");
 const basePath = `${pathname[1]}/${pathname[2]}`;
 
 const entry = await getEntry("views", "author");
-const author = authorsHandler.findAuthor(params.id);
+const author = await authorsHandler.findAuthor(params.id!);
 
 if (!entry) {
   return Astro.redirect("/404");

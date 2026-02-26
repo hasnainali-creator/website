@@ -9,7 +9,7 @@ import WideCard from "@/components/cards/wideCard.astro";
 import { articlesHandler } from "@/lib/handlers/articles";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const articles = articlesHandler.allArticles();
+  const articles = await articlesHandler.allArticles();
   return paginate(articles, { pageSize: SITE.postsPerPage });
 }) satisfies GetStaticPaths;
 

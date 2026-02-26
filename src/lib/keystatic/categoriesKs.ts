@@ -3,20 +3,19 @@ import { collection, fields } from "@keystatic/core";
 export const categoriesKs = collection({
   label: "Categories",
   slugField: "title",
-  path: "src/content/categories/*/",
+  path: "src/content/categories/*/index",
   format: { data: "json" },
+  columns: ["sortOrder", "title"],
   schema: {
-    title: fields.slug({
-      name: {
-        label: "Category Name",
-        description: "Enter the name of the category.",
+    title: fields.text({ label: "Category Name", validation: { isRequired: true } }),
+    sortOrder: fields.number({
+      label: "Sort Order",
+      description: "Lower numbers appear first (e.g. 1 to 20). Defaults to 20.",
+      defaultValue: 20,
+      validation: {
+        min: 1,
+        max: 20,
       },
-    }),
-    parent: fields.relationship({
-      label: "Parent Category",
-      description:
-        "Optional. Select a parent to make this a sub-category.",
-      collection: "categories",
     }),
     subCategories: fields.array(
       fields.text({

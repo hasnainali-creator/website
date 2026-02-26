@@ -3,7 +3,7 @@ import NewsCard from "@/components/cards/newsCard.astro";
 import HeaderSection from "./headerSection.astro";
 import { articlesHandler } from "@/lib/handlers/articles";
 
-const articles = articlesHandler.allArticles();
+const articles = await articlesHandler.allArticles();
 ---
 
 <section class="container pt-12 pb-0 space-y-4" data-pagefind-ignore="all">

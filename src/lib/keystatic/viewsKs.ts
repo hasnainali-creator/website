@@ -7,7 +7,7 @@ export const viewsKs = collection({
     format: { contentField: "content" },
     entryLayout: "form",
     schema: {
-        title: fields.slug({ name: { label: "Title" } }),
+        title: fields.text({ label: "Title", validation: { isRequired: true } }),
         description: fields.text({ label: "Description" }),
         blocks: fields.array(
             fields.object({

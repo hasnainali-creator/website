@@ -12,7 +12,7 @@ const { author } = Astro.props;
   <Picture
     class="w-320 aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md"
     src={author.data.avatar}
-    alt={author.data.name}
+    alt={author.data.name || "Author Profile"}
     layout="constrained"
     loading={"lazy"}
     formats={["avif", "webp"]}

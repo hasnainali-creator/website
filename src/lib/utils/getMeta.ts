@@ -24,17 +24,17 @@ export const getMeta = async (
       }
 
       const { remarkPluginFrontmatter } = await render(collection);
-      const authors = authorsHandler.getAuthors(collection.data.authors);
+      const authors = await authorsHandler.getAuthors(collection.data.authors);
 
-      const metaTitle = collection.data.seo?.metaTitle || collection.data.title;
-      const metaDescription = collection.data.seo?.metaDescription || collection.data.description;
+      const metaTitle = collection.data.seo?.metaTitle || collection.data.title || collection.id;
+      const metaDescription = collection.data.seo?.metaDescription || collection.data.description || "";
 
       const meta: ArticleMeta = {
-        title: metaTitle.includes(SITE.title) ? metaTitle : `${metaTitle} | ${SITE.title}`,
-        metaTitle: metaTitle,
+        title: (metaTitle || "").includes(SITE.title) ? (metaTitle || "") : `${metaTitle} | ${SITE.title}`,
+        metaTitle: metaTitle || "",
         description: metaDescription,
-        ogImage: collection.data.cover.src,
-        ogImageAlt: collection.data.coverAlt || collection.data.title,
+        ogImage: collection.data.cover?.src || "",
+        ogImageAlt: collection.data.coverAlt || collection.data.title || "",
         publishedTime: normalizeDate(collection.data.publishedTime),
         lastModified: remarkPluginFrontmatter.lastModified,
         authors: authors.map((author) => ({
@@ -42,17 +42,20 @@ export const getMeta = async (
           link: `${author.id}`,
         })),
         type: "article",
-        tags: collection.data.tags || [],
+        tags: [...new Set(collection.data.tags || [])],
+        category: (collection.data.category || []).map(c => c.discriminant),
         keywords: collection.data.seo?.metaKeywords || [
-          ...(collection.data.tags || []),
-          ...collection.data.category.map(c => c.discriminant)
+          ...new Set([
+            ...(collection.data.tags || []),
+            ...(collection.data.category || []).map(c => c.discriminant)
+          ])
         ].join(", "),
         breadcrumbs: [
           {
-            label: capitalizeFirstLetter(collection.data.category[0]?.discriminant || "uncategorized"),
-            url: `/categories/${collection.data.category[0]?.discriminant || "uncategorized"}/1`
+            label: capitalizeFirstLetter(collection.data.category?.[0]?.discriminant || "uncategorized"),
+            url: `/categories/${collection.data.category?.[0]?.discriminant || "uncategorized"}/1`
           },
-          { label: collection.data.title, url: `/articles/${collection.id}` }
+          { label: collection.data.title || collection.id, url: `/articles/${collection.id}` }
         ]
       };
 

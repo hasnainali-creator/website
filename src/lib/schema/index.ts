@@ -12,7 +12,7 @@ export const articleSchema = (image: ImageFunction) =>
     tags: z.array(z.string()).default([]),
     cover: image(),
     coverAlt: z.string().optional(),
-    title: z.string().max(60, "Too long, max 60 characters"),
+    title: z.string().max(60).optional(),
     description: z.string().max(160, "Too long, max 160 characters"),
     category: z.array(z.object({
       discriminant: z.string(),
@@ -39,9 +39,9 @@ export const viewSchema = z.object({
 });
 
 export const categorySchema = z.object({
-  title: z.string(),
-  parent: z.string().optional(),
-  subCategories: z.array(z.string()).optional(),
+  title: z.string().optional(),
+  sortOrder: z.number().min(1).max(20).default(20),
+  subCategories: z.array(z.string()).default([]),
 });
 
 export const authorSchema = (Image: ImageFunction) =>
@@ -67,3 +67,4 @@ export const authorSchema = (Image: ImageFunction) =>
 //   },
 //   "Avatar image must have width and height between 100 and 2000"
 // ),
+

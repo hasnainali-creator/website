@@ -11,7 +11,7 @@ if (!entry) {
   return Astro.redirect("/404");
 }
 
-const authors = authorsHandler.allAuthors();
+const authors = await authorsHandler.allAuthors();
 
 const [HEADER, ATTENTION] = entry.data.blocks;
 ---

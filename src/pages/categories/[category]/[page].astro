@@ -13,7 +13,7 @@ import { getMeta } from "@/lib/utils/getMeta";
 export const getStaticPaths = (async ({ paginate }) => {
   const catProvider = await categoriesHandler.getProvider();
   const allCategories = catProvider.categories;
-  const allArticles = articlesHandler.allArticles();
+  const allArticles = await articlesHandler.allArticles();
 
   return allCategories.flatMap((category) => {
     const filteredArticles = allArticles.filter(

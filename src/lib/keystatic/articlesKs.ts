@@ -1,12 +1,14 @@
 import { collection, fields } from "@keystatic/core";
 import { categoryOptions, subCategoryFields } from "./options";
 
+
 export const articlesKs = collection({
   label: "Articles",
   slugField: "title",
-  path: "src/content/articles/*/",
+  path: "src/content/articles/*/index",
   format: { contentField: "content" },
   entryLayout: "form",
+  columns: ["publishedTime", "title"],
   schema: {
     isDraft: fields.checkbox({
       label: "Is this a draft?",
@@ -35,9 +37,7 @@ export const articlesKs = collection({
       label: "Description (Summary)",
       validation: { isRequired: true, length: { max: 160 } },
     }),
-    title: fields.slug({
-      name: { label: "Title", validation: { length: { max: 60 } } },
-    }),
+    title: fields.text({ label: "Title", validation: { isRequired: true } }),
     cover: fields.image({
       label: "Cover Image",
       directory: "src/assets/images/articles",
@@ -52,23 +52,19 @@ export const articlesKs = collection({
       fields.conditional(
         fields.select({
           label: "Main Category",
-          options: categoryOptions,
-          defaultValue: categoryOptions[0]?.value || '',
+          options: categoryOptions.length > 0 ? categoryOptions : [{ label: 'None', value: 'none' }],
+          defaultValue: categoryOptions[0]?.value || 'none',
         }),
         Object.fromEntries(
-          categoryOptions.map((opt) => [
+          (categoryOptions.length > 0 ? categoryOptions : [{ label: 'None', value: 'none' }]).map((opt) => [
             opt.value,
-            subCategoryFields[opt.value]
-              ? fields.select(subCategoryFields[opt.value]!)
-              : fields.empty(),
+            fields.select(subCategoryFields[opt.value]),
           ])
         )
       ),
       {
         label: "Categories",
         itemLabel: (props) => {
-          // If the branch has a value (sub-category), it will be in props.value.
-          // For fields.select, it's usually just the string value in Keystatic's preview props.
           const sub = typeof props.value === 'string' ? props.value : (props.value as any)?.value;
           return sub ? `${props.discriminant} > ${sub}` : props.discriminant;
         },
@@ -122,4 +118,3 @@ export const articlesKs = collection({
     }),
   },
 });
-

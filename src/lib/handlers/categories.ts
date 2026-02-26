@@ -1,18 +1,14 @@
 import { getCollection } from "astro:content";
-import { articlesHandler } from "./articles";
-
-const categoriesCollection = await getCollection('categories');
+import { toSlug } from "@/lib/utils";
 
 // Helper to extract parent ID from the parent field
-function getParentId(category: typeof categoriesCollection[number]): string | null {
+function getParentId(category: any): string | null {
     const parent = category.data.parent;
     if (!parent) return null;
     if (typeof parent === 'string') return parent;
     if (typeof parent === 'object' && parent !== null && 'id' in parent) return (parent as any).id;
     return null;
 }
-
-import { toSlug } from "@/lib/utils";
 
 const normalizeId = (id: string) => id.toLowerCase().trim().replace(/\\/g, "/").replace(/\/index$/, "").replace(/\/$/, "");
 
@@ -26,33 +22,50 @@ export function normalizeCategoryData(category: any): CategoryItem[] {
 }
 
 export const categoriesHandler = {
-    // Legacy support or internal use
     getCollection: () => getCollection('categories'),
 
-    // The NEW preferred way: fetch once, use synchronously
     getProvider: async () => {
         const categoriesCollection = await getCollection('categories');
         const allArticles = await getCollection('articles', ({ data }) => data.isDraft !== true);
 
+        // Crucial: Create a safe collection where every category is GUARANTEED to have a title.
+        // If Keystatic omits the title field, we fall back to the folder name (ID).
+        const safeCategories = categoriesCollection.map(c => ({
+            ...c,
+            data: {
+                ...c.data,
+                title: c.data.title || c.id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+            }
+        }));
+
+        // Sort by sortOrder (lowest first), then by title
+        const sortedCategories = [...safeCategories].sort((a, b) => {
+            const orderA = a.data.sortOrder ?? 99;
+            const orderB = b.data.sortOrder ?? 99;
+            if (orderA !== orderB) return orderA - orderB;
+            return a.data.title.localeCompare(b.data.title);
+        });
+
         const helper = {
             oneCategory: (categoryId: string) => {
                 const nid = normalizeId(categoryId);
-                const category = categoriesCollection.find((c) => normalizeId(c.id) === nid);
+                const category = sortedCategories.find((c) => normalizeId(c.id) === nid);
                 if (!category) {
-                    console.warn(`Category "${categoryId}" (normalized: "${nid}") not found. Available normalized IDs: ${categoriesCollection.map(c => normalizeId(c.id)).join(", ")}`);
-                    return categoriesCollection[0] || { id: "uncategorized", data: { title: "Uncategorized" } };
+                    console.warn(`Category "${categoryId}" not found.`);
+                    return sortedCategories[0] || { id: "uncategorized", data: { title: "Uncategorized" } };
                 }
                 return category;
             },
+            allCategories: () => sortedCategories,
             getDisplayPath: (categoryId: string) => {
                 const nid = normalizeId(categoryId);
-                const category = categoriesCollection.find((c) => normalizeId(c.id) === nid);
+                const category = sortedCategories.find((c) => normalizeId(c.id) === nid);
                 if (!category) return "Uncategorized";
 
                 const parentId = getParentId(category);
                 if (parentId) {
                     const pnid = normalizeId(parentId);
-                    const parent = categoriesCollection.find((c) => normalizeId(c.id) === pnid);
+                    const parent = sortedCategories.find((c) => normalizeId(c.id) === pnid);
                     if (parent) {
                         return `${parent.data.title} / ${category.data.title}`;
                     }
@@ -67,7 +80,7 @@ export const categoriesHandler = {
                 while (currentId && !visited.has(normalizeId(currentId))) {
                     const currentNid = normalizeId(currentId);
                     visited.add(currentNid);
-                    const cat = categoriesCollection.find(c => normalizeId(c.id) === currentNid);
+                    const cat = sortedCategories.find(c => normalizeId(c.id) === currentNid);
                     if (!cat) break;
 
                     const parentId = getParentId(cat);
@@ -76,36 +89,25 @@ export const categoriesHandler = {
                 }
                 return false;
             },
-            getLatestArticles: (categoryId: string) => {
+            getLatestArticles: (categoryId: string, limit = 5) => {
                 const catNid = normalizeId(categoryId);
-                return allArticles.filter((article) => {
-                    const cats = normalizeCategoryData(article.data.category);
-                    return cats.some(c => normalizeId(c.discriminant) === catNid);
-                });
+                return allArticles
+                    .filter((article) => {
+                        const cats = normalizeCategoryData(article.data.category);
+                        return cats.some(c => normalizeId(c.discriminant) === catNid);
+                    })
+                    .sort((a, b) => new Date(b.data.publishedTime).getTime() - new Date(a.data.publishedTime).getTime())
+                    .slice(0, limit);
             }
         };
 
         return {
-            categories: categoriesCollection.sort((a, b) => a.data.title.localeCompare(b.data.title)),
+            categories: sortedCategories,
             ...helper,
             getNestedCategories: () => {
-                const topLevel = categoriesCollection
-                    .filter(c => !getParentId(c))
-                    .sort((a, b) => a.data.title.localeCompare(b.data.title));
-
-                return topLevel.map(parent => {
-                    const parentNid = normalizeId(parent.id);
-                    const relationChildren = categoriesCollection
-                        .filter(c => {
-                            const pid = getParentId(c);
-                            return pid && normalizeId(pid) === parentNid;
-                        })
-                        .sort((a, b) => a.data.title.localeCompare(b.data.title));
-
-                    const subs: string[] = (parent.data as any).subCategories || [];
-                    const existingTitles = new Set(relationChildren.map(c => c.data.title));
+                return sortedCategories.map(parent => {
+                    const subs: string[] = parent.data.subCategories || [];
                     const virtualChildren = subs
-                        .filter(name => !existingTitles.has(name))
                         .map(name => ({
                             id: `/categories/${parent.id}/${toSlug(name)}`,
                             data: { title: name },
@@ -114,10 +116,10 @@ export const categoriesHandler = {
 
                     return {
                         ...parent,
-                        children: [...relationChildren, ...virtualChildren],
+                        children: virtualChildren,
                     };
                 });
             }
         };
     }
-}
+};

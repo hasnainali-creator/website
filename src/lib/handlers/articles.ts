@@ -1,19 +1,28 @@
 import { getCollection } from "astro:content";
 
-const articlesCollection = (
-  await getCollection("articles", ({ data }) => {
-    return data.isDraft !== true && new Date(data.publishedTime) <= new Date();
-  })
-).sort((a, b) =>
-  new Date(b.data.publishedTime)
-    .toISOString()
-    .localeCompare(new Date(a.data.publishedTime).toISOString())
-);
+async function getArticles() {
+  const rawArticles = await getCollection("articles", ({ data }) => {
+    return data.isDraft !== true;
+  });
+
+  return rawArticles.map(a => ({
+    ...a,
+    data: {
+      ...a.data,
+      title: a.data.title || a.id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    }
+  })).sort((a, b) =>
+    new Date(b.data.publishedTime)
+      .toISOString()
+      .localeCompare(new Date(a.data.publishedTime).toISOString())
+  );
+}
 
 export const articlesHandler = {
-  allArticles: () => articlesCollection,
+  allArticles: () => getArticles(),
 
-  mainHeadline: () => {
+  mainHeadline: async () => {
+    const articlesCollection = await getArticles();
     const article = articlesCollection.find((article) => {
       if (!article.data.publishing) {
         console.warn(`Article ${article.id} is missing publishing data!`, article.data);
@@ -22,14 +31,14 @@ export const articlesHandler = {
       return article.data.publishing.isMainHeadline === true;
     });
     if (!article) {
-      // Fallback to the latest article if no main headline is set
       return articlesCollection[0];
     }
     return article;
   },
 
-  subHeadlines: () => {
-    const mainHeadline = articlesHandler.mainHeadline();
+  subHeadlines: async () => {
+    const articlesCollection = await getArticles();
+    const mainHeadline = await articlesHandler.mainHeadline();
     const subHeadlines = articlesCollection
       .filter((article) => {
         if (!article.data.publishing) return false;

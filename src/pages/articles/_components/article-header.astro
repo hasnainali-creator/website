@@ -19,7 +19,7 @@ type Props = {
 
 const { article, readingTime } = Astro.props;
 
-const authors = authorsHandler.getAuthors(article.data.authors);
+const authors = await authorsHandler.getAuthors(article.data.authors);
 const catProvider = await categoriesHandler.getProvider();
 const cats = normalizeCategoryData(article.data.category);
 const category = catProvider.oneCategory(cats[0]?.discriminant || "uncategorized");
@@ -34,16 +34,16 @@ const breadcrumbs = [
   class="mb-8 flex flex-col lg:flex-col-reverse border-b border-b-base-300 lg:border-none pb-4 pt-0 lg:pt-6"
 >
   <div
-    class="container px-0 max-w-5xl lg:mt-4 overflow-hidden aspect-[20/9] lg:rounded-md"
+    class="container px-0 max-w-5xl lg:mt-4 overflow-hidden aspect-[20/9] lg:rounded-md bg-base-200"
   >
     <Picture
       src={article.data.cover}
-      alt={article.data.coverAlt || `${article.data.title} - OmnySports News`}
+      alt={article.data.coverAlt || article.data.title || "OmnySports Article Cover"}
       layout="full-width"
-      loading={"eager"}
+      loading="eager"
       fetchpriority="high"
       formats={["avif", "webp"]}
-      class="w-full h-full object-center"
+      class="w-full h-full object-cover"
     />
   </div>
   <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
@@ -105,7 +105,7 @@ const breadcrumbs = [
                     <div class="w-8 rounded-full">
                       <Image
                         src={author.data.avatar}
-                        alt="author"
+                        alt={author.data.name || "Author Avatar"}
                         width={48}
                         height={48}
                         loading={"eager"}
