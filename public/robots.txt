@@ -1,7 +1,6 @@
 User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /keystatic/
+Disallow: /
+
 
 # Sitemap location
 Sitemap: https://omnysports.pages.dev/sitemap-index.xml
