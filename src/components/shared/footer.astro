@@ -2,10 +2,6 @@
 import { SOCIAL_LINKS, OTHER_LINKS } from "@/lib/config";
 import Hashtag from "@/assets/svgs/hashtag.astro";
 import Icon from "../bases/icon.astro";
-import { categoriesHandler } from "@/lib/handlers/categories";
-
-const catProvider = await categoriesHandler.getProvider();
-const allCategories = catProvider.getNestedCategories();
 ---
 
 <footer
@@ -21,19 +17,7 @@ const allCategories = catProvider.getNestedCategories();
           Your source for precision sports coverage.
         </p>
       </aside>
-      <nav
-        class="flex flex-col gap-4 lg:flex-row lg:flex-wrap text-base lg:text-sm font-semibold"
-      >
-        <a href="/" class="link link-hover">Home</a>
-        <a href="/articles" class="link link-hover">Articles</a>
-        {
-          allCategories.map((cat) => (
-            <a href={`/categories/${cat.id}/1`} class="link link-hover">
-              {cat.data.title}
-            </a>
-          ))
-        }
-      </nav>
+      {/* Navigation links (Home, Articles, Categories) removed as per user request */}
     </div>
     <div class="divider w-full h-1"></div>
     <div class="flex flex-col gap-4">

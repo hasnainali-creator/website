@@ -32,19 +32,22 @@ const publishedDate = publishedTime ? new Date(publishedTime) : null;
 const resetDate = new Date(SITE.badgeResetDate || 0);
 
 const SEVENTY_TWO_HOURS_MS = 72 * 60 * 60 * 1000;
-const ONE_HOUR_MS = 60 * 60 * 1000;
+const RECENT_SAVE_THRESHOLD_MS = 15 * 1000; // 15 seconds to distinguish edit from initial publish
 
 // Logic:
 // 1. Must be within 72h window
-// 2. Must be after the global reset date (Phase 9 start)
-// 3. To avoid badge on "New" articles: lastModified must be at least 1 hour after publishedTime
 const isWithinWindow = (Date.now() - lastModifiedDate.getTime()) < SEVENTY_TWO_HOURS_MS;
+
+// 2. Must be after the global reset date
 const isAfterReset = lastModifiedDate.getTime() > resetDate.getTime();
+
+// 3. Must be an actual update (Modified time significantly after Published time)
 const isActuallyUpdated = publishedDate 
-  ? (lastModifiedDate.getTime() - publishedDate.getTime()) > ONE_HOUR_MS
+  ? (lastModifiedDate.getTime() - publishedDate.getTime()) > RECENT_SAVE_THRESHOLD_MS
   : true;
 
-const isRecentlyUpdated = isWithinWindow && isAfterReset && isActuallyUpdated;
+// 4. Manual override: If user ticked "Hide Badge" in Keystatic, it stays hidden permanently for this version.
+const isRecentlyUpdated = !hideBadge && isWithinWindow && isAfterReset && isActuallyUpdated;
 ---
 
 {isRecentlyUpdated && (
