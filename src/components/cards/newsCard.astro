@@ -5,6 +5,7 @@ import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categor
 const catProvider = await categoriesHandler.getProvider();
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
+import UpdatedBadge from "@/components/shared/UpdatedBadge.astro";
 
 type Props = {
   article: CollectionEntry<"articles">;
@@ -19,7 +20,13 @@ const { remarkPluginFrontmatter } = await render(article);
 <article
   class="col-span-1 group max-w-sm mx-auto flex flex-col gap-2 h-full relative isolate"
 >
-  <div class="aspect-video overflow-hidden rounded-md">
+  <div class="aspect-video overflow-hidden rounded-md relative">
+    <UpdatedBadge 
+      lastModified={remarkPluginFrontmatter.lastModified} 
+      publishedTime={article.data.publishedTime}
+      hideBadge={article.data.hideBadge}
+      latest={true} 
+    />
     <Picture
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Latest Sports News"}

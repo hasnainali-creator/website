@@ -5,6 +5,7 @@ import { render } from "astro:content";
 import Divider from "@/components/bases/divider.astro";
 import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
 import { getDateDistance } from "@/lib/utils/date";
+import UpdatedBadge from "@/components/shared/UpdatedBadge.astro";
 const catProvider = await categoriesHandler.getProvider();
 
 type Props = {
@@ -17,7 +18,12 @@ const { remarkPluginFrontmatter } = await render(article);
 ---
 
 <article class="group relative isolate flex flex-col-reverse md:flex-col gap-4">
-  <div class="aspect-video overflow-hidden rounded-md">
+  <div class="aspect-video overflow-hidden rounded-md relative">
+    <UpdatedBadge 
+      lastModified={remarkPluginFrontmatter.lastModified} 
+      publishedTime={article.data.publishedTime}
+      hideBadge={article.data.hideBadge}
+    />
     <Picture
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Main Headline News"}

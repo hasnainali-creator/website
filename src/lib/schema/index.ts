@@ -4,6 +4,7 @@ import type { ImageFunction } from "astro:content";
 export const articleSchema = (image: ImageFunction) =>
   z.object({
     isDraft: z.boolean().default(false),
+    hideBadge: z.boolean().default(false),
     publishing: z.object({
       isMainHeadline: z.boolean().default(false),
       isSubHeadline: z.boolean().default(false),

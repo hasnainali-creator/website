@@ -14,6 +14,11 @@ export const articlesKs = collection({
       label: "Is this a draft?",
       defaultValue: false,
     }),
+    hideBadge: fields.checkbox({
+      label: "Hide Updated Badge?",
+      description: "Manually hide the green 'Updated' badge even if recently modified.",
+      defaultValue: false,
+    }),
     tags: fields.array(fields.text({ label: "Tag" }), {
       label: "Hashtags / Keywords",
       itemLabel: (props) => props.value,

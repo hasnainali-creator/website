@@ -1,10 +1,12 @@
 ---
 import { Image, Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import Divider from "../bases/divider.astro";
 import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
 const catProvider = await categoriesHandler.getProvider();
+import UpdatedBadge from "@/components/shared/UpdatedBadge.astro";
 
 type Props = {
   article: CollectionEntry<"articles">;
@@ -12,6 +14,7 @@ type Props = {
 };
 
 const { article, isLast } = Astro.props;
+const { remarkPluginFrontmatter } = await render(article);
 ---
 
 <li
@@ -28,7 +31,13 @@ const { article, isLast } = Astro.props;
       isLast ? "border-b-0" : "border-b border-base-300",
     ]}
   >
-    <div class="w-full lg:w-60 aspect-video">
+    <div class="w-full lg:w-60 aspect-video relative">
+      <UpdatedBadge 
+        lastModified={remarkPluginFrontmatter.lastModified} 
+        publishedTime={article.data.publishedTime}
+        hideBadge={article.data.hideBadge}
+        corner={true} 
+      />
       <Picture
         src={article.data.cover}
         alt={article.data.coverAlt || article.data.title || "Sports News Article"}

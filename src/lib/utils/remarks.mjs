@@ -25,8 +25,18 @@ function isGitRepo() {
 export function modifiedTime() {
   return (_, file) => {
     const filepath = file.history[0];
-    let lastModified;
+    let gitModified;
+    let fsModified;
 
+    // 1. Get FS time (always available)
+    try {
+      const stats = statSync(filepath);
+      fsModified = stats.mtime;
+    } catch {
+      // Ignored
+    }
+
+    // 2. Get Git time (if available)
     if (isGitAvailable() && isGitRepo()) {
       try {
         const gitResult = execSync(
@@ -37,20 +47,22 @@ export function modifiedTime() {
           .trim();
 
         if (gitResult) {
-          lastModified = gitResult;
+          gitModified = new Date(gitResult);
         }
       } catch {
-        // اگر فایل در Git track نشده باشد، به fallback می‌رویم
+        // Fallback to FS if not in git
       }
     }
 
-    if (!lastModified) {
-      // fallback به سیستم فایل
-      const stats = statSync(filepath);
-      lastModified = stats.mtime.toISOString();
+    // 3. Take the latest of the two
+    let finalModified;
+    if (gitModified && fsModified) {
+      finalModified = gitModified > fsModified ? gitModified : fsModified;
+    } else {
+      finalModified = gitModified || fsModified || new Date();
     }
 
-    file.data.astro.frontmatter.lastModified = lastModified;
+    file.data.astro.frontmatter.lastModified = finalModified.toISOString();
   };
 }
 

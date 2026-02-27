@@ -11,6 +11,7 @@ export const SITE = {
   charset: "UTF-8",
   basePath: "/",
   postsPerPage: 6,
+  badgeResetDate: "2026-02-27T01:20:00Z",
 };
 
 

@@ -1,0 +1,76 @@
+---
+/**
+ * UpdatedBadge.astro
+ * Shows a green ripple badge when an article was modified within 72 hours (3 days).
+ * Pure CSS animation — zero JS, zero performance impact.
+ * Auto-hides after 72 hours without any code change needed.
+ */
+import { SITE } from "@/lib/config";
+
+type Props = {
+  lastModified: string | Date | null | undefined;
+  publishedTime?: string | Date | null | undefined;
+  hideBadge?: boolean;
+  small?: boolean;
+  corner?: boolean;
+  latest?: boolean;
+};
+
+const { 
+  lastModified, 
+  publishedTime,
+  hideBadge = false, 
+  small = false, 
+  corner = false, 
+  latest = false 
+} = Astro.props;
+
+if (!lastModified || hideBadge) return;
+
+const lastModifiedDate = new Date(lastModified);
+const publishedDate = publishedTime ? new Date(publishedTime) : null;
+const resetDate = new Date(SITE.badgeResetDate || 0);
+
+const SEVENTY_TWO_HOURS_MS = 72 * 60 * 60 * 1000;
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
+// Logic:
+// 1. Must be within 72h window
+// 2. Must be after the global reset date (Phase 9 start)
+// 3. To avoid badge on "New" articles: lastModified must be at least 1 hour after publishedTime
+const isWithinWindow = (Date.now() - lastModifiedDate.getTime()) < SEVENTY_TWO_HOURS_MS;
+const isAfterReset = lastModifiedDate.getTime() > resetDate.getTime();
+const isActuallyUpdated = publishedDate 
+  ? (lastModifiedDate.getTime() - publishedDate.getTime()) > ONE_HOUR_MS
+  : true;
+
+const isRecentlyUpdated = isWithinWindow && isAfterReset && isActuallyUpdated;
+---
+
+{isRecentlyUpdated && (
+  <span
+    aria-label="Recently Updated"
+    title="This article was recently updated"
+    class={`absolute z-20 flex items-center justify-center ${small ? 'top-1.5 right-1.5' : corner ? 'top-1.5 right-1.5 scale-[0.83]' : latest ? 'top-2.5 right-2.5 scale-[0.93]' : 'top-3 right-3'}`}
+  >
+    {/* Ripple waves */}
+    <span class={`absolute rounded-full bg-green-400 opacity-20 animate-[ripple_2.5s_ease-out_infinite] ${small ? 'w-1.5 h-1.5' : 'w-2 h-2'}`}></span>
+    {!small && <span class="absolute rounded-full w-2 h-2 bg-green-400 opacity-10 animate-[ripple_2.5s_ease-out_0.8s_infinite]"></span>}
+    {/* Solid green dot */}
+    <span class={`relative rounded-full bg-green-500 ${small ? 'w-1.5 h-1.5' : 'w-2 h-2'}`}></span>
+  </span>
+)}
+
+
+<style>
+  @keyframes ripple {
+    0% {
+      transform: scale(1);
+      opacity: 0.25;
+    }
+    100% {
+      transform: scale(3.5);
+      opacity: 0;
+    }
+  }
+</style>
