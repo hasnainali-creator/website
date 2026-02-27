@@ -201,11 +201,16 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   {meta.keywords && <meta name="keywords" content={meta.keywords} />}
 
   <!-- Essential SEO Robots for Google News -->
-  {Astro.url.pathname === "/" ? (
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-  ) : (
-    <meta name="robots" content="noindex, nofollow" />
-  )}
+  {
+    Astro.url.pathname === "/" || 
+    ["/about", "/privacy", "/terms", "/editorial-policy", "/contact", "/disclaimer", "/dmca", "/cookie-policy", "/advertising-policy"]
+    .some(path => Astro.url.pathname.startsWith(path)) 
+    ? (
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    ) : (
+      <meta name="robots" content="noindex, nofollow" />
+    )
+  }
 
   <!-- Favicons -->
   <!-- 1. Primary Dynamic SVG (For Google Searchbot & Modern Browsers) -->
