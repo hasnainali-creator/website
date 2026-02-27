@@ -50,14 +50,13 @@ const isRecentlyUpdated = isWithinWindow && isAfterReset && isActuallyUpdated;
 {isRecentlyUpdated && (
   <span
     aria-label="Recently Updated"
-    title="This article was recently updated"
     class={`absolute z-20 flex items-center justify-center ${small ? 'top-1.5 right-1.5' : corner ? 'top-1.5 right-1.5 scale-[0.83]' : latest ? 'top-2.5 right-2.5 scale-[0.93]' : 'top-3 right-3'}`}
   >
     {/* Ripple waves */}
     <span class={`absolute rounded-full bg-green-400 opacity-20 animate-[ripple_2.5s_ease-out_infinite] ${small ? 'w-1.5 h-1.5' : 'w-2 h-2'}`}></span>
     {!small && <span class="absolute rounded-full w-2 h-2 bg-green-400 opacity-10 animate-[ripple_2.5s_ease-out_0.8s_infinite]"></span>}
     {/* Solid green dot */}
-    <span class={`relative rounded-full bg-green-500 ${small ? 'w-1.5 h-1.5' : 'w-2 h-2'}`}></span>
+    <span class={`relative rounded-full bg-green-500 animate-pulse ${small ? 'w-1.5 h-1.5' : 'w-2 h-2'}`}></span>
   </span>
 )}
 
