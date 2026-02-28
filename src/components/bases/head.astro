@@ -293,7 +293,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <script type="application/ld+json" set:html={schemaOrgString} />
   {breadcrumbSchemaString && <script type="application/ld+json" set:html={breadcrumbSchemaString} />}
 
-  {/* Extreme SEO: SearchAction & SiteName (Homepage only) */}
+  {/* SiteName & SearchAction Schema */}
   {Astro.url.pathname === "/" && (
     <script type="application/ld+json">
       {JSON.stringify({
@@ -310,6 +310,179 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       })}
     </script>
   )}
+
+  {/* Ultra-Modern Intent-Based Speculation System (Zero-Impact, Zero-Latency) */}
+  <script is:inline>
+    (function() {
+      // 1. Core Safety & Intelligence Checks
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn && (conn.saveData || (conn.effectiveType && conn.effectiveType.includes('2g')))) return;
+
+      // 2. Speculation Rules Manager (Dynamic Injection)
+      const speculationRules = { prerender: [] };
+      const seenUrls = new Set();
+
+      function updateSpeculationRules(url) {
+        if (!url || seenUrls.has(url) || url.includes('/admin') || url.includes('/keystatic')) return;
+        seenUrls.add(url);
+        
+        speculationRules.prerender.push({ source: "list", urls: [url] });
+        let script = document.getElementById('speculation-rules-dynamic');
+        if (!script) {
+          script = document.createElement('script');
+          script.id = 'speculation-rules-dynamic';
+          script.type = 'speculationrules';
+          document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(speculationRules);
+      }
+
+      // 3. Execution Guard: Only run logic when browser is idle
+      const runWhenIdle = (task) => {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(task, { timeout: 2000 });
+        } else {
+          setTimeout(task, 100);
+        }
+      };
+
+      // 4. Desktop: Cursor Velocity & Trajectory Prediction
+      let lastMousePos = { x: 0, y: 0, t: 0 };
+      document.addEventListener('mousemove', (e) => {
+        const now = Date.now();
+        const dt = now - lastMousePos.t;
+        if (dt < 50) return; // Throttling for performance
+
+        const dx = e.clientX - lastMousePos.x;
+        const dy = e.clientY - lastMousePos.y;
+        const velocity = Math.sqrt(dx*dx + dy*dy) / dt;
+
+        // If mouse is moving with "Intent Velocity" (Not too fast, not too slow)
+        if (velocity > 0.2 && velocity < 1.5) {
+          runWhenIdle(() => {
+            const el = document.elementFromPoint(e.clientX + (dx * 5), e.clientY + (dy * 5));
+            const link = el?.closest('a');
+            if (link && link.origin === window.location.origin) {
+              updateSpeculationRules(link.href);
+            }
+          });
+        }
+        lastMousePos = { x: e.clientX, y: e.clientY, t: now };
+      }, { passive: true });
+
+      // 5. Mobile: Scroll Deceleration & Focus Analysis
+      if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // If article stays in the "Hot Zone" (center) for 4s = Reading Intent
+              entry.target._intentTimer = setTimeout(() => {
+                const link = entry.target.querySelector('a');
+                if (link) updateSpeculationRules(link.href);
+              }, 4000);
+            } else {
+              clearTimeout(entry.target._intentTimer);
+            }
+          });
+        }, { threshold: 0.6 }); // 60% visibility required
+
+        runWhenIdle(() => {
+          document.querySelectorAll('article, .news-card, .article-card').forEach(el => obs.observe(el));
+        });
+      }
+    })();
+  </script>
+
+  {/* Automatic Omni-Trigger for Push Notifications & Firebase Sync */}
+  <script>
+    import { initializeApp } from "firebase/app";
+    import { getMessaging, getToken, onMessage } from "firebase/messaging";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyACPRRVLI7JX_ZNNo3No9G32LY2VSTBo30",
+      authDomain: "omnysports-push-notifications.firebaseapp.com",
+      projectId: "omnysports-push-notifications",
+      storageBucket: "omnysports-push-notifications.firebasestorage.app",
+      messagingSenderId: "881503140155",
+      appId: "1:881503140155:web:e82d724251869f8fd39f1e",
+      measurementId: "G-1J7VTX8EYJ"
+    };
+
+    const VAPID_KEY = "BG8cX_gQzHwiMR-IC3b0oxTkFSFTrYGs_LtC1eEoSki5Ir6QZ6sCCSyem4_T6ZMEG7WAgwRi4W2UCkAjdV4w9s0";
+
+    const initPushSystem = () => {
+      // 1. Initial State Checks
+      if (!('Notification' in window) || navigator.userAgent.includes('bot')) return;
+
+      if (Notification.permission === 'default') {
+        // 2. Persistence Logic (Cooldown of 12 hours if ignored)
+        const PROMPT_COOLDOWN = 12 * 60 * 60 * 1000;
+        const lastPrompt = localStorage.getItem('omny_push_prompt_last');
+        const now = Date.now();
+        
+        if (!lastPrompt || (now - parseInt(lastPrompt) >= PROMPT_COOLDOWN)) {
+          // 3. The Trigger Function
+          const triggerPushPrompt = () => {
+            localStorage.setItem('omny_push_prompt_last', Date.now().toString());
+
+            document.removeEventListener('click', triggerPushPrompt);
+            document.removeEventListener('touchstart', triggerPushPrompt);
+
+            Notification.requestPermission().then(permission => {
+              if (permission === 'granted') {
+                registerFirebaseToken();
+              }
+            });
+          };
+
+          // 4. Global Event Capture (CAPTURES THE VERY FIRST INTERACTION)
+          document.addEventListener('click', triggerPushPrompt, { once: true, passive: true });
+          document.addEventListener('touchstart', triggerPushPrompt, { once: true, passive: true });
+        }
+      } else if (Notification.permission === 'granted') {
+         // Auto-renew or fetch token if already granted
+         registerFirebaseToken();
+      }
+    };
+
+    async function registerFirebaseToken() {
+      try {
+        const app = initializeApp(firebaseConfig);
+        const messaging = getMessaging(app);
+        
+        const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+        if (currentToken) {
+          console.log('[Firebase] Push Token generated:', currentToken);
+          
+          // Send to backend to subscribe to 'all' topic
+          fetch('/api/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: currentToken })
+          })
+          .then(res => res.json())
+          .then(data => console.log('[Firebase] Topic Subscribed:', data))
+          .catch(err => console.error('[Firebase] Topic error:', err));
+        } else {
+          console.warn('[Firebase] No instance token available.');
+        }
+
+        onMessage(messaging, (payload) => {
+          console.log('[Firebase] Foreground Message: ', payload);
+        });
+
+      } catch (err) {
+        console.error('[Firebase] Token Error: ', err);
+      }
+    }
+
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPushSystem);
+    } else {
+      initPushSystem();
+    }
+  </script>
 
   <ClientRouter />
 </head>
