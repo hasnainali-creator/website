@@ -1,14 +1,5 @@
 User-agent: *
-Allow: /
-Allow: /favicon.svg
-Allow: /favicon-light.svg
-Allow: /favicon-dark.svg
-Allow: /favicon-96x96.png
+Allow: /$
+Allow: /*favicon*
 Allow: /apple-touch-icon.png
-Disallow: /admin
-Disallow: /keystatic
-Crawl-delay: 10
-
-
-# Sitemap location
-Sitemap: https://omnysports.pages.dev/sitemap-index.xml
+Disallow: /

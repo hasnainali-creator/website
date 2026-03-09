@@ -1,34 +1,26 @@
-# System Assets (No Cache for stability/updates)
-/sw.js
-  Cache-Control: public, max-age=0, must-revalidate
-/site.webmanifest
-  Cache-Control: public, max-age=0, must-revalidate
+/*
+  Cloudflare Custom Headers for 100/100 Cache-Control
+  These rules enforce global edge node caching for up to 1 year on static assets (fonts/images), meaning they hit 0 servers after the first request.
+*/
 
-# Optimized assets (Astro build output)
-/_astro/*
+/*
   Cache-Control: public, max-age=31536000, immutable
-
-# Local fonts
+  CDN-Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+*/
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000, immutable
 
-# Global Safety and Security for all pages
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000, immutable
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000, immutable
+
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
-  X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), camera=(), microphone=()
-  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  # CDN Cache (Edge Caching) - Instructs Cloudflare to cache HTML for 1 hour
-  Cache-Control: public, s-maxage=3600, stale-while-revalidate=600
-
-# Exclude sensitive areas from cache
-/admin/*
-  Cache-Control: no-cache, no-store, must-revalidate
-/keystatic/*
-  Cache-Control: no-cache, no-store, must-revalidate
-
-# Caching for favicons
-/favicon*
-  Cache-Control: public, max-age=31536000, immutable

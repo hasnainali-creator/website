@@ -2,23 +2,23 @@ import { collection, fields } from "@keystatic/core";
 
 export const viewsKs = collection({
     label: "Pages (Views)",
-    slugField: "title",
+    slugField: "slug",
     path: "src/content/views/*",
     format: { contentField: "content" },
     entryLayout: "form",
     schema: {
-        title: fields.text({ label: "Title", validation: { isRequired: true } }),
-        description: fields.text({ label: "Description" }),
-        blocks: fields.array(
-            fields.object({
-                name: fields.text({ label: "Block Name" }),
-                title: fields.text({ label: "Block Title" }),
-            }),
-            {
-                label: "Blocks (for header/meta)",
-                itemLabel: (props) => props.fields?.name.value ?? "Block",
-            }
-        ),
+        slug: fields.text({
+            label: "URL Slug / File Name",
+            description: "Customize the URL path. Example: 'privacy-policy' or 'terms'.",
+            validation: { isRequired: true },
+        }),
+        title: fields.text({ label: "Page Title", validation: { isRequired: true } }),
+        sortOrder: fields.integer({
+            label: "Sort Order",
+            description: "Number between 1 and 20 to dictate order in footer links.",
+            defaultValue: 20,
+            validation: { isRequired: true, min: 1, max: 20 },
+        }),
         seo: fields.object({
             metaTitle: fields.text({
                 label: "Meta Title",

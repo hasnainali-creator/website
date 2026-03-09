@@ -5,7 +5,6 @@ import Divider from "../bases/divider.astro";
 import { render } from "astro:content";
 import { getDateDistance } from "@/lib/utils/date";
 import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
-import UpdatedBadge from "@/components/shared/UpdatedBadge.astro";
 const catProvider = await categoriesHandler.getProvider();
 
 type Props = {
@@ -53,12 +52,6 @@ const { remarkPluginFrontmatter } = await render(article);
   <div
     class="overflow-hidden w-[165px] h-[125px] md:w-[120px] md:h-full shrink-0 relative"
   >
-    <UpdatedBadge 
-      lastModified={remarkPluginFrontmatter.lastModified} 
-      publishedTime={article.data.publishedTime}
-      hideBadge={article.data.hideBadge}
-      small={true} 
-    />
     <Image
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Sub Headline News"}

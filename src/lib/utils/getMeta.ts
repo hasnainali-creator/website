@@ -71,8 +71,8 @@ export const getMeta = async (
         return renderCache.get(cacheKey);
       }
 
-      const metaTitle = collection.data.seo?.metaTitle || collection.data.title;
-      const metaDescription = collection.data.seo?.metaDescription || collection.data.description;
+      const metaTitle = collection.data.seo?.metaTitle || collection.data.title || capitalizeFirstLetter(collection.id);
+      const metaDescription = collection.data.seo?.metaDescription || collection.data.description || "";
 
       const title = collection.id === "categories" && category
         ? `${capitalizeFirstLetter(category)} | ${SITE.title}`

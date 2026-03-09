@@ -4,7 +4,7 @@ import type { ImageFunction } from "astro:content";
 export const articleSchema = (image: ImageFunction) =>
   z.object({
     isDraft: z.boolean().default(false),
-    hideBadge: z.boolean().default(false),
+
     publishing: z.object({
       isMainHeadline: z.boolean().default(false),
       isSubHeadline: z.boolean().default(false),
@@ -29,9 +29,9 @@ export const articleSchema = (image: ImageFunction) =>
   });
 
 export const viewSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  blocks: z.array(z.any()),
+  slug: z.string().optional(),
+  title: z.string().optional(),
+  sortOrder: z.number().min(1).max(20).default(20),
   seo: z.object({
     metaTitle: z.string().optional(),
     metaDescription: z.string().optional(),

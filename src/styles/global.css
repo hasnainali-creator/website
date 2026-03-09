@@ -27,8 +27,21 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: "Source Serif 4 Variable", ui-serif, Georgia, Cambria,
     "Times New Roman", Times, serif;
+  --font-article-sans: "Inter", var(--font-sans);
 
   --breakpoint-2xl: initial;
+}
+
+/* Apply Premium Sans-Serif Typography strictly to Article Content */
+.prose {
+  --font-sans: var(--font-article-sans);
+  font-family: var(--font-article-sans) !important;
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6, .article-headline) {
+  font-family: var(--font-article-sans) !important;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 /* Tailwind v4 Layer System */
@@ -97,10 +110,12 @@
 
 /* Performance: content-visibility for below-the-fold sections */
 @layer base {
+
   /* Smooth scrolling (respects user preference) */
   html {
     scroll-behavior: smooth;
   }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

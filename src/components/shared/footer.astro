@@ -1,7 +1,23 @@
 ---
-import { SOCIAL_LINKS, OTHER_LINKS } from "@/lib/config";
+import { SOCIAL_LINKS } from "@/lib/config";
 import Hashtag from "@/assets/svgs/hashtag.astro";
 import Icon from "../bases/icon.astro";
+import { getCollection } from "astro:content";
+
+const views = await getCollection("views");
+const excludedIds = ["home", "error404", "articles", "authors", "author", "categories", "search"];
+const OTHER_LINKS = [
+  ...views
+    .filter(view => !excludedIds.includes(view.id))
+    .sort((a, b) => (a.data.sortOrder || 20) - (b.data.sortOrder || 20))
+    .map(view => ({
+      href: `/${view.data.slug || view.id}`,
+      text: view.data.title || view.id,
+      target: "_self"
+    })),
+  { href: "https://omnysports.pages.dev/rss.xml", text: "RSS", target: "_blank" },
+  { href: "https://omnysports.pages.dev/sitemap-index.xml", text: "Sitemap", target: "_blank" }
+];
 ---
 
 <footer

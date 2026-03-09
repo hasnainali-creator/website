@@ -6,7 +6,6 @@ import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import Divider from "../bases/divider.astro";
 import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
 const catProvider = await categoriesHandler.getProvider();
-import UpdatedBadge from "@/components/shared/UpdatedBadge.astro";
 
 type Props = {
   article: CollectionEntry<"articles">;
@@ -32,12 +31,6 @@ const { remarkPluginFrontmatter } = await render(article);
     ]}
   >
     <div class="w-full lg:w-60 aspect-video relative">
-      <UpdatedBadge 
-        lastModified={remarkPluginFrontmatter.lastModified} 
-        publishedTime={article.data.publishedTime}
-        hideBadge={article.data.hideBadge}
-        corner={true} 
-      />
       <Picture
         src={article.data.cover}
         alt={article.data.coverAlt || article.data.title || "Sports News Article"}

@@ -84,18 +84,27 @@ if (isArticleMeta(meta)) {
     "mainEntityOfPage": {
       "@id": canonicalURL
     },
-    "image": {
-        "@type": "ImageObject",
-        "url": OGImage
-    },
+    "image": [
+        OGImage
+    ],
     "author": (meta.authors && meta.authors.length > 0 ? meta.authors : [{name: SITE.author, link: 'admin'}]).map((author) => ({
       "@type": "Person",
       "name": author.name,
       "url": new URL(`authors/${author.link}`, Astro.site).href,
     })),
     "publisher": {
-      "@id": `${Astro.site}#organization`
+      "@type": "Organization",
+      "name": SITE.title,
+      "logo": {
+        "@type": "ImageObject",
+        "url": new URL("favicon-96x96.png", Astro.site).href
+      }
     },
+    "inLanguage": SITE.locale,
+    "about": meta.keywords ? meta.keywords.split(",").map((kw: string) => ({
+      "@type": "Thing",
+      "name": kw.trim()
+    })) : undefined,
     "speakable": {
       "@type": "SpeakableSpecification",
       "cssSelector": [".article-headline", ".article-content"]
@@ -187,12 +196,20 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
     }
   </style>
 
+  <!-- Premium Article Body Font (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
   <meta name="google-site-verification" content="W8AjDFoqY6tOae7A9GdmvTwsRrApr2oONLXibkvtmR8" />
 
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalURL} />
+
+  <!-- LCP Image Preload for Articles (Google Core Web Vitals Zenith) -->
+  {isArticleMeta(meta) && <link rel="preload" as="image" href={OGImage} fetchpriority="high" />}
 
   <!-- Page Metadata -->
   <title>{meta.title}</title>
@@ -202,10 +219,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
 
   <!-- Essential SEO Robots for Google News -->
   {
-    Astro.url.pathname === "/" || 
-    ["/about", "/privacy", "/terms", "/editorial-policy", "/contact", "/disclaimer", "/dmca", "/cookie-policy", "/advertising-policy"]
-    .some(path => Astro.url.pathname.startsWith(path)) 
-    ? (
+    Astro.url.pathname === "/" ? (
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     ) : (
       <meta name="robots" content="noindex, nofollow" />
@@ -245,6 +259,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content={SITE.title} />
+  <meta property="og:locale" content={SITE.locale} />
 
   <!-- Twitter -->
   <meta property="twitter:site" content="@OmnySports" />
@@ -313,24 +328,35 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
 
   {/* Ultra-Modern Intent-Based Speculation System (Zero-Impact, Zero-Latency) */}
   <script is:inline>
+    // @ts-nocheck
     (function() {
       // 1. Core Safety & Intelligence Checks
-      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      /** @type {any} */
+      const nav = navigator;
+      // @ts-ignore
+      const conn = nav.connection || nav.mozConnection || nav.webkitConnection;
       if (conn && (conn.saveData || (conn.effectiveType && conn.effectiveType.includes('2g')))) return;
 
       // 2. Speculation Rules Manager (Dynamic Injection)
+      /** @type {{ prerender: { source: string, urls: string[] }[] }} */
       const speculationRules = { prerender: [] };
+      /** @type {Set<string>} */
       const seenUrls = new Set();
 
+      /** @param {string} url */
+      // @ts-ignore
       function updateSpeculationRules(url) {
         if (!url || seenUrls.has(url) || url.includes('/admin') || url.includes('/keystatic')) return;
         seenUrls.add(url);
         
+        // @ts-ignore
         speculationRules.prerender.push({ source: "list", urls: [url] });
+        /** @type {any} */
         let script = document.getElementById('speculation-rules-dynamic');
         if (!script) {
           script = document.createElement('script');
           script.id = 'speculation-rules-dynamic';
+          // @ts-ignore
           script.type = 'speculationrules';
           document.head.appendChild(script);
         }
@@ -338,6 +364,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       }
 
       // 3. Execution Guard: Only run logic when browser is idle
+      /** @param {Function} task */
+      // @ts-ignore
       const runWhenIdle = (task) => {
         if ('requestIdleCallback' in window) {
           requestIdleCallback(task, { timeout: 2000 });
@@ -376,12 +404,18 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
           entries.forEach(entry => {
             if (entry.isIntersecting) {
               // If article stays in the "Hot Zone" (center) for 4s = Reading Intent
-              entry.target._intentTimer = setTimeout(() => {
-                const link = entry.target.querySelector('a');
+              /** @type {any} */
+              const targetNode = entry.target;
+              // @ts-ignore
+              targetNode._intentTimer = setTimeout(() => {
+                const link = targetNode.querySelector('a');
                 if (link) updateSpeculationRules(link.href);
               }, 4000);
             } else {
-              clearTimeout(entry.target._intentTimer);
+              /** @type {any} */
+              const targetNode = entry.target;
+              // @ts-ignore
+              clearTimeout(targetNode._intentTimer);
             }
           });
         }, { threshold: 0.6 }); // 60% visibility required
@@ -393,8 +427,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
     })();
   </script>
 
-  {/* Automatic Omni-Trigger for Push Notifications & Firebase Sync */}
-  <script>
+  {/* Partytown Web Worker Offloading for Firebase */}
+  <script type="text/partytown">
     import { initializeApp } from "firebase/app";
     import { getMessaging, getToken, onMessage } from "firebase/messaging";
 

@@ -1,0 +1,36 @@
+---
+import BaseLayout from "@/layouts/base.astro";
+import { getEntry } from "astro:content";
+import ContactForm from "@/components/sections/ContactForm";
+
+const entry = await getEntry("views", "contact");
+
+if (!entry) {
+  return Astro.redirect("/404");
+}
+---
+
+<BaseLayout entry={entry}>
+  <section class="container py-12 md:py-16 max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">{entry.data.title || "Contact Us"}</h1>
+      <p class="text-base-content/60 max-w-2xl mx-auto text-lg">
+        Whether you have a news tip, a business proposal, or just want to say hello — we'd love to hear from you. Choose your purpose below and our team will route your message to the right department.
+      </p>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-base-200/30 border border-base-300 rounded-xl p-6 md:p-10">
+      <ContactForm client:load />
+    </div>
+
+    <!-- Trust Footer -->
+    <div class="mt-10 text-center">
+      <p class="text-xs text-base-content/40 uppercase tracking-widest mb-2">Your Privacy Matters</p>
+      <p class="text-sm text-base-content/50 max-w-lg mx-auto">
+        We never share your personal information with third parties. Your message is delivered directly to our editorial team via encrypted channels. Read our <a href="/privacy" class="underline hover:text-primary">Privacy Policy</a> for details.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

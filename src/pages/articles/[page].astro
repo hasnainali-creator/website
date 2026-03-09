@@ -24,10 +24,10 @@ if (!entry) {
   return Astro.redirect("/404");
 }
 
-const [HEADER] = entry.data.blocks;
+const headerTitle = entry.data.title || "Articles";
 ---
 
-<ListLayout header={HEADER.title} entry={entry}>
+<ListLayout header={headerTitle} entry={entry}>
   <section class="flex-1">
     <ul class="flex flex-col gap-4">
       {

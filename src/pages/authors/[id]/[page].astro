@@ -47,11 +47,11 @@ meta.next = page.url.next;
 
 import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
 
-const [HEADER] = entry.data.blocks;
+const headerTitle = entry.data.title || "Articles";
 ---
 
 <ListLayout
-  header={`${author.data.name}'s ${HEADER.title}`}
+  header={`${author.data.name}'s ${headerTitle}`}
   entry={{
     ...entry,
     data: {
