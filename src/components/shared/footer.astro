@@ -63,7 +63,12 @@ const OTHER_LINKS = [
       <nav class="flex flex-wrap gap-4 text-xs mt-2">
         {
           OTHER_LINKS.map(({ href, text, target }) => (
-            <a href={href} class="link link-hover" target={target ?? "_self"}>
+            <a
+              href={href}
+              class="link link-hover"
+              target={target ?? "_self"}
+              rel={target === "_blank" ? "noopener noreferrer" : undefined}
+            >
               {text}
             </a>
           ))

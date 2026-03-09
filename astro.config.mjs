@@ -59,7 +59,7 @@ export default defineConfig({
   base: SITE.basePath,
 
   build: {
-    // inlineStylesheets: 'always',
+    inlineStylesheets: 'always',
   },
 
   markdown: {
