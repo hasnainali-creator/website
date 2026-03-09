@@ -21,31 +21,31 @@ const integrations = [
   sitemap(), 
   react(), 
   pagefind(),
-  partytown({
-    config: {
-      forward: ["dataLayer.push", "firebase"],
-    },
-  }),
-  astroPWA({
-    registerType: 'autoUpdate',
-    workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,avif,webp,jpg}'],
-      maximumFileSizeToCacheInBytes: 10000000,
-    },
-    manifest: {
-      name: SITE.title,
-      short_name: SITE.title,
-      description: SITE.description,
-      theme_color: '#ffffff',
-      icons: [
-        {
-          src: 'favicon-96x96.png',
-          sizes: '96x96',
-          type: 'image/png'
-        }
-      ]
-    }
-  })
+  // partytown({
+  //   config: {
+  //     forward: ["dataLayer.push", "firebase"],
+  //   },
+  // }),
+  // astroPWA({
+  //   registerType: 'autoUpdate',
+  //   workbox: {
+  //     globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,avif,webp,jpg}'],
+  //     maximumFileSizeToCacheInBytes: 10000000,
+  //   },
+  //   manifest: {
+  //     name: SITE.title,
+  //     short_name: SITE.title,
+  //     description: SITE.description,
+  //     theme_color: '#ffffff',
+  //     icons: [
+  //       {
+  //         src: 'favicon-96x96.png',
+  //         sizes: '96x96',
+  //         type: 'image/png'
+  //       }
+  //     ]
+  //   }
+  // })
 ];
 
 if (RUN_KEYSTATIC === "true") {
@@ -59,7 +59,7 @@ export default defineConfig({
   base: SITE.basePath,
 
   build: {
-    inlineStylesheets: 'always',
+    // inlineStylesheets: 'always',
   },
 
   markdown: {
