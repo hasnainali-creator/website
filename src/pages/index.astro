@@ -4,18 +4,15 @@ import { getEntry } from "astro:content";
 import Headlines from "@/pages/_home/headlines.astro";
 import LatestNews from "@/pages/_home/latestNews.astro";
 import Authors from "@/pages/_home/authors.astro";
-import { articlesHandler } from "@/lib/handlers/articles";
 
 const entry = await getEntry("views", "home");
-const mainHeadlineArticle = await articlesHandler.mainHeadline();
-const preloadImage = mainHeadlineArticle?.data.cover.src;
 
 if (!entry) {
   return Astro.redirect("/404");
 }
 ---
 
-<BaseLayout entry={entry} preloadImage={preloadImage}>
+<BaseLayout entry={entry}>
   <h1 class="sr-only">{entry.data.seo?.metaTitle || "OmnySports - Your Ultimate Sports News and Insights Portal"}</h1>
   <Headlines />
   <LatestNews />

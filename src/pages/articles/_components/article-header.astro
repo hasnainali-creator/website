@@ -25,8 +25,8 @@ const cats = normalizeCategoryData(article.data.category);
 const category = catProvider.oneCategory(cats[0]?.discriminant || "uncategorized");
 
 const breadcrumbs = [
-  { label: category.data.title, url: `/categories/${category.id}/1` },
-  { label: article.data.title, url: `/articles/${article.id}` }
+  { label: category.data.title || "Category", url: `/categories/${category.id}/1` },
+  { label: article.data.title || "Article", url: `/articles/${article.id}` }
 ];
 ---
 
@@ -121,7 +121,7 @@ const breadcrumbs = [
             ))
           }
         </div>
-        <Share text={article.data.title} />
+        <Share text={article.data.title || ""} />
       </div>
     </div>
   </div>

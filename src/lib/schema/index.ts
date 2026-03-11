@@ -31,6 +31,7 @@ export const articleSchema = (image: ImageFunction) =>
 export const viewSchema = z.object({
   slug: z.string().optional(),
   title: z.string().optional(),
+  description: z.string().optional(),
   sortOrder: z.number().min(1).max(20).default(20),
   seo: z.object({
     metaTitle: z.string().optional(),
