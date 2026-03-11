@@ -10,9 +10,10 @@ import { getMeta } from "@/lib/utils/getMeta";
 type Props = {
   entry?: Entry;
   meta?: Meta | ArticleMeta;
+  preloadImage?: string;
 };
 
-const { entry, meta: metaProp } = Astro.props;
+const { entry, meta: metaProp, preloadImage } = Astro.props;
 
 const meta = metaProp || (entry ? await getMeta(entry) : undefined);
 
@@ -23,7 +24,7 @@ if (!meta) {
 
 <!doctype html>
 <html lang={SITE.locale} dir={SITE.dir}>
-  <Head meta={meta} />
+  <Head meta={meta} preloadImage={preloadImage} />
   <body class="flex flex-col">
     <Header />
     <main class="flex-1">
