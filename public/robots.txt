@@ -1,5 +1,8 @@
 User-agent: *
-Allow: /$
-Allow: /*favicon*
-Allow: /apple-touch-icon.png
 Disallow: /
+
+# 🛡️ TOTAL SEO SHIELDING ACTIVE
+# This file is set to block all crawlers while the site is in "Cleanup & Dummy Removal" phase.
+# To allow indexing, set SHIELD_MODE: false in src/lib/config/index.ts and update this file.
+
+Sitemap: https://omnysports.pages.dev/sitemap-index.xml

@@ -1,5 +1,5 @@
 ---
-import { Picture } from "astro:assets";
+import { getImage } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import Divider from "@/components/bases/divider.astro";
@@ -14,19 +14,28 @@ type Props = {
 const { article } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
+
+// Generate EXACT SAME hash as the index.astro preload tag (Zero Resource Delay)
+const syncHeroImage = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 600,
+  quality: 80,
+});
 ---
 
 <article class="group relative isolate flex flex-col-reverse md:flex-col gap-4">
-  <div class="aspect-video overflow-hidden rounded-md relative">
-    <Picture
-      src={article.data.cover}
+  <div class="overflow-hidden rounded-md relative" style="aspect-ratio: 16 / 9; width: 100%;">
+    <img
+      src={syncHeroImage.src}
       alt={article.data.coverAlt || article.data.title || "Main Headline News"}
-      width={800}
-      height={450}
-      loading={"eager"}
+      width={syncHeroImage.attributes.width || 800}
+      height={syncHeroImage.attributes.height || 450}
+      loading="eager"
       fetchpriority="high"
+      decoding="sync"
       class="w-full h-full object-cover"
-      style={{ aspectRatio: "16/9" }}
+      style="aspect-ratio: 16 / 9;"
     />
   </div>
   <div class="flex flex-col gap-2">

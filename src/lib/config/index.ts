@@ -11,6 +11,7 @@ export const SITE = {
   charset: "UTF-8",
   basePath: "/",
   postsPerPage: 6,
+  SHIELD_MODE: true, // MASTER SWITCH: Set to false when ready to launch real content
 };
 
 

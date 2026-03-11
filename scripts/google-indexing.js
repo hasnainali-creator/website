@@ -8,6 +8,20 @@ import https from 'node:https';
  * Automates Google Indexing by notifying Google of new/updated URLs from the sitemap.
  */
 async function indexSitemap() {
+    // SHIELD MODE CHECK: Do not index ANYTHING if shield is active!
+    try {
+        const configPath = path.resolve(process.cwd(), 'src/lib/config/index.ts');
+        if (fs.existsSync(configPath)) {
+            const configContent = fs.readFileSync(configPath, 'utf8');
+            if (configContent.includes('SHIELD_MODE: true')) {
+                console.log('🛡️ SHIELD MODE ACTIVE: Skipping Google Indexing requests.');
+                return;
+            }
+        }
+    } catch (err) {
+        console.warn('⚠️ Could not check SHIELD_MODE, proceeding with caution.');
+    }
+
     let keyContent = process.env.GOOGLE_INDEXING_KEY;
 
     // Load from .env manually just in case user adds it locally in the future
