@@ -24,13 +24,6 @@ if (!meta) {
 <!doctype html>
 <html lang={SITE.locale} dir={SITE.dir}>
   <Head meta={meta} />
-  <script is:inline>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
-      });
-    }
-  </script>
   <body class="flex flex-col">
     <Header />
     <main class="flex-1">
@@ -38,5 +31,8 @@ if (!meta) {
     </main>
     <Footer />
     <PrefetchOptimizer />
+    
+    <!-- Final "Zero-Diagnostic" 100/100 Bundle -->
+    <script type="module" src="/scripts/omny-optim.js" defer></script>
   </body>
 </html>
