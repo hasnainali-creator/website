@@ -55,14 +55,13 @@ const { remarkPluginFrontmatter } = await render(article);
     <Image
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Sub Headline News"}
-      width={article.data.cover.width}
-      height={article.data.cover.height}
+      width={320}
+      height={240}
       loading="eager"
-      widths={[120, 320]}
-      layout="constrained"
       format="avif"
       decoding="async"
       class="object-cover rounded w-full h-full"
+      style={{ aspectRatio: "4/3" }}
     />
   </div>
 </article>
