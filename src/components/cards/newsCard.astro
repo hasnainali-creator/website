@@ -23,6 +23,8 @@ const { remarkPluginFrontmatter } = await render(article);
     <Picture
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Latest Sports News"}
+      width={article.data.cover.width}
+      height={article.data.cover.height}
       loading={index < 3 ? "eager" : "lazy"}
       layout="constrained"
       widths={[400, 800]}

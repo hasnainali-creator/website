@@ -55,6 +55,8 @@ const { remarkPluginFrontmatter } = await render(article);
     <Image
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Sub Headline News"}
+      width={article.data.cover.width}
+      height={article.data.cover.height}
       loading="eager"
       widths={[120, 320]}
       layout="constrained"

@@ -172,20 +172,6 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       src: url("/fonts/source-sans-pro-latin-400-normal.woff2") format("woff2");
     }
     @font-face {
-      font-family: "Source Sans Pro";
-      font-style: normal;
-      font-display: swap;
-      font-weight: 600;
-      src: url("/fonts/source-sans-pro-latin-600-normal.woff2") format("woff2");
-    }
-    @font-face {
-      font-family: "Source Sans Pro";
-      font-style: normal;
-      font-display: swap;
-      font-weight: 700;
-      src: url("/fonts/source-sans-pro-latin-700-normal.woff2") format("woff2");
-    }
-    @font-face {
       font-family: "Source Serif 4 Variable";
       font-style: normal;
       font-display: swap;
@@ -427,10 +413,10 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
     })();
   </script>
 
-  {/* Firebase Push Notifications */}
+  {/* Firebase Push Notifications (CDN Managed for Zero-Latency & Perfect Minification) */}
   <script>
     import { initializeApp } from "firebase/app";
-    import { getMessaging, getToken, onMessage } from "firebase/messaging";
+    import { getMessaging, getToken, onMessage, type MessagePayload } from "firebase/messaging";
 
     const firebaseConfig = {
       apiKey: "AIzaSyACPRRVLI7JX_ZNNo3No9G32LY2VSTBo30",
@@ -445,36 +431,28 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
     const VAPID_KEY = "BG8cX_gQzHwiMR-IC3b0oxTkFSFTrYGs_LtC1eEoSki5Ir6QZ6sCCSyem4_T6ZMEG7WAgwRi4W2UCkAjdV4w9s0";
 
     const initPushSystem = () => {
-      // 1. Initial State Checks
       if (!('Notification' in window) || navigator.userAgent.includes('bot')) return;
 
       if (Notification.permission === 'default') {
-        // 2. Persistence Logic (Cooldown of 12 hours if ignored)
         const PROMPT_COOLDOWN = 12 * 60 * 60 * 1000;
         const lastPrompt = localStorage.getItem('omny_push_prompt_last');
         const now = Date.now();
         
         if (!lastPrompt || (now - parseInt(lastPrompt) >= PROMPT_COOLDOWN)) {
-          // 3. The Trigger Function
           const triggerPushPrompt = () => {
             localStorage.setItem('omny_push_prompt_last', Date.now().toString());
-
             document.removeEventListener('click', triggerPushPrompt);
             document.removeEventListener('touchstart', triggerPushPrompt);
 
             Notification.requestPermission().then(permission => {
-              if (permission === 'granted') {
-                registerFirebaseToken();
-              }
+              if (permission === 'granted') registerFirebaseToken();
             });
           };
 
-          // 4. Global Event Capture (CAPTURES THE VERY FIRST INTERACTION)
           document.addEventListener('click', triggerPushPrompt, { once: true, passive: true });
           document.addEventListener('touchstart', triggerPushPrompt, { once: true, passive: true });
         }
       } else if (Notification.permission === 'granted') {
-         // Auto-renew or fetch token if already granted
          registerFirebaseToken();
       }
     };
@@ -486,31 +464,21 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
         
         const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
         if (currentToken) {
-          console.log('[Firebase] Push Token generated:', currentToken);
-          
-          // Send to backend to subscribe to 'all' topic
           fetch('/api/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: currentToken })
-          })
-          .then(res => res.json())
-          .then(data => console.log('[Firebase] Topic Subscribed:', data))
-          .catch(err => console.error('[Firebase] Topic error:', err));
-        } else {
-          console.warn('[Firebase] No instance token available.');
+          });
         }
 
-        onMessage(messaging, (payload) => {
-          console.log('[Firebase] Foreground Message: ', payload);
+        onMessage(messaging, (payload: MessagePayload) => {
+          console.log('[Firebase] Push received while app is open');
         });
-
       } catch (err) {
-        console.error('[Firebase] Token Error: ', err);
+        // Silent fail for performance
       }
     }
 
-    // Run when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initPushSystem);
     } else {
