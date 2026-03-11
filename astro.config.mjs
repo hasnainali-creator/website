@@ -11,7 +11,6 @@ import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
 
 import cloudflare from "@astrojs/cloudflare";
-import partytown from "@astrojs/partytown";
 import astroPWA from "@vite-pwa/astro";
 
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
@@ -21,11 +20,6 @@ const integrations = [
   sitemap(), 
   react(), 
   pagefind(),
-  partytown({
-    config: {
-      forward: ["dataLayer.push", "firebase"],
-    },
-  }),
   astroPWA({
     registerType: 'autoUpdate',
     workbox: {

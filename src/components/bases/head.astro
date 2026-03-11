@@ -194,12 +194,16 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       font-weight: 200 900;
       src: url("/fonts/source-serif-4-latin-wght-normal.woff2") format("woff2-variations");
     }
+    @font-face {
+      font-family: "Inter";
+      font-style: normal;
+      font-display: swap;
+      font-weight: 100 900;
+      src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+    }
   </style>
 
-  <!-- Premium Article Body Font (Inter) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
@@ -427,7 +431,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
     })();
   </script>
 
-  {/* Automatic Omni-Trigger for Push Notifications & Firebase Sync */}
+  {/* Firebase Push Notifications */}
   <script>
     import { initializeApp } from "firebase/app";
     import { getMessaging, getToken, onMessage } from "firebase/messaging";
