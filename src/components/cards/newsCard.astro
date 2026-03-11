@@ -26,13 +26,14 @@ const { remarkPluginFrontmatter } = await render(article);
       width={article.data.cover.width}
       height={article.data.cover.height}
       loading={index < 3 ? "eager" : "lazy"}
-      layout="constrained"
-      widths={[400, 800]}
-      sizes="(max-width: 768px) 100vw, 400px"
+      width={400}
+      height={225}
+      loading={index < 3 ? "eager" : "lazy"}
       formats={["avif", "webp"]}
       fallbackFormat="jpg"
       decoding="async"
       class="w-full h-full object-cover"
+      style={{ aspectRatio: "16/9" }}
     />
   </div>
   <div class="flex flex-col flex-1">

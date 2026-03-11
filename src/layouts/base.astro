@@ -32,7 +32,74 @@ if (!meta) {
     <Footer />
     <PrefetchOptimizer />
     
-    <!-- Final "Zero-Diagnostic" 100/100 Bundle -->
-    <script type="module" src="/scripts/omny-optim.js" defer></script>
+    {/* Final "Zenith" Optimization Block (Zero-Latency, Zero-Chain) */}
+    <script is:inline>
+      (function() {
+        // 1. Speculation Rules (Inlined for 0 Network Requests)
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (!(conn && (conn.saveData || (conn.effectiveType && conn.effectiveType.includes('2g'))))) {
+          const rules = { prerender: [{ source: "list", urls: [] }] };
+          const seen = new Set();
+          function addRule(url) {
+            if (!url || seen.has(url) || url.includes('/admin') || url.includes('/keystatic')) return;
+            seen.add(url);
+            rules.prerender[0].urls.push(url);
+            let s = document.getElementById('spec-rules');
+            if (!s) {
+              s = document.createElement('script');
+              s.id = 'spec-rules';
+              s.type = 'speculationrules';
+              document.head.appendChild(s);
+            }
+            s.textContent = JSON.stringify(rules);
+          }
+          const idle = (fn) => window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 100);
+          document.addEventListener('mousemove', (e) => {
+             // Logic simplified for inline performance
+             if (Math.random() > 0.1) return; // Sample movement
+             const link = document.elementFromPoint(e.clientX, e.clientY)?.closest('a');
+             if (link && link.origin === window.location.origin) addRule(link.href);
+          }, { passive: true });
+        }
+
+        // 2. Zenith Push Strategy (Lazy Load Firebase)
+        const initPush = async () => {
+          if (!('Notification' in window) || navigator.userAgent.includes('bot')) return;
+          
+          const loadFirebase = async () => {
+            // Only dynamic import when actually needed
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+            const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
+            
+            const config = {
+              apiKey: "AIzaSyACPRRVLI7JX_ZNNo3No9G32LY2VSTBo30",
+              authDomain: "omnysports-push-notifications.firebaseapp.com",
+              projectId: "omnysports-push-notifications",
+              storageBucket: "omnysports-push-notifications.firebasestorage.app",
+              messagingSenderId: "881503140155",
+              appId: "1:881503140155:web:e82d724251869f8fd39f1e"
+            };
+
+            const app = initializeApp(config);
+            const msg = getMessaging(app);
+            const token = await getToken(msg, { vapidKey: "BG8cX_gQzHwiMR-IC3b0oxTkFSFTrYGs_LtC1eEoSki5Ir6QZ6sCCSyem4_T6ZMEG7WAgwRi4W2UCkAjdV4w9s0" });
+            if (token) fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+          };
+
+          if (Notification.permission === 'granted') {
+            loadFirebase();
+          } else if (Notification.permission === 'default') {
+            const trigger = () => {
+              document.removeEventListener('click', trigger);
+              Notification.requestPermission().then(p => { if (p === 'granted') loadFirebase(); });
+            };
+            document.addEventListener('click', trigger, { once: true });
+          }
+        };
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPush);
+        else initPush();
+      })();
+    </script>
   </body>
 </html>
