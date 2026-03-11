@@ -5,9 +5,9 @@
   "packageManager": "bun@1.3.10",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "[ -f ./node_modules/.bin/astro ] || bun install",
+    "prebuild": "node ./scripts/generate-favicons.js",
     "build": "astro build",
-    "postbuild": "node ./scripts/google-indexing.js",
+    "postbuild": "node ./scripts/google-indexing.js && node ./scripts/force-google-update.js",
     "preview": "astro preview",
     "astro": "astro"
   },

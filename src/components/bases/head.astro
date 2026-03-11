@@ -215,17 +215,18 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   )}
 
   <!-- Favicons -->
-  <!-- 1. Primary Dynamic SVG (For Google Searchbot & Modern Browsers) -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20" sizes="any" />
+  <!-- 1. Modern Dynamic SVG (Theme-Aware Tab & Search) -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=21" sizes="any" />
   
-  <!-- 2. Explicit Theme Links (For 100% Perfect Browser Tab Switching) -->
-  <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: light)" href="/favicon-light.svg?v=20" />
-  <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: dark)" href="/favicon-dark.svg?v=20" />
+  <!-- 2. Theme-Specific Explicit Overrides (For 100% Reliability) -->
+  <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: light)" href="/favicon-light.svg?v=21" />
+  <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: dark)" href="/favicon-dark.svg?v=21" />
   
-  <!-- 3. High-Res PNG Fallback -->
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png?v=20" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20" />
+  <!-- 3. Professional PNG Fallback (High-Res for Google Search results) -->
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png?v=21" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=21" />
   <meta name="apple-mobile-web-app-title" content={SITE.title} />
+  <meta name="application-name" content={SITE.title} />
   <link rel="manifest" href="/site.webmanifest" />
 
   <!-- RSS & Sitemap -->
@@ -296,22 +297,20 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <script type="application/ld+json" set:html={schemaOrgString} />
   {breadcrumbSchemaString && <script type="application/ld+json" set:html={breadcrumbSchemaString} />}
 
-  {/* SiteName & SearchAction Schema */}
-  {Astro.url.pathname === "/" && (
-    <script type="application/ld+json">
-      {JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "OmnySports",
-        "alternateName": ["Omny Sports", "OmnySports Global"],
-        "url": Astro.site,
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": `${Astro.site}search?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
-      })}
-    </script>
-  )}
+  {/* SiteName & SearchAction Schema (Active on all pages to strengthen Site Name signals) */}
+  <script type="application/ld+json">
+    {JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "OmnySports",
+      "alternateName": ["Omny Sports", "OmnySports Global"],
+      "url": Astro.site,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": `${Astro.site}search?q={search_term_string}`,
+        "query-input": "required name=search_term_string"
+      }
+    })}
+  </script>
 
 </head>
