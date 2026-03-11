@@ -161,10 +161,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <!-- Global Metadata -->
   <meta charset={SITE.charset} />
   
-  <!-- Font Architecture (Inlined definitions to eliminate CSS-to-Font chain) -->
+  <!-- Font Architecture: Only preload critical above-fold fonts -->
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/source-sans-pro-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/source-sans-pro-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <style is:inline>
     @font-face {
       font-family: "Source Sans Pro";
@@ -202,8 +200,6 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
     }
   </style>
-
-  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />

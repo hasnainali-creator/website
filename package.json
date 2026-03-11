@@ -49,6 +49,7 @@
     "@types/react-dom": "^19.1.7",
     "@vite-pwa/astro": "^1.2.0",
     "daisyui": "^5.0.50",
+    "terser": "^5.46.0",
     "typescript": "^5.7.3",
     "vite-plugin-pwa": "^1.2.0"
   },
