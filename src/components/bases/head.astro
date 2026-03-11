@@ -5,9 +5,10 @@ import type { ArticleMeta, Meta } from "@/lib/types";
 
 type Props = {
   meta: Meta | ArticleMeta;
+  preloadImage?: string;
 };
 
-const { meta } = Astro.props;
+const { meta, preloadImage } = Astro.props;
 
 // Type guard to check if props is ArticleMeta
 const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
@@ -197,6 +198,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
 
   <!-- LCP Image Preload for Articles (Google Core Web Vitals Zenith) -->
   {isArticleMeta(meta) && <link rel="preload" as="image" href={OGImage} fetchpriority="high" />}
+  {preloadImage && <link rel="preload" as="image" href={preloadImage} type="image/avif" fetchpriority="high" />}
 
   <!-- Page Metadata -->
   <title>{meta.title}</title>

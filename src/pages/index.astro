@@ -4,15 +4,29 @@ import { getEntry } from "astro:content";
 import Headlines from "@/pages/_home/headlines.astro";
 import LatestNews from "@/pages/_home/latestNews.astro";
 import Authors from "@/pages/_home/authors.astro";
+import { articlesHandler } from "@/lib/handlers/articles";
+import { getImage } from "astro:assets";
 
 const entry = await getEntry("views", "home");
+const mainHeadlineArticle = await articlesHandler.mainHeadline();
+
+let preloadImage;
+if (mainHeadlineArticle?.data?.cover) {
+  const optimizedImage = await getImage({
+    src: mainHeadlineArticle.data.cover,
+    format: "avif",
+    width: 600, // Optimized for ultra-fast mobile/desktop paint
+    quality: 80,
+  });
+  preloadImage = optimizedImage.src;
+}
 
 if (!entry) {
   return Astro.redirect("/404");
 }
 ---
 
-<BaseLayout entry={entry}>
+<BaseLayout entry={entry} preloadImage={preloadImage}>
   <h1 class="sr-only">{entry.data.seo?.metaTitle || "OmnySports - Your Ultimate Sports News and Insights Portal"}</h1>
   <Headlines />
   <LatestNews />
