@@ -1,5 +1,4 @@
 ---
-import "@/styles/global.css";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 
@@ -294,23 +293,9 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   {meta.next && <link rel="next" href={new URL(meta.next, Astro.site).href} />}
 
 
-  <script type="application/ld+json" set:html={schemaOrgString} />
-  {breadcrumbSchemaString && <script type="application/ld+json" set:html={breadcrumbSchemaString} />}
+  <script type="application/ld+json" set:html={schemaOrgString}></script>
+  {breadcrumbSchemaString && <script type="application/ld+json" set:html={breadcrumbSchemaString}></script>}
 
-  {/* SiteName & SearchAction Schema (Active on all pages to strengthen Site Name signals) */}
-  <script type="application/ld+json">
-    {JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "OmnySports",
-      "alternateName": ["Omny Sports", "OmnySports Global"],
-      "url": Astro.site,
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": `${Astro.site}search?q={search_term_string}`,
-        "query-input": "required name=search_term_string"
-      }
-    })}
-  </script>
+  {/* SiteName signals are already included in the schemaOrg graph at the top */}
 
 </head>

@@ -53,7 +53,7 @@ export default defineConfig({
   base: SITE.basePath,
 
   build: {
-    inlineStylesheets: 'always',
+    // Standard build settings
   },
 
   markdown: {

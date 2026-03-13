@@ -1,8 +1,10 @@
 ---
+import "../styles/global.css";
 import { SITE } from "@/lib/config";
 import Head from "@/components/bases/head.astro";
 import Header from "@/components/shared/header.astro";
 import Footer from "@/components/shared/footer.astro";
+import NotificationManager from "@/components/shared/NotificationManager.astro";
 import type { Entry, Meta, ArticleMeta } from "@/lib/types";
 import { getMeta } from "@/lib/utils/getMeta";
 
@@ -30,5 +32,6 @@ if (!meta) {
       <slot />
     </main>
     <Footer />
+    <NotificationManager />
   </body>
 </html>

@@ -1,0 +1,100 @@
+---
+/**
+ * NotificationManager.astro
+ * Handles Service Worker registration, "first click" notification trigger,
+ * and Firebase Cloud Messaging (FCM) subscription.
+ */
+---
+
+<script is:inline>
+  /**
+   * INTELLIGENT PUSH TRIGGER
+   * 1. Only runs for new users (checked via localStorage).
+   * 2. Only triggers on the very first interaction.
+   * 3. Non-blocking: allows the click (like opening an article) to proceed.
+   */
+  (function() {
+    const PROMPT_KEY = 'omny_push_prompt_v3';
+
+    // Helper to start the flow
+    const triggerPush = () => {
+      if (localStorage.getItem(PROMPT_KEY)) return;
+
+      if (window.Notification && Notification.permission === 'default') {
+        console.log('%c[PushSystem] New user detected. Triggering one-time popup...', 'color: #8b5cf6; font-weight: bold;');
+        
+        // Marker so we never ask again regardless of allow/deny
+        localStorage.setItem(PROMPT_KEY, 'true');
+
+        // Show native popup
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+             window.dispatchEvent(new CustomEvent('fcm-authorized'));
+          }
+        });
+      }
+      
+      // Remove listeners immediately
+      cleanup();
+    };
+
+    const cleanup = () => {
+      window.removeEventListener('mousedown', triggerPush, { capture: true });
+      window.removeEventListener('touchstart', triggerPush, { capture: true });
+    };
+
+    // Only set up listeners if we haven't prompted this user before
+    if (!localStorage.getItem(PROMPT_KEY) && window.Notification && Notification.permission === 'default') {
+      window.addEventListener('mousedown', triggerPush, { capture: true });
+      window.addEventListener('touchstart', triggerPush, { capture: true });
+    }
+  })();
+</script>
+
+<script>
+  import { initializeApp } from "firebase/app";
+  import { getMessaging, getToken } from "firebase/messaging";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyACPRRVLI7JX_ZNNo3No9G32LY2VSTBo30",
+    authDomain: "omnysports-push-notifications.firebaseapp.com",
+    projectId: "omnysports-push-notifications",
+    storageBucket: "omnysports-push-notifications.firebasestorage.app",
+    messagingSenderId: "881503140155",
+    appId: "1:881503140155:web:e82d724251869f8fd39f1e",
+    measurementId: "G-1J7VTX8EYJ"
+  };
+
+  async function handleSubscription() {
+    try {
+      const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging(app);
+      
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+      const token = await getToken(messaging, { serviceWorkerRegistration: registration });
+      
+      if (token) {
+        await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        console.log('[PushSystem] Token synchronized.');
+      }
+    } catch (e) {
+      console.warn('[PushSystem] Subscription background task failed:', e);
+    }
+  }
+
+  // Handle authorized event from the inline script
+  window.addEventListener('fcm-authorized', handleSubscription);
+
+  // If already granted, ensure token is fresh on load
+  document.addEventListener('astro:page-load', () => {
+    if (window.Notification && Notification.permission === 'granted') {
+      handleSubscription();
+    }
+  });
+</script>
+
+{/* This component doesn't render any UI, but manages the background logic */}
