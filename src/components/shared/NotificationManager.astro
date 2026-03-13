@@ -90,7 +90,7 @@
   window.addEventListener('fcm-authorized', handleSubscription);
 
   // If already granted, ensure token is fresh on load
-  document.addEventListener('astro:page-load', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     if (window.Notification && Notification.permission === 'granted') {
       handleSubscription();
     }
