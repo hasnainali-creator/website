@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 
@@ -26,8 +25,8 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 let lcpPreloadUrl = "";
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
-    // Extreme Mobile Optimization: 665px/60q to shave off the last 12KiB Lighthouse complained about.
-    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: 60 });
+    // Extreme Mobile Optimization: 665px/45q to shave off the last 12KiB Lighthouse complained about.
+    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: 45 });
     lcpPreloadUrl = optimized.src;
   } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
     // Fallback for static strings
@@ -177,12 +176,6 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
 <head>
   <!-- Global Metadata -->
   <meta charset={SITE.charset} />
-  
-  <!-- Zero-Gravity DOM Morph Engine -->
-  <ClientRouter fallback="swap" />
-  
-  <!-- Network Hardening: Only preconnect to domains we ACTUALLY use right now -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   
   <!-- Font Architecture: Critical above-fold fonts with rendering enforcement -->
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />

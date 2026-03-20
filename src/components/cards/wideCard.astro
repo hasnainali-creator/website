@@ -42,7 +42,7 @@ await render(article);
         fetchpriority={fetchpriority}
         formats={["avif", "webp"]}
         fallbackFormat="jpg"
-        decoding="async"
+        decoding={loading === "eager" ? "sync" : "async"}
         class="aspect-video rounded w-full h-full object-cover"
         style="aspect-ratio: 16/9; content-visibility: auto; contain-intrinsic-size: 225px;"
       />
