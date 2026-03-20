@@ -10,16 +10,7 @@ import { getImage } from "astro:assets";
 const entry = await getEntry("views", "home");
 const mainHeadlineArticle = await articlesHandler.mainHeadline();
 
-let preloadImage;
-if (mainHeadlineArticle?.data?.cover) {
-  const optimizedImage = await getImage({
-    src: mainHeadlineArticle.data.cover,
-    format: "avif",
-    width: 600, // Optimized for ultra-fast mobile/desktop paint
-    quality: 80,
-  });
-  preloadImage = optimizedImage.src;
-}
+let preloadImage = mainHeadlineArticle?.data?.cover;
 
 if (!entry) {
   return Astro.redirect("/404");

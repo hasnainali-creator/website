@@ -5,7 +5,7 @@ import type { ArticleMeta, Meta } from "@/lib/types";
 
 type Props = {
   meta: Meta | ArticleMeta;
-  preloadImage?: string;
+  preloadImage?: string | any;
 };
 
 const { meta, preloadImage } = Astro.props;
@@ -19,7 +19,24 @@ import { categoriesHandler } from "@/lib/handlers/categories";
 const catProvider = await categoriesHandler.getProvider();
 const navCategories = catProvider.getNestedCategories();
 
+import { getImage } from "astro:assets";
 const OGImage = new URL(meta.ogImage, Astro.url).href;
+
+// Zenith: Resolve HERO image URL at build-time for 0ms discovery latency
+let lcpPreloadUrl = "";
+if (preloadImage) {
+  if (typeof preloadImage === 'object') {
+    // Zenith: Resolve RAW image object with 800px/80 quality (Zenith Hash Match)
+    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 800, quality: 80 });
+    lcpPreloadUrl = optimized.src;
+  } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
+    // Fallback for static strings
+    lcpPreloadUrl = preloadImage;
+  }
+} else if (isArticleMeta(meta)) {
+  // Fallback to OG image for articles if no specific preload is provided
+  lcpPreloadUrl = OGImage;
+}
 
 const schemaOrg: any = {
   "@context": "https://schema.org",
@@ -220,8 +237,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <link rel="canonical" href={canonicalURL} />
 
   <!-- LCP Image Preload for Articles (Google Core Web Vitals Zenith) -->
-  {isArticleMeta(meta) && <link rel="preload" as="image" href={OGImage} fetchpriority="high" />}
-  {preloadImage && <link rel="preload" as="image" href={preloadImage} type="image/avif" fetchpriority="high" />}
+  {lcpPreloadUrl && <link rel="preload" as="image" href={lcpPreloadUrl} fetchpriority="high" />}
 
   <!-- Page Metadata -->
   <title>{meta.title}</title>

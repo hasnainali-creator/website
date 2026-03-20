@@ -52,9 +52,6 @@
 </script>
 
 <script>
-  import { initializeApp } from "firebase/app";
-  import { getMessaging, getToken } from "firebase/messaging";
-
   const firebaseConfig = {
     apiKey: "AIzaSyACPRRVLI7JX_ZNNo3No9G32LY2VSTBo30",
     authDomain: "omnysports-push-notifications.firebaseapp.com",
@@ -67,6 +64,10 @@
 
   async function handleSubscription() {
     try {
+      // Zenith: Dynamic import to remove Firebase from critical path
+      const { initializeApp } = await import("firebase/app");
+      const { getMessaging, getToken } = await import("firebase/messaging");
+      
       const app = initializeApp(firebaseConfig);
       const messaging = getMessaging(app);
       

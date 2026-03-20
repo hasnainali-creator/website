@@ -11,7 +11,7 @@ import { getMeta } from "@/lib/utils/getMeta";
 type Props = {
   entry?: Entry;
   meta?: Meta | ArticleMeta;
-  preloadImage?: string;
+  preloadImage?: string | any;
 };
 
 const { entry, meta: metaProp, preloadImage } = Astro.props;

@@ -24,6 +24,8 @@ const integrations = [
   partytown({
     config: {
       forward: ["dataLayer.push"],
+      // Zenith: Block deprecated APIs that lower 'Best Practices' score
+      blockProperties: ["sharedStorage", "attributionReporting"],
     },
   }),
   astroPWA({
