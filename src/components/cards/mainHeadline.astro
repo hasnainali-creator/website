@@ -15,13 +15,12 @@ const { article } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
 
-// Zenith: Synchronized with head.astro for 0ms discovery (Zenith Hash Match)
-// Zenith: Use 800px width and 80 quality (Standard for HERO LCP)
+// Synchronized with head.astro for 0ms discovery (Zenith Hash Match)
 const syncHeroImage = await getImage({
   src: article.data.cover,
   format: "avif",
-  width: 800,
-  quality: 80,
+  width: 665,
+  quality: 75,
 });
 ---
 

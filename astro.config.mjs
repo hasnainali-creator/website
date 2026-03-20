@@ -21,13 +21,9 @@ const integrations = [
   sitemap(), 
   react(), 
   pagefind(),
-  partytown({
-    config: {
-      forward: ["dataLayer.push"],
-      // Zenith: Block deprecated APIs that lower 'Best Practices' score
-      blockProperties: ["sharedStorage", "attributionReporting"],
-    },
-  }),
+  // NOTE: Partytown REMOVED — its service worker uses deprecated APIs
+  // (SharedStorage, AttributionReporting) causing Best Practices = 81%.
+  // Will re-add when Ads/Analytics are actually integrated.
   astroPWA({
     registerType: 'autoUpdate',
     workbox: {

@@ -26,8 +26,8 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 let lcpPreloadUrl = "";
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
-    // Zenith: Resolve RAW image object with 800px/80 quality (Zenith Hash Match)
-    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 800, quality: 80 });
+    // Resolve RAW image object with 665px/75q (exact display dimensions)
+    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: 75 });
     lcpPreloadUrl = optimized.src;
   } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
     // Fallback for static strings
@@ -181,13 +181,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <!-- Zero-Gravity DOM Morph Engine -->
   <ClientRouter fallback="swap" />
   
-  <!-- Network Hardening: Zero-Latency pre-connections for future Ads & Analytics -->
-  <!-- This opens the network highway BEFORE scripts are even requested -->
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous" />
-  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin="anonymous" />
-  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin="anonymous" />
+  <!-- Network Hardening: Only preconnect to domains we ACTUALLY use right now -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-  <link rel="dns-prefetch" href="https://www.google-analytics.com" />
   
   <!-- Font Architecture: Critical above-fold fonts with rendering enforcement -->
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
