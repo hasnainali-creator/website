@@ -25,8 +25,8 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 let lcpPreloadUrl = "";
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
-    // Extreme Mobile Optimization: 665px/45q to shave off the last 12KiB Lighthouse complained about.
-    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: 45 });
+    // Extreme Mobile Optimization: 400px/45q to shave off the last 15.8KiB Lighthouse complained about.
+    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 400, quality: 45 });
     lcpPreloadUrl = optimized.src;
   } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
     // Fallback for static strings
