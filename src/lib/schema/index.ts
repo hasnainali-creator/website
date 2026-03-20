@@ -20,7 +20,7 @@ export const articleSchema = (image: ImageFunction) =>
       value: z.string().nullish(),
     })).min(1),
     publishedTime: z.string().datetime().or(z.date()),
-    authors: z.array(reference("authors")).min(1),
+    authors: z.array(z.any()).min(1),
     seo: z.object({
       metaTitle: z.string().optional(),
       metaDescription: z.string().optional(),
@@ -48,17 +48,11 @@ export const categorySchema = z.object({
 
 export const authorSchema = (Image: ImageFunction) =>
   z.object({
-    name: z.string(),
-    job: z.string(),
-    avatar: Image(),
-    bio: z.string(),
-    social: z.array(
-      z.object({
-        name: z.string(),
-        url: z.string(),
-        icon: z.string(),
-      })
-    ),
+    id: z.string().optional(),
+    name: z.string().default("Unknown Author"),
+    job: z.string().default("Contributor"),
+    avatar: Image().optional(),
+    bio: z.string().default("No bio available."),
   });
 
 // avatar: Image().refine(

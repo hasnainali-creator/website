@@ -53,14 +53,21 @@ export const articlesKs = collection({
       fields.conditional(
         fields.select({
           label: "Main Category",
-          options: categoryOptions.length > 0 ? categoryOptions : [{ label: 'None', value: 'none' }],
-          defaultValue: categoryOptions[0]?.value || 'none',
+          options: categoryOptions.length > 0 ? categoryOptions : [{ label: 'None', value: '' }],
+          defaultValue: categoryOptions[0]?.value || '',
         }),
         Object.fromEntries(
-          (categoryOptions.length > 0 ? categoryOptions : [{ label: 'None', value: 'none' }]).map((opt) => [
-            opt.value,
-            fields.select(subCategoryFields[opt.value]),
-          ])
+          (categoryOptions.length > 0 ? categoryOptions : [{ label: 'None', value: '' }]).map((opt) => {
+            const defaultField = {
+              label: "Sub-category",
+              options: [{ label: "None", value: "" }],
+              defaultValue: ""
+            };
+            return [
+              opt.value,
+              fields.select(subCategoryFields[opt.value] || defaultField),
+            ];
+          })
         )
       ),
       {

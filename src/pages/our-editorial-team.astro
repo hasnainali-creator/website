@@ -1,0 +1,76 @@
+---
+import BaseLayout from "@/layouts/base.astro";
+import ContentLayout from "@/layouts/content.astro";
+import { authorsHandler } from "@/lib/handlers/authors";
+import { Image } from "astro:assets";
+import { SITE } from "@/lib/config";
+import { render } from "astro:content";
+
+const allAuthors = await authorsHandler.allAuthors();
+
+const meta = {
+  title: `Our Editorial Team | ${SITE.title}`,
+  description: "Meet the dedicated sports journalists and experts behind OmnySports. We deliver accurate, insightful coverage.",
+};
+
+// SEO Schema for the Editorial Team page
+const teamSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "Our Editorial Team",
+  "description": meta.description,
+  "publisher": {
+    "@type": "NewsMediaOrganization",
+    "name": SITE.title
+  }
+};
+---
+
+<BaseLayout meta={meta as any} entry={{ data: { title: "Our Editorial Team", description: meta.description } } as any}>
+  <script type="application/ld+json" set:html={JSON.stringify(teamSchema)} />
+  
+  <main class="container py-12 max-w-4xl mx-auto" data-pagefind-body>
+    <header class="mb-16 pb-8 border-b border-base-content/10">
+      <h1 class="text-4xl md:text-5xl font-bold font-heading mb-4">Our Editorial Team</h1>
+      <p class="text-lg text-base-content/80">
+        OmnySports is powered by a team of dedicated sports journalists committed to delivering accurate, insightful, and professional coverage from around the globe.
+      </p>
+    </header>
+
+    <div class="space-y-16">
+      {allAuthors.map(async (author, index) => {
+        const { Content } = await authorsHandler.renderAuthor(author);
+        return (
+          <>
+            <div id={author.id} class="flex flex-col items-center text-center gap-6 scroll-mt-24">
+              <div class="flex flex-col items-center">
+                {author.data.avatar ? (
+                  <Image 
+                     src={author.data.avatar as any} 
+                     alt={author.data.name} 
+                     width={200} 
+                     height={200} 
+                     class="w-24 h-24 rounded-full object-cover shadow-sm border border-base-content/20 mb-4"
+                  />
+                ) : (
+                  <div class="w-24 h-24 rounded-full bg-base-300 flex items-center justify-center border border-base-content/20 mb-4">
+                     <span class="text-3xl text-base-content/50 uppercase">{author.data.name.charAt(0)}</span>
+                  </div>
+                )}
+                <div>
+                  <h2 class="text-3xl font-bold font-sans m-0 leading-tight tracking-tight">{author.data.name}</h2>
+                  <p class="text-sm font-bold text-primary uppercase tracking-wider mt-2">{author.data.job}</p>
+                </div>
+              </div>
+              
+              <div class="prose md:prose-lg dark:prose-invert max-w-2xl text-left prose-p:leading-relaxed prose-a:text-primary hover:prose-a:text-primary-focus mx-auto">
+                <Content />
+              </div>
+            </div>
+            {index < allAuthors.length - 1 && <hr class="border-t border-base-content/10 my-16 w-full max-w-lg mx-auto" />}
+          </>
+        );
+      })}
+    </div>
+  </main>
+</BaseLayout>

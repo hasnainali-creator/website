@@ -10,9 +10,11 @@ const catProvider = await categoriesHandler.getProvider();
 type Props = {
   article: CollectionEntry<"articles">;
   isLast: boolean;
+  loading?: "eager" | "lazy";
+  fetchpriority?: "high" | "low" | "auto";
 };
 
-const { article, isLast } = Astro.props;
+const { article, isLast, loading = "lazy", fetchpriority = "auto" } = Astro.props;
 await render(article);
 ---
 
@@ -36,12 +38,13 @@ await render(article);
         alt={article.data.coverAlt || article.data.title || "Sports News Article"}
         width={400}
         height={225}
-        loading={"eager"}
+        loading={loading}
+        fetchpriority={fetchpriority}
         formats={["avif", "webp"]}
         fallbackFormat="jpg"
         decoding="async"
         class="aspect-video rounded w-full h-full object-cover"
-        style={{ aspectRatio: "16/9" }}
+        style="aspect-ratio: 16/9; content-visibility: auto; contain-intrinsic-size: 225px;"
       />
     </div>
     <div class="flex-1 space-y-2">

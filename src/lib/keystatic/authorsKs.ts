@@ -1,37 +1,32 @@
 import { collection, fields } from "@keystatic/core";
+import { authorsAvatarField } from "./components/AvatarCropper";
 
 export const authorsKs = collection({
   label: "Authors",
-  slugField: "name",
+  slugField: "id",
   path: "src/content/authors/*/index",
   format: { contentField: "content" },
   entryLayout: "form",
   schema: {
-    name: fields.text({ label: "Name", validation: { isRequired: true } }),
-    job: fields.text({ label: "Job" }),
-    avatar: fields.image({
-      label: "Avatar",
-      directory: "src/assets/images/authors",
-      publicPath: "@assets/images/authors",
+    id: fields.text({ 
+        label: "Internal ID / Slug (DO NOT CHANGE)", 
+        validation: { isRequired: true },
+        description: "This determines the folder name. Keep it as-is to prevent broken images."
     }),
-    bio: fields.text({ label: "Bio" }),
-    social: fields.array(
-      fields.object({
-        name: fields.text({ label: "Name", validation: { isRequired: true } }),
-        url: fields.url({ label: "URL", validation: { isRequired: true } }),
-        icon: fields.text({ label: "Icon", validation: { isRequired: true } }),
-      }),
-      {
-        label: "Social Links",
-        itemLabel: (props) => props.fields?.name.value ?? "",
-      }
-    ),
+    name: fields.text({ label: "Full Name (Display)", validation: { isRequired: true } }),
+    job: fields.text({ label: "Job Title/Role", validation: { isRequired: true } }),
+    avatar: authorsAvatarField(),
+    bio: fields.text({
+      label: "Short Bio",
+      description: "Appears on the author card and top of their profile.",
+      multiline: true
+    }),
     content: fields.mdx({
-      label: "Content",
+      label: "Full Biography / Extended About (Optional)",
+      description: "This text will appear below the articles on the individual author page.",
       options: {
         image: {
-          directory: "src/assets/images/authors",
-          publicPath: "@assets/images/authors",
+          publicPath: "./",
         },
       },
     }),

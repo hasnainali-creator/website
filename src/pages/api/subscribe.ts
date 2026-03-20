@@ -4,16 +4,36 @@ import admin from 'firebase-admin';
 // Initialize Firebase Admin only once
 if (!admin.apps.length) {
     try {
-        const certStr = process.env.FIREBASE_PRIVATE_KEY || import.meta.env.FIREBASE_PRIVATE_KEY || '';
-        const privateKey = certStr.replace(/\\n/g, '\n');
+        let projectId = process.env.FIREBASE_PROJECT_ID || import.meta.env.FIREBASE_PROJECT_ID;
+        let clientEmail = process.env.FIREBASE_CLIENT_EMAIL || import.meta.env.FIREBASE_CLIENT_EMAIL;
+        let privateKey = process.env.FIREBASE_PRIVATE_KEY || import.meta.env.FIREBASE_PRIVATE_KEY || '';
 
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: process.env.FIREBASE_PROJECT_ID || import.meta.env.FIREBASE_PROJECT_ID,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL || import.meta.env.FIREBASE_CLIENT_EMAIL,
-                privateKey: privateKey,
-            }),
-        });
+        // Fallback: If individual keys are missing, try parsing the GOOGLE_INDEXING_KEY JSON
+        const indexingKey = process.env.GOOGLE_INDEXING_KEY || import.meta.env.GOOGLE_INDEXING_KEY;
+        if ((!projectId || !clientEmail || !privateKey) && indexingKey) {
+            try {
+                const key = JSON.parse(indexingKey.trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n'));
+                projectId = key.project_id;
+                clientEmail = key.client_email;
+                privateKey = key.private_key;
+                console.log('[Firebase API] Using credentials from GOOGLE_INDEXING_KEY.');
+            } catch (err) {
+                console.error('[Firebase API] Failed to parse GOOGLE_INDEXING_KEY:', err);
+            }
+        }
+
+        if (projectId && clientEmail && privateKey) {
+            admin.initializeApp({
+                credential: admin.credential.cert({
+                    projectId,
+                    clientEmail,
+                    privateKey: privateKey.replace(/\\n/g, '\n'),
+                }),
+            });
+            console.log('[Firebase API] Firebase Admin initialized.');
+        } else {
+            console.error('[Firebase API] Missing Firebase credentials. Subscriptions will fail.');
+        }
     } catch (error) {
         console.error('Firebase admin initialization error:', error);
     }

@@ -1,0 +1,112 @@
+[2026-03-19T06:01:59.654Z] --- START UPLOAD ---
+[2026-03-19T06:01:59.673Z] Method: POST
+[2026-03-19T06:01:59.742Z] CWD: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website
+[2026-03-19T06:01:59.805Z] JSON Parse Error: Unexpected end of JSON input
+[2026-03-19T06:01:59.862Z] CRITICAL ERROR: Unexpected end of JSON input
+Stack: SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at parseJSONFromBytes (node:internal/deps/undici/undici:4255:19)
+    at successSteps (node:internal/deps/undici/undici:6902:27)
+    at consumeBody (node:internal/deps/undici/undici:6908:9)
+    at _Request.json (node:internal/deps/undici/undici:6847:18)
+    at Module.POST (eval at runInlinedModule (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/vite/dist/node/module-runner.js:1062:11), <anonymous>:19:28)
+    at async renderEndpoint (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/runtime/server/endpoint.js:37:18)
+    at async lastNext (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/core/render-context.js:202:23)
+    at async callMiddleware (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/core/middleware/callMiddleware.js:11:10)
+    at async RenderContext.render (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/core/render-context.js:249:22)
+    at async handleRoute (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/route.js:180:16)
+    at async run (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/request.js:56:14)
+    at async runWithErrorHandling (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/controller.js:64:5)
+    at async handleRequest (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/request.js:50:3)
+[2026-03-19T06:02:16.861Z] --- START UPLOAD ---
+[2026-03-19T06:02:16.864Z] Method: POST
+[2026-03-19T06:02:16.877Z] CWD: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website
+[2026-03-19T06:02:16.902Z] JSON Parse Error: Unexpected end of JSON input
+[2026-03-19T06:02:16.957Z] CRITICAL ERROR: Unexpected end of JSON input
+Stack: SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at parseJSONFromBytes (node:internal/deps/undici/undici:4255:19)
+    at successSteps (node:internal/deps/undici/undici:6902:27)
+    at consumeBody (node:internal/deps/undici/undici:6908:9)
+    at _Request.json (node:internal/deps/undici/undici:6847:18)
+    at Module.POST (eval at runInlinedModule (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/vite/dist/node/module-runner.js:1062:11), <anonymous>:19:28)
+    at async renderEndpoint (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/runtime/server/endpoint.js:37:18)
+    at async lastNext (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/core/render-context.js:202:23)
+    at async callMiddleware (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/core/middleware/callMiddleware.js:11:10)
+    at async RenderContext.render (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/core/render-context.js:249:22)
+    at async handleRoute (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/route.js:180:16)
+    at async run (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/request.js:56:14)
+    at async runWithErrorHandling (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/controller.js:64:5)
+    at async handleRequest (file:///C:/Users/Sajjad%20Ahmad/Documents/Backup/GitHub/website/node_modules/astro/dist/vite-plugin-astro-server/request.js:50:3)
+[2026-03-19T06:07:02.372Z] --- START BINARY UPLOAD ---
+[2026-03-19T06:07:02.379Z] Slug from query: null
+[2026-03-19T06:07:02.398Z] Error: Missing slug in query params
+[2026-03-19T06:10:37.507Z] --- START BINARY UPLOAD V2 ---
+[2026-03-19T06:10:37.527Z] Full URL: http://127.0.0.1:4321/api/upload-author-avatar
+[2026-03-19T06:10:37.582Z] Slug from query: null
+[2026-03-19T06:10:37.606Z] Error: Missing slug in query params
+[2026-03-19T06:20:56.403Z] --- START BINARY UPLOAD V3 ---
+[2026-03-19T06:20:56.426Z] Full URL: http://127.0.0.1:4324/api/upload-author-avatar
+[2026-03-19T06:20:56.460Z] Slug from header: ahmed-khan
+[2026-03-19T06:20:56.481Z] Received binary size: 47576 bytes
+[2026-03-19T06:20:56.510Z] Target directory: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan
+[2026-03-19T06:20:56.545Z] Target file: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan\avatar.jpg
+[2026-03-19T06:20:56.584Z] File written successfully
+[2026-03-19T06:49:09.548Z] --- START BINARY UPLOAD V3 ---
+[2026-03-19T06:49:09.550Z] Full URL: http://127.0.0.1:4324/api/upload-author-avatar
+[2026-03-19T06:49:09.587Z] Slug from header: ahmed-khan
+[2026-03-19T06:49:09.594Z] Received binary size: 21120 bytes
+[2026-03-19T06:49:09.599Z] Target directory: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan
+[2026-03-19T06:49:09.608Z] Target file: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan\avatar.jpg
+[2026-03-19T06:49:09.645Z] File written successfully
+[2026-03-19T06:59:44.403Z] --- START BINARY UPLOAD V3 ---
+[2026-03-19T06:59:44.406Z] Full URL: http://127.0.0.1:4324/api/upload-author-avatar
+[2026-03-19T06:59:44.411Z] Slug from header: ahmed-khan
+[2026-03-19T06:59:44.414Z] Received binary size: 36290 bytes
+[2026-03-19T06:59:44.418Z] Target directory: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan
+[2026-03-19T06:59:44.425Z] Target file: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan\avatar.jpg
+[2026-03-19T06:59:44.444Z] File written successfully
+[2026-03-19T07:15:20.844Z] --- START BINARY UPLOAD V3 ---
+[2026-03-19T07:15:20.846Z] Full URL: http://127.0.0.1:4324/api/upload-author-avatar
+[2026-03-19T07:15:20.851Z] Slug from header: ahmed-khan
+[2026-03-19T07:15:20.857Z] Received binary size: 35691 bytes
+[2026-03-19T07:15:20.871Z] Target directory: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan
+[2026-03-19T07:15:20.887Z] Target file: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan\avatar.jpg
+[2026-03-19T07:15:20.902Z] File written successfully
+[2026-03-19T07:15:20.909Z] Touched MDX at: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\content\authors\ahmed-khan\index.mdx
+[2026-03-19T11:06:28.243Z] --- START BINARY UPLOAD V4 (VERSIONED) ---
+[2026-03-19T11:06:28.245Z] Slug from header: ahmed-khan
+[2026-03-19T11:06:28.249Z] Received binary size: 27532 bytes
+[2026-03-19T11:06:28.260Z] Successfully wrote: avatar_v2.jpg
+[2026-03-19T11:06:28.271Z] Deleted old version: avatar.jpg
+[2026-03-19T11:06:28.280Z] Touched MDX for refresh
+[2026-03-19T11:07:01.831Z] --- START BINARY UPLOAD V4 (VERSIONED) ---
+[2026-03-19T11:07:01.833Z] Slug from header: ahmed-khan
+[2026-03-19T11:07:01.838Z] Received binary size: 44721 bytes
+[2026-03-19T11:07:01.845Z] Successfully wrote: avatar_v3.jpg
+[2026-03-19T11:07:01.853Z] Deleted old version: avatar_v2.jpg
+[2026-03-19T11:07:01.860Z] Touched MDX for refresh
+[2026-03-19T11:08:05.147Z] --- START BINARY UPLOAD V4 (VERSIONED) ---
+[2026-03-19T11:08:05.149Z] Slug from header: ahmed-khan
+[2026-03-19T11:08:05.155Z] Received binary size: 35080 bytes
+[2026-03-19T11:08:05.164Z] Successfully wrote: avatar_v4.jpg
+[2026-03-19T11:08:05.174Z] Deleted old version: avatar_v3.jpg
+[2026-03-19T11:08:05.180Z] Touched MDX for refresh
+[2026-03-19T11:18:12.962Z] --- START BINARY UPLOAD V3 (STABLE REVERT) ---
+[2026-03-19T11:18:12.964Z] Slug from header: ahmed-khan
+[2026-03-19T11:18:12.967Z] Received binary size: 61401 bytes
+[2026-03-19T11:18:12.973Z] Target file: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan\avatar.jpg
+[2026-03-19T11:18:12.984Z] File written successfully
+[2026-03-19T11:18:12.989Z] Touched MDX for refresh
+[2026-03-19T11:25:45.833Z] --- START BINARY UPLOAD V3 (STABLE REVERT) ---
+[2026-03-19T11:25:45.838Z] Slug from header: ahmed-khan
+[2026-03-19T11:25:45.844Z] Received binary size: 46114 bytes
+[2026-03-19T11:25:45.857Z] Target file: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan\avatar.jpg
+[2026-03-19T11:25:45.900Z] File written successfully
+[2026-03-19T11:25:45.909Z] Touched MDX for refresh
+[2026-03-20T02:34:31.397Z] --- START BINARY UPLOAD V3 (STABLE REVERT) ---
+[2026-03-20T02:34:31.401Z] Slug from header: ahmed-khan
+[2026-03-20T02:34:31.406Z] Received binary size: 44381 bytes
+[2026-03-20T02:34:31.413Z] Target file: C:\Users\Sajjad Ahmad\Documents\Backup\GitHub\website\src\assets\images\authors\ahmed-khan\avatar.jpg
+[2026-03-20T02:34:31.421Z] File written successfully
+[2026-03-20T02:34:31.427Z] Touched MDX for refresh

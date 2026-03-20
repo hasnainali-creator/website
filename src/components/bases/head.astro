@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 
@@ -160,7 +161,18 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <!-- Global Metadata -->
   <meta charset={SITE.charset} />
   
-  <!-- Font Architecture: Only preload critical above-fold fonts -->
+  <!-- Zero-Gravity DOM Morph Engine -->
+  <ClientRouter fallback="swap" />
+  
+  <!-- Network Hardening: Zero-Latency pre-connections for future Ads & Analytics -->
+  <!-- This opens the network highway BEFORE scripts are even requested -->
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+  
+  <!-- Font Architecture: Critical above-fold fonts with rendering enforcement -->
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
@@ -171,6 +183,10 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       font-display: swap;
       font-weight: 400;
       src: url("/fonts/source-sans-pro-latin-400-normal.woff2") format("woff2");
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
     }
     @font-face {
       font-family: "Source Serif 4 Variable";
@@ -178,6 +194,10 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       font-display: swap;
       font-weight: 200 900;
       src: url("/fonts/source-serif-4-latin-wght-normal.woff2") format("woff2-variations");
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
     }
     @font-face {
       font-family: "Inter";
@@ -185,6 +205,10 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
       font-display: swap;
       font-weight: 100 900;
       src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+      size-adjust: 107%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
     }
   </style>
 
@@ -296,6 +320,25 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <script type="application/ld+json" set:html={schemaOrgString}></script>
   {breadcrumbSchemaString && <script type="application/ld+json" set:html={breadcrumbSchemaString}></script>}
 
-  {/* SiteName signals are already included in the schemaOrg graph at the top */}
+  {/* Speculation Rules API: 'Hard Intelligence' Zero-Latency Pre-rendering */}
+  {/* This pre-renders internal links during hover/intent for 0ms transitions */}
+  <script type="speculationrules" is:inline>
+    {
+      "prerender": [
+        {
+          "where": {
+            "and": [
+              { "href_matches": "/*" },
+              { "not": { "href_matches": ["/admin/*", "/keystatic/*"] } },
+              { "not": { "selector_matches": "[rel~=nofollow]" } }
+            ]
+          },
+          "eagerness": "eager"
+        }
+      ]
+    }
+  </script>
 
+  <!-- The Z-Engine: Zero-Gravity Pre-Ignition + Intersection Observer Predictive Loader -->
+  <script src="/z-engine.js" defer is:inline></script>
 </head>

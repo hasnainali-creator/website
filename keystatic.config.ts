@@ -7,11 +7,11 @@ export default config({
     brand: {
       name: "OmnySports",
     },
-    navigation: ["---", "articles", "---", "authors", "categories", "---", "views"],
+    navigation: ["---", "articles", "---", "editorial", "categories", "---", "views"],
   },
   collections: {
     articles: articlesKs,
-    authors: authorsKs,
+    editorial: authorsKs,
     categories: categoriesKs,
     views: viewsKs,
   },

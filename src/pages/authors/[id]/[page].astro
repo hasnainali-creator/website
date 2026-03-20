@@ -3,11 +3,13 @@ import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { articlesHandler } from "@/lib/handlers/articles";
 import { authorsHandler } from "@/lib/handlers/authors";
-import ListLayout from "@/layouts/list.astro";
 import WideCard from "@/components/cards/wideCard.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import { getEntry } from "astro:content";
 import { getMeta } from "@/lib/utils/getMeta";
+import BaseLayout from "@/layouts/base.astro";
+import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
+import { Image } from "astro:assets";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const allAuthors = await authorsHandler.allAuthors();
@@ -30,6 +32,7 @@ const articles = page.data;
 const pathname = new URL(Astro.request.url).pathname.split("/");
 const basePath = `${pathname[1]}/${pathname[2]}`;
 
+
 const entry = await getEntry("views", "author");
 const author = await authorsHandler.findAuthor(params.id!);
 
@@ -45,13 +48,26 @@ meta.breadcrumbs = [
 meta.prev = page.url.prev;
 meta.next = page.url.next;
 
-import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
 
 const headerTitle = entry.data.title || "Articles";
+
+// Advanced SEO: JSON-LD Structured Data for Person (Entity Verification)
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": author.data.name,
+  "jobTitle": author.data.job,
+  "description": author.data.bio,
+  "worksFor": {
+    "@type": "NewsMediaOrganization",
+    "name": SITE.title,
+    "url": Astro.site ? Astro.site.origin : "https://omnysports.pages.dev"
+  },
+  "url": Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.href
+};
 ---
 
-<ListLayout
-  header={`${author.data.name}'s ${headerTitle}`}
+<BaseLayout
   entry={{
     ...entry,
     data: {
@@ -61,29 +77,73 @@ const headerTitle = entry.data.title || "Articles";
   }}
   meta={meta}
 >
-  <div class="mb-4">
-    <Breadcrumbs crumbs={meta.breadcrumbs} />
-  </div>
-  <section class="flex-1">
-    <ul class="flex flex-col gap-4">
-      {
-        articles.map((article) => (
-          <WideCard
-            article={article}
-            isLast={articles.lastIndexOf(article) === articles.length - 1}
-          />
-        ))
-      }
-    </ul>
-  </section>
+  <!-- Injecting Advanced SEO -->
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
 
-  <Pagination
-    length={page.lastPage}
-    currentUrl={page.url.current}
-    currentPage={page.currentPage}
-    baseUrl={`/${basePath}`}
-    prevUrl={page.url.prev}
-    nextUrl={page.url.next}
-    lastUrl={`/${basePath}/${page.lastPage}`}
-  />
-</ListLayout>
+  <div
+    class="container flex flex-col h-full pb-8 pt-4"
+    data-pagefind-ignore="all"
+  >
+    <!-- Dynamic Author Header Design (NOW AT THE TOP) -->
+    <div class="flex flex-col mb-8 pt-4">
+      <div class="flex items-center gap-4">
+        {author.data.avatar ? (
+          <Image 
+            src={author.data.avatar as any} 
+            alt={`Profile picture of ${author.data.name}`} 
+            width={64} 
+            height={64} 
+            loading="eager"
+            fetchpriority="high"
+            class="w-16 h-16 rounded-full object-cover shadow-sm border border-base-content/10 flex-shrink-0"
+          />
+        ) : (
+          <div class="w-16 h-16 rounded-full bg-base-300 flex items-center justify-center border border-base-content/10 flex-shrink-0 shadow-sm">
+            <span class="text-2xl text-base-content/50 uppercase font-bold">{(author.data.name || "?").charAt(0)}</span>
+          </div>
+        )}
+        <div>
+          <h1 class="text-3xl font-bold font-heading m-0 leading-tight">{author.data.name}</h1>
+          <p class="text-sm text-primary font-medium uppercase tracking-wider mt-1">{author.data.job}</p>
+        </div>
+      </div>
+      {author.data.bio && (
+        <p class="text-base text-base-content/80 mt-4 leading-relaxed max-w-3xl">
+          {author.data.bio}
+        </p>
+      )}
+
+
+    </div>
+
+    <hr class="border-t border-base-content/10 mb-8 w-full" />
+
+    <div class="mb-8">
+      <h2 class="text-4xl md:text-5xl font-bold font-heading mb-4">{author.data.name}'s {headerTitle}</h2>
+      <Breadcrumbs crumbs={meta.breadcrumbs} />
+    </div>
+
+    <section class="flex-1">
+      <ul class="flex flex-col gap-4">
+        {
+          articles.map((article) => (
+            <WideCard
+              article={article}
+              isLast={articles.lastIndexOf(article) === articles.length - 1}
+            />
+          ))
+        }
+      </ul>
+    </section>
+
+    <Pagination
+      length={page.lastPage}
+      currentUrl={page.url.current}
+      currentPage={page.currentPage}
+      baseUrl={`/${basePath}`}
+      prevUrl={page.url.prev}
+      nextUrl={page.url.next}
+      lastUrl={`/${basePath}/${page.lastPage}`}
+    />
+  </div>
+</BaseLayout>

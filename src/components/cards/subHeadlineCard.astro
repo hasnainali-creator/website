@@ -58,10 +58,11 @@ const { remarkPluginFrontmatter } = await render(article);
       width={320}
       height={240}
       loading="eager"
+      fetchpriority="auto"
       format="avif"
       decoding="async"
       class="object-cover rounded w-full h-full"
-      style={{ aspectRatio: "4/3" }}
+      style="aspect-ratio: 4/3; content-visibility: auto; contain-intrinsic-size: 125px;"
     />
   </div>
 </article>

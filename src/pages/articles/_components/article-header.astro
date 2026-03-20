@@ -103,16 +103,22 @@ const breadcrumbs = [
                 >
                   <div class="avatar">
                     <div class="w-8 rounded-full">
-                      <Image
-                        src={author.data.avatar}
-                        alt={author.data.name || "Author Avatar"}
-                        width={48}
-                        height={48}
-                        loading={"eager"}
-                        format="avif"
-                        layout="constrained"
-                        quality={80}
-                      />
+                      {author.data.avatar ? (
+                        <Image
+                          src={author.data.avatar}
+                          alt={author.data.name || "Author Avatar"}
+                          width={48}
+                          height={48}
+                          loading={"eager"}
+                          format="avif"
+                          layout="constrained"
+                          quality={80}
+                        />
+                      ) : (
+                        <div class="w-8 h-8 bg-base-300 flex items-center justify-center rounded-full">
+                          <span class="text-xs font-bold uppercase">{(author.data.name || "?").charAt(0)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <span class="font-bold capitalize">{author.data.name}</span>

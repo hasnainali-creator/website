@@ -1,26 +1,38 @@
 ---
 import { Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
+
 type Props = {
   author: CollectionEntry<"authors">;
+  loading?: "lazy" | "eager";
+  fetchpriority?: "high" | "low" | "auto";
 };
 
-const { author } = Astro.props;
+const { author, loading = "lazy", fetchpriority = "auto" } = Astro.props;
 ---
 
 <li class="group relative isolate mx-auto w-full">
-  <Picture
-    class="w-320 aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md"
-    src={author.data.avatar}
-    alt={author.data.name || "Author Profile"}
-    layout="constrained"
-    loading={"lazy"}
-    formats={["avif", "webp"]}
-    fallbackFormat="jpg"
-    decoding="async"
-    width={320}
-    height={320}
-  />
+  {author.data.avatar ? (
+    <Picture
+      class="w-320 aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md bg-slate-800"
+      src={author.data.avatar}
+      alt={author.data.name || "Author Profile"}
+      layout="constrained"
+      loading={loading}
+      fetchpriority={fetchpriority}
+      formats={["avif", "webp"]}
+      fallbackFormat="jpg"
+      decoding="async"
+      width={320}
+      height={320}
+    />
+  ) : (
+    <div class="w-full aspect-square max-w-full rounded-md bg-base-300 filter grayscale group-hover:grayscale-0 flex items-center justify-center border border-base-content/10 transition-all duration-300">
+      <span class="text-6xl text-base-content/40 font-bold uppercase">
+        {(author.data.name || "?").charAt(0)}
+      </span>
+    </div>
+  )}
   <div class="flex flex-col gap-0.5 mt-2">
     <h3 class="text-base font-semibold group-hover:underline">
       <a href={`/authors/${author.id}`}>

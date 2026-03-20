@@ -9,6 +9,7 @@ import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
 import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
+import partytown from "@astrojs/partytown";
 
 import cloudflare from "@astrojs/cloudflare";
 import astroPWA from "@vite-pwa/astro";
@@ -20,11 +21,45 @@ const integrations = [
   sitemap(), 
   react(), 
   pagefind(),
+  partytown({
+    config: {
+      forward: ["dataLayer.push"],
+    },
+  }),
   astroPWA({
     registerType: 'autoUpdate',
     workbox: {
       globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,avif,webp,jpg}'],
       maximumFileSizeToCacheInBytes: 10000000,
+      runtimeCaching: [
+        {
+          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'images-cache',
+            expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
+            cacheableResponse: { statuses: [0, 200] }
+          }
+        },
+        {
+          urlPattern: /\.(?:woff2|woff|ttf|otf)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'fonts-cache',
+            expiration: { maxEntries: 20, maxAgeSeconds: 365 * 24 * 60 * 60 },
+            cacheableResponse: { statuses: [0, 200] }
+          }
+        },
+        {
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'pages-cache',
+            expiration: { maxEntries: 50, maxAgeSeconds: 24 * 60 * 60 },
+            cacheableResponse: { statuses: [0, 200] }
+          }
+        }
+      ]
     },
     manifest: {
       name: SITE.title,
@@ -52,8 +87,15 @@ export default defineConfig({
   site: SITE.url,
   base: SITE.basePath,
 
+  compressHTML: true,
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'viewport'
+  },
+
   build: {
-    // Standard build settings
+    // Absolute Render Unblocking: Forces all CSS directly into the HTML to eliminate network requests
+    inlineStylesheets: 'always'
   },
 
   markdown: {

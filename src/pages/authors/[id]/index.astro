@@ -10,6 +10,10 @@ export const getStaticPaths = async () => {
   }));
 };
 
+interface Props {
+  author: any;
+}
+
 const { author } = Astro.props;
 ---
 
