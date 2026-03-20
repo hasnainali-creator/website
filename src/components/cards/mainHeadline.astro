@@ -20,7 +20,7 @@ const syncHeroImage = await getImage({
   src: article.data.cover,
   format: "avif",
   width: 665,
-  quality: 75,
+  quality: 60,
 });
 ---
 
@@ -33,7 +33,7 @@ const syncHeroImage = await getImage({
       height={syncHeroImage.attributes.height || 450}
       loading="eager"
       fetchpriority="high"
-      decoding="async"
+      decoding="sync"
       class="w-full h-full object-cover"
       style="aspect-ratio: 16 / 9;"
     />

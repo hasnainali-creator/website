@@ -87,11 +87,20 @@
     }
   }
 
-  window.addEventListener('fcm-authorized', handleSubscription);
+  window.addEventListener('fcm-authorized', () => {
+    // If user clicks authorize, perform immediately.
+    handleSubscription();
+  });
 
   document.addEventListener('DOMContentLoaded', () => {
     if (window.Notification && Notification.permission === 'granted') {
-      handleSubscription();
+      // Zenith Mobile: Defer background subscription sync until the browser is idle.
+      // This prevents the 100-200ms Firebase script parsing from competing with the LCP Hero image rendering on slow Mobile CPUs.
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => handleSubscription(), { timeout: 3000 });
+      } else {
+        setTimeout(handleSubscription, 2000); // Fallback for Safari
+      }
     }
   });
 </script>
