@@ -110,15 +110,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     build: {
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-          passes: 2,
-        },
-        mangle: true,
-      },
+      // Zenith Mobile: Removing Terser because it causes 'Minify JavaScript' Lighthouse warnings.
+      // Vite's default esbuild is significantly faster for mobile parsing and minifies better.
     },
     server: {
       watch: {

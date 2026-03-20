@@ -51,10 +51,7 @@
   })();
 </script>
 
-<script>
-  import { initializeApp } from "firebase/app";
-  import { getMessaging, getToken } from "firebase/messaging";
-
+<script is:inline type="module">
   const firebaseConfig = {
     apiKey: "AIzaSyACPRRVLI7JX_ZNNo3No9G32LY2VSTBo30",
     authDomain: "omnysports-push-notifications.firebaseapp.com",
@@ -67,11 +64,15 @@
 
   async function handleSubscription() {
     try {
-      const app = initializeApp(firebaseConfig);
-      const messaging = getMessaging(app);
+      // Zenith Mobile: Explicitly request Firebase from CDN to bypass Astro's critical module resolution tree entirely.
+      const appLib = await import("https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js");
+      const msgLib = await import("https://www.gstatic.com/firebasejs/10.10.0/firebase-messaging.js");
+      
+      const app = appLib.initializeApp(firebaseConfig);
+      const messaging = msgLib.getMessaging(app);
       
       const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
-      const token = await getToken(messaging, { serviceWorkerRegistration: registration });
+      const token = await msgLib.getToken(messaging, { serviceWorkerRegistration: registration });
       
       if (token) {
         await fetch('/api/subscribe', {
@@ -79,17 +80,15 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token })
         });
-        console.log('[PushSystem] Token synchronized.');
+        console.log('[PushSystem] Token synchronized via CDN loader.');
       }
     } catch (e) {
-      console.warn('[PushSystem] Subscription background task failed:', e);
+      console.warn('[PushSystem] CDN Subscription task failed:', e);
     }
   }
 
-  // Handle authorized event from the inline script
   window.addEventListener('fcm-authorized', handleSubscription);
 
-  // If already granted, ensure token is fresh on load
   document.addEventListener('DOMContentLoaded', () => {
     if (window.Notification && Notification.permission === 'granted') {
       handleSubscription();

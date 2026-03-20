@@ -33,7 +33,7 @@ const syncHeroImage = await getImage({
       height={syncHeroImage.attributes.height || 450}
       loading="eager"
       fetchpriority="high"
-      decoding="sync"
+      decoding="async"
       class="w-full h-full object-cover"
       style="aspect-ratio: 16 / 9;"
     />
