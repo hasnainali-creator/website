@@ -86,10 +86,7 @@ export default defineConfig({
   base: SITE.basePath,
 
   compressHTML: true,
-  prefetch: {
-    prefetchAll: true,
-    defaultStrategy: 'viewport'
-  },
+
 
   build: {
     // Absolute Render Unblocking: Forces all CSS directly into the HTML to eliminate network requests
