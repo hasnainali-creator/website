@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { Image, Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { formatDate, normalizeDate } from "@/lib/utils/date";
 import ResourcesAdd from "@/assets/svgs/resources-add.astro";
@@ -36,14 +36,13 @@ const breadcrumbs = [
   <div
     class="container px-0 max-w-5xl lg:mt-4 overflow-hidden aspect-[20/9] lg:rounded-md bg-base-200"
   >
-    <Image
+    <Picture
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "OmnySports Article Cover"}
-      width={665}
-      height={300}
+      layout="full-width"
       loading="eager"
       fetchpriority="high"
-      format="avif"
+      formats={["avif", "webp"]}
       class="w-full h-full object-cover"
     />
   </div>

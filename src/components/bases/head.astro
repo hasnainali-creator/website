@@ -26,7 +26,7 @@ let lcpPreloadUrl = "";
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
     // Reverting to 665px for visual fidelity while keeping the 45 quality optimization.
-    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 665 });
+    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 400 });
     lcpPreloadUrl = optimized.src;
   } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
     // Fallback for static strings
