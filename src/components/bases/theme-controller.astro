@@ -48,11 +48,12 @@ import Sun from "@/assets/svgs/sun.astro";
   }
 
   document.addEventListener("astro:page-load", () => {
-    applyTheme();
+    /** @type {HTMLInputElement | null} */
     const themeController = document.querySelector(".theme-controller");
-    if (themeController) themeController.addEventListener("change", handleThemeToggle);
+    const theme = localStorage.getItem("astro-theme") || "light";
+    if (themeController) {
+      themeController.checked = theme === "dark";
+      themeController.addEventListener("change", handleThemeToggle);
+    }
   });
-
-  // Apply theme immediately on script execution
-  applyTheme();
 </script>

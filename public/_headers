@@ -14,3 +14,5 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   X-XSS-Protection: 1; mode=block
+  Cache-Control: public, max-age=0, must-revalidate
+  Link: </fonts/source-sans-pro-latin-400-normal.woff2>; rel=preload; as=font; crossorigin; nopush

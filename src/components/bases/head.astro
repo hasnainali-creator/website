@@ -26,7 +26,7 @@ let lcpPreloadUrl = "";
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
     // Reverting to 665px for visual fidelity while keeping the 45 quality optimization.
-    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: 45 });
+    const optimized = await getImage({ src: preloadImage, format: 'avif', width: 665 });
     lcpPreloadUrl = optimized.src;
   } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
     // Fallback for static strings
@@ -174,13 +174,17 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
 ---
 
 <head>
+  <script is:inline>
+    (function() {
+      const theme = localStorage.getItem("astro-theme") || "light";
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
   <!-- Global Metadata -->
   <meta charset={SITE.charset} />
   
   <!-- Font Architecture: Critical above-fold fonts with rendering enforcement -->
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <style is:inline>
     @font-face {
       font-family: "Source Sans Pro";
@@ -225,7 +229,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   <link rel="canonical" href={canonicalURL} />
 
   <!-- LCP Image Preload for Articles (Google Core Web Vitals Zenith) -->
-  {lcpPreloadUrl && <link rel="preload" as="image" href={lcpPreloadUrl} fetchpriority="high" />}
+  {lcpPreloadUrl && <link rel="preload" as="image" type="image/avif" href={lcpPreloadUrl} fetchpriority="high" />}
+
 
   <!-- Page Metadata -->
   <title>{meta.title}</title>
@@ -337,7 +342,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
               { "not": { "selector_matches": "[rel~=nofollow]" } }
             ]
           },
-          "eagerness": "eager"
+          "eagerness": "moderate"
         }
       ]
     }

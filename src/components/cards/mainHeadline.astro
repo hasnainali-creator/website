@@ -1,5 +1,5 @@
 ---
-import { getImage } from "astro:assets";
+import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import Divider from "@/components/bases/divider.astro";
@@ -14,28 +14,20 @@ type Props = {
 const { article } = Astro.props;
 
 const { remarkPluginFrontmatter } = await render(article);
-
-// Synchronized with head.astro for 0ms discovery (Zenith Hash Match)
-const syncHeroImage = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 665,
-  quality: 45,
-});
 ---
 
 <article class="group relative isolate flex flex-col-reverse md:flex-col gap-4">
   <div class="overflow-hidden rounded-md relative" style="aspect-ratio: 16 / 9; width: 100%;">
-    <img
-      src={syncHeroImage.src}
+    <Image
+      src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Main Headline News"}
-      width={syncHeroImage.attributes.width || 800}
-      height={syncHeroImage.attributes.height || 450}
+      width={665}
+      height={374}
+      format="avif"
       loading="eager"
       fetchpriority="high"
       decoding="sync"
-      class="w-full h-full object-cover"
-      style="aspect-ratio: 16 / 9;"
+      class="aspect-video rounded-md w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
     />
   </div>
   <div class="flex flex-col gap-2">
