@@ -185,6 +185,7 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   
   <!-- Font Architecture: Critical above-fold fonts with rendering enforcement -->
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <style is:inline>
     @font-face {
       font-family: "Source Sans Pro";
@@ -326,8 +327,8 @@ const breadcrumbSchemaString = breadcrumbSchema ? JSON.stringify(breadcrumbSchem
   {meta.next && <link rel="next" href={new URL(meta.next, Astro.site).href} />}
 
 
-  <script type="application/ld+json" set:html={schemaOrgString}></script>
-  {breadcrumbSchemaString && <script type="application/ld+json" set:html={breadcrumbSchemaString}></script>}
+  <script is:inline type="application/ld+json" set:html={schemaOrgString}></script>
+  {breadcrumbSchemaString && <script is:inline type="application/ld+json" set:html={breadcrumbSchemaString}></script>}
 
   {/* Speculation Rules API: 'Hard Intelligence' Zero-Latency Pre-rendering */}
   {/* This pre-renders internal links during hover/intent for 0ms transitions */}

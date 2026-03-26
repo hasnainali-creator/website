@@ -1,40 +1,49 @@
 ---
 // NotificationManager.astro
+// Best Practice: Never request notification permission on page load.
+// Only subscribe if user has ALREADY granted permission previously.
 ---
 <script>
-    import { initializeApp } from 'firebase/app';
-    import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+    async function initNotifications() {
+        // Only proceed if the browser supports notifications AND permission was already granted
+        if (!('Notification' in window) || Notification.permission !== 'granted') {
+            return;
+        }
 
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID",
-        measurementId: "YOUR_MEASUREMENT_ID"
-    };
-
-    // Replace with the user's actual firebaseConfig logic if they have one configured locally elsewhere
-    // Wait for the DOM to be ready
-    document.addEventListener("DOMContentLoaded", async () => {
         try {
+            const { initializeApp } = await import('firebase/app');
+            const { getMessaging, getToken } = await import('firebase/messaging');
+
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_PROJECT_ID.appspot.com",
+                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                appId: "YOUR_APP_ID",
+                measurementId: "YOUR_MEASUREMENT_ID"
+            };
+
             const app = initializeApp(firebaseConfig);
             const messaging = getMessaging(app);
 
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                const token = await getToken(messaging, { vapidKey: 'YOUR_VAPID_KEY' });
-                if (token) {
-                    await fetch('/api/subscribe', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token })
-                    });
-                }
+            const token = await getToken(messaging, { vapidKey: 'YOUR_VAPID_KEY' });
+            if (token) {
+                await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
             }
         } catch (e) {
-            console.error('FCM Token generation failed:', e);
+            console.error('FCM Token sync failed:', e);
         }
-    });
+    }
+
+    // Fire after page is fully interactive (non-blocking)
+    if (document.readyState === 'complete') {
+        initNotifications();
+    } else {
+        window.addEventListener('load', initNotifications, { once: true });
+    }
 </script>
