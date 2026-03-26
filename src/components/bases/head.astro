@@ -187,11 +187,21 @@ const breadcrumbSchemaString = breadcrumbSchema
 ---
 
 <head>
-  {/* Priority #1 (Bandwidth Monopolization): The Image LCP gets 100% of the initial network pipe */}
+  <meta charset={SITE.charset} />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  {/* Level 0 Alpha: DNS & Preconnect Optimization */}
+  <link rel="preconnect" href="https://omnysports.pages.dev" crossorigin />
+  <link rel="dns-prefetch" href="https://omnysports.pages.dev" />
+
+  {/* Priority #1 (Visual Completion): Preloading ALL Critical Above-the-Fold Fonts */}
+  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+  <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+  {/* Priority #2 (LCP Monopolization): The Image LCP with fetchpriority="high" */}
   {preloadSrcset && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
 
-  {/* Priority #2: Only the absolute single critical Headline font is preloaded, others wait for text rendering pipeline. */}
-  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <script is:inline>
     (function () {
       const theme = localStorage.getItem("astro-theme") || "light";
@@ -199,7 +209,7 @@ const breadcrumbSchemaString = breadcrumbSchema
     })();
   </script>
   <!-- Global Metadata -->
-  <meta charset={SITE.charset} />
+  <meta name="generator" content={Astro.generator} />
 
   <!-- Font Architecture: Rendering enforcement -->
   <style is:inline>
@@ -240,12 +250,6 @@ const breadcrumbSchemaString = breadcrumbSchema
     }
   </style>
 
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="generator" content={Astro.generator} />
-  <meta
-    name="google-site-verification"
-    content="W8AjDFoqY6tOae7A9GdmvTwsRrApr2oONLXibkvtmR8"
-  />
 
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalURL} />
