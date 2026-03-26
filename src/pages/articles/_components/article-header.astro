@@ -39,7 +39,8 @@ const breadcrumbs = [
     <Picture
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "OmnySports Article Cover"}
-      layout="full-width"
+      widths={[400, 800]}
+      sizes="(max-width: 768px) 100vw, 1024px"
       loading="eager"
       fetchpriority="high"
       formats={["avif", "webp"]}

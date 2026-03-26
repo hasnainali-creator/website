@@ -90,7 +90,7 @@ export default defineConfig({
 
   build: {
     // Absolute Render Unblocking: Forces all CSS directly into the HTML to eliminate network requests
-    inlineStylesheets: 'auto'
+    inlineStylesheets: 'always'
   },
 
   markdown: {
