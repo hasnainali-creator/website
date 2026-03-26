@@ -4,7 +4,6 @@ import path from 'node:path';
 
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const LIGHT_SVG = path.join(PUBLIC_DIR, 'favicon-light.svg');
-const DARK_SVG = path.join(PUBLIC_DIR, 'favicon-dark.svg');
 
 async function generate() {
   if (!fs.existsSync(LIGHT_SVG)) {

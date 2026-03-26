@@ -10,32 +10,35 @@ type Props = {
 
 const { meta, preloadImage, preloadSizes = "100vw" } = Astro.props;
 
-// Type guard to check if props is ArticleMeta
-const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
-  props.type === "article";
-const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
-
 import { categoriesHandler } from "@/lib/handlers/categories";
 const catProvider = await categoriesHandler.getProvider();
 const navCategories = catProvider.getNestedCategories();
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
+// Zenith: High-Fidelity Universal Speed Path
 import { getImage } from "astro:assets";
+const isArticleMeta = (meta: any): meta is ArticleMeta => meta.type === "article";
 const OGImage = new URL(meta.ogImage, Astro.url).href;
 
-// Zenith: Resolve HERO image URL at build-time for perfect exact-match responsive preloading
 let preloadSrcset = "";
+
 
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
-    const img400 = await getImage({ src: preloadImage, format: 'avif', width: 400 });
-    const img665 = await getImage({ src: preloadImage, format: 'avif', width: 665 });
-    const img800 = await getImage({ src: preloadImage, format: 'avif', width: 800 });
-    preloadSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w`;
-  } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
-    preloadSrcset = `${preloadImage} 400w, ${preloadImage} 665w, ${preloadImage} 800w`;
+    const q = 40; // Aggressive quality for Universal Speed
+    const img400 = await getImage({ src: preloadImage, format: 'avif', width: 400, quality: q });
+    const img665 = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: q });
+    const img800 = await getImage({ src: preloadImage, format: 'avif', width: 800, quality: q });
+    const img1024 = await getImage({ src: preloadImage, format: 'avif', width: 1024, quality: q });
+    preloadSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1024.src} 1024w`;
+
+  } else {
+    preloadSrcset = `${preloadImage} 400w, ${preloadImage} 665w, ${preloadImage} 800w, ${preloadImage} 1024w`;
+
   }
 } else if (isArticleMeta(meta)) {
-  preloadSrcset = `${OGImage} 400w, ${OGImage} 665w, ${OGImage} 800w`;
+  preloadSrcset = `${OGImage} 400w, ${OGImage} 665w, ${OGImage} 800w, ${OGImage} 1024w`;
+
 }
 
 const schemaOrg: any = {
@@ -184,6 +187,7 @@ const breadcrumbSchemaString = breadcrumbSchema
 ---
 
 <head>
+  {preloadSrcset && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
   <script is:inline>
     (function () {
       const theme = localStorage.getItem("astro-theme") || "light";
@@ -193,21 +197,7 @@ const breadcrumbSchemaString = breadcrumbSchema
   <!-- Global Metadata -->
   <meta charset={SITE.charset} />
 
-  <!-- Font Architecture: Critical above-fold fonts with rendering enforcement -->
-  <link
-    rel="preload"
-    href="/fonts/source-sans-pro-latin-400-normal.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin="anonymous"
-  />
-  <link
-    rel="preload"
-    href="/fonts/source-serif-4-latin-wght-normal.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin="anonymous"
-  />
+  <!-- Font Architecture: Rendering enforcement -->
   <style is:inline>
     @font-face {
       font-family: "Source Sans Pro";
@@ -255,9 +245,6 @@ const breadcrumbSchemaString = breadcrumbSchema
 
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalURL} />
-
-  <!-- LCP Exact Match Image Preload -->
-  {preloadSrcset && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
 
   <!-- Page Metadata -->
   <title>{meta.title}</title>

@@ -1,5 +1,5 @@
 ---
-import { Image, Picture } from "astro:assets";
+import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { formatDate, normalizeDate } from "@/lib/utils/date";
 import ResourcesAdd from "@/assets/svgs/resources-add.astro";
@@ -19,6 +19,15 @@ type Props = {
 
 const { article, readingTime } = Astro.props;
 
+// Zenith High-Performance Execution: Manual AVIF Generation for Universal Speed
+import { getImage } from "astro:assets";
+const q = 40; // Exact match with head.astro for absolute cache hit
+const img400 = await getImage({ src: article.data.cover, format: 'avif', width: 400, quality: q });
+const img665 = await getImage({ src: article.data.cover, format: 'avif', width: 665, quality: q });
+const img800 = await getImage({ src: article.data.cover, format: 'avif', width: 800, quality: q });
+const img1024 = await getImage({ src: article.data.cover, format: 'avif', width: 1024, quality: q });
+const lcpSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1024.src} 1024w`;
+
 const authors = await authorsHandler.getAuthors(article.data.authors);
 const catProvider = await categoriesHandler.getProvider();
 const cats = normalizeCategoryData(article.data.category);
@@ -36,15 +45,17 @@ const breadcrumbs = [
   <div
     class="container px-0 max-w-5xl lg:mt-4 overflow-hidden aspect-[20/9] lg:rounded-md bg-base-200"
   >
-    <Picture
-      src={article.data.cover}
+    <img
+      src={img800.src}
+      srcset={lcpSrcset}
       alt={article.data.coverAlt || article.data.title || "OmnySports Article Cover"}
-      widths={[400, 665, 800]}
       sizes="(max-width: 768px) 100vw, 1024px"
       loading="eager"
       fetchpriority="high"
-      formats={["avif", "webp"]}
+      decoding="sync"
       class="w-full h-full object-cover"
+      width="1024"
+      height="460"
     />
   </div>
   <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
