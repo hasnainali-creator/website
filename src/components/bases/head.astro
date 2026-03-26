@@ -5,9 +5,10 @@ import type { ArticleMeta, Meta } from "@/lib/types";
 type Props = {
   meta: Meta | ArticleMeta;
   preloadImage?: string | any;
+  preloadSizes?: string;
 };
 
-const { meta, preloadImage } = Astro.props;
+const { meta, preloadImage, preloadSizes = "100vw" } = Astro.props;
 
 // Type guard to check if props is ArticleMeta
 const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
@@ -21,23 +22,20 @@ const navCategories = catProvider.getNestedCategories();
 import { getImage } from "astro:assets";
 const OGImage = new URL(meta.ogImage, Astro.url).href;
 
-// Zenith: Resolve HERO image URL at build-time for 0ms discovery latency
-let lcpMobileUrl = "";
-let lcpDesktopUrl = "";
+// Zenith: Resolve HERO image URL at build-time for perfect exact-match responsive preloading
+let preloadSrcset = "";
 
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
-    const mobileImg = await getImage({ src: preloadImage, format: 'avif', width: 400 });
-    const desktopImg = await getImage({ src: preloadImage, format: 'avif', width: 800 });
-    lcpMobileUrl = mobileImg.src;
-    lcpDesktopUrl = desktopImg.src;
+    const img400 = await getImage({ src: preloadImage, format: 'avif', width: 400 });
+    const img665 = await getImage({ src: preloadImage, format: 'avif', width: 665 });
+    const img800 = await getImage({ src: preloadImage, format: 'avif', width: 800 });
+    preloadSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w`;
   } else if (typeof preloadImage === 'string' && (preloadImage.startsWith('/') || preloadImage.startsWith('http'))) {
-    lcpMobileUrl = preloadImage;
-    lcpDesktopUrl = preloadImage;
+    preloadSrcset = `${preloadImage} 400w, ${preloadImage} 665w, ${preloadImage} 800w`;
   }
 } else if (isArticleMeta(meta)) {
-  lcpMobileUrl = OGImage;
-  lcpDesktopUrl = OGImage;
+  preloadSrcset = `${OGImage} 400w, ${OGImage} 665w, ${OGImage} 800w`;
 }
 
 const schemaOrg: any = {
@@ -258,9 +256,8 @@ const breadcrumbSchemaString = breadcrumbSchema
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalURL} />
 
-  <!-- LCP Image Preload for Articles (Google Core Web Vitals Zenith) -->
-  {lcpMobileUrl && <link rel="preload" as="image" type="image/avif" media="(max-width: 768px)" href={lcpMobileUrl} fetchpriority="high" />}
-  {lcpDesktopUrl && <link rel="preload" as="image" type="image/avif" media="(min-width: 769px)" href={lcpDesktopUrl} fetchpriority="high" />}
+  <!-- LCP Exact Match Image Preload -->
+  {preloadSrcset && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
 
   <!-- Page Metadata -->
   <title>{meta.title}</title>

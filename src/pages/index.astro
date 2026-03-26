@@ -17,7 +17,7 @@ if (!entry) {
 }
 ---
 
-<BaseLayout entry={entry} preloadImage={preloadImage}>
+<BaseLayout entry={entry} preloadImage={preloadImage} preloadSizes="(max-width: 768px) calc(100vw - 32px), 800px">
   <h1 class="sr-only">{entry.data.seo?.metaTitle || "OmnySports - Your Ultimate Sports News and Insights Portal"}</h1>
   <Headlines />
   <LatestNews />

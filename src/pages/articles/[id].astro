@@ -19,7 +19,7 @@ const { article } = Astro.props;
 const { Content, remarkPluginFrontmatter } = await render(article);
 ---
 
-<BaseLayout entry={article} preloadImage={article.data.cover}>
+<BaseLayout entry={article} preloadImage={article.data.cover} preloadSizes="(max-width: 768px) 100vw, 1024px">
   <ArticleHeader
     article={article}
     readingTime={remarkPluginFrontmatter.minutesRead}

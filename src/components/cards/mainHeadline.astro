@@ -21,8 +21,8 @@ const { remarkPluginFrontmatter } = await render(article);
     <Picture
       src={article.data.cover}
       alt={article.data.coverAlt || article.data.title || "Main Headline News"}
-      widths={[400, 800]}
-      sizes="(max-width: 768px) 100vw, 800px"
+      widths={[400, 665, 800]}
+      sizes="(max-width: 768px) calc(100vw - 32px), 800px"
       formats={["avif", "webp"]}
       loading="eager"
       fetchpriority="high"
