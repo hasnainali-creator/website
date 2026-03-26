@@ -187,6 +187,15 @@ const breadcrumbSchemaString = breadcrumbSchema
 ---
 
 <head>
+  {/* Level 0 Performance: Intercepting Critical Path with Extreme Preloads */}
+  <link rel="preconnect" href="https://omnysports.pages.dev" crossorigin />
+  <link rel="dns-prefetch" href="https://omnysports.pages.dev" />
+  
+  {/* Font Architecture: Destroying Font-Block Delay */}
+  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+  <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
   {preloadSrcset && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
   <script is:inline>
     (function () {
