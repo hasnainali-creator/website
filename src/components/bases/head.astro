@@ -25,7 +25,7 @@ let preloadSrcset = "";
 
 if (preloadImage) {
   if (typeof preloadImage === 'object') {
-    const q = 40; // Aggressive quality for Universal Speed
+    const q = 35; // Supreme Aggressive quality for Universal Speed (< 1.0s LCP)
     const img400 = await getImage({ src: preloadImage, format: 'avif', width: 400, quality: q });
     const img665 = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: q });
     const img800 = await getImage({ src: preloadImage, format: 'avif', width: 800, quality: q });
@@ -187,16 +187,11 @@ const breadcrumbSchemaString = breadcrumbSchema
 ---
 
 <head>
-  {/* Level 0 Performance: Intercepting Critical Path with Extreme Preloads */}
-  <link rel="preconnect" href="https://omnysports.pages.dev" crossorigin />
-  <link rel="dns-prefetch" href="https://omnysports.pages.dev" />
-  
-  {/* Font Architecture: Destroying Font-Block Delay */}
-  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-
+  {/* Priority #1 (Bandwidth Monopolization): The Image LCP gets 100% of the initial network pipe */}
   {preloadSrcset && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
+
+  {/* Priority #2: Only the absolute single critical Headline font is preloaded, others wait for text rendering pipeline. */}
+  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
   <script is:inline>
     (function () {
       const theme = localStorage.getItem("astro-theme") || "light";

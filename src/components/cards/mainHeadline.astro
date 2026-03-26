@@ -15,7 +15,7 @@ type Props = {
 const { article } = Astro.props;
 
 // Zenith High-Performance Execution: Manual AVIF Generation for Universal Speed
-const q = 40; // Exact match with head.astro for absolute cache hit
+const q = 35; // Exact match with head.astro for absolute cache hit
 const img400 = await getImage({ src: article.data.cover, format: 'avif', width: 400, quality: q });
 const img665 = await getImage({ src: article.data.cover, format: 'avif', width: 665, quality: q });
 const img800 = await getImage({ src: article.data.cover, format: 'avif', width: 800, quality: q });
