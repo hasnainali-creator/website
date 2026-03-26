@@ -122,9 +122,8 @@ const breadcrumbs = [
                           width={48}
                           height={48}
                           loading={"eager"}
-                          format="avif"
-                          layout="constrained"
-                          quality={80}
+                          fetchpriority="high"
+                          decoding="sync"
                         />
                       ) : (
                         <div class="w-8 h-8 bg-base-300 flex items-center justify-center rounded-full">

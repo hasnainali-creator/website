@@ -48,8 +48,9 @@ const teamSchema = {
                   <Image 
                      src={author.data.avatar as any} 
                      alt={author.data.name} 
-                     width={200} 
-                     height={200} 
+                     width={120} 
+                     height={120} 
+                     loading="lazy"
                      class="w-24 h-24 rounded-full object-cover shadow-sm border border-base-content/20 mb-4"
                   />
                 ) : (

@@ -23,8 +23,8 @@ const { author, loading = "lazy", fetchpriority = "auto" } = Astro.props;
       formats={["avif", "webp"]}
       fallbackFormat="jpg"
       decoding="async"
-      width={320}
-      height={320}
+      width={160}
+      height={160}
     />
   ) : (
     <div class="w-full aspect-square max-w-full rounded-md bg-base-300 filter grayscale group-hover:grayscale-0 flex items-center justify-center border border-base-content/10 transition-all duration-300">
