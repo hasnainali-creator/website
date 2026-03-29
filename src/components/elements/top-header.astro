@@ -2,7 +2,8 @@
 import Search01 from "@/assets/svgs/search-01.astro";
 import MenuDropdown from "./menu-dropdown.astro";
 import { SITE } from "@/lib/config";
-import ThemeController from "../bases/theme-controller.astro";
+
+
 ---
 
 <div
@@ -16,7 +17,6 @@ import ThemeController from "../bases/theme-controller.astro";
     <a class="text-xl px-2" href="/">{SITE.title}</a>
   </div>
   <div class="navbar-end">
-    <ThemeController />
     <a class="btn btn-ghost btn-circle" href="/search" aria-label="Search">
       <Search01 />
     </a>

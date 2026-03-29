@@ -2,6 +2,22 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "css.customData": ["./.vscode/tailwind-v4.json"],
+  "scss.customData": ["./.vscode/tailwind-v4.json"],
+  "tailwindCSS.lint.unknownAtRules": "ignore",
+  "tailwindCSS.lint.unknownConfigKey": "ignore",
+  "tailwindCSS.lint.cssConflict": "warning",
+  "tailwindCSS.experimental.classRegex": [
+    ["class\\s*=\\s*\"([^\"]*)\""]
+  ],
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "editor.fontLigatures": "'calt', 'ss01', 'ss02', 'ss03', 'ss19', 'ss20'",
   "editor.fontFamily": "'Cascadia Code NF', Consolas, 'Courier New', monospace",
   "editor.tabSize": 2,

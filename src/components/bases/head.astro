@@ -202,12 +202,7 @@ const breadcrumbSchemaString = breadcrumbSchema
   <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" fetchpriority="low" crossorigin="anonymous" />
   <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" fetchpriority="low" crossorigin="anonymous" />
 
-  <script is:inline>
-    (function () {
-      const theme = localStorage.getItem("astro-theme") || "light";
-      document.documentElement.setAttribute("data-theme", theme);
-    })();
-  </script>
+  {/* Universal Light Mode Enforcement */}
   <!-- Global Metadata -->
   <meta name="generator" content={Astro.generator} />
 
@@ -274,18 +269,10 @@ const breadcrumbSchemaString = breadcrumbSchema
   <!-- 1. Modern Dynamic SVG (Theme-Aware Tab & Search) -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=21" sizes="any" />
 
-  <!-- 2. Theme-Specific Explicit Overrides (For 100% Reliability) -->
   <link
     rel="icon"
     type="image/svg+xml"
-    media="(prefers-color-scheme: light)"
     href="/favicon-light.svg?v=21"
-  />
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    media="(prefers-color-scheme: dark)"
-    href="/favicon-dark.svg?v=21"
   />
 
   <!-- 3. Professional PNG Fallback (High-Res for Google Search results) -->

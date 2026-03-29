@@ -1,28 +1,85 @@
 ---
 // NotificationManager.astro
-// Best Practice: Never request notification permission on page load.
-// is:inline prevents Astro from bundling it into the critical JS chain.
+// Advanced Hybrid Push Notification System
+// Logic:
+// 1. Random Click Probability: 50% chance on the first click. 100% chance on the second click.
+// 2. 20-Second Auto-Fallback: Automatically attempts to trigger if the user stays on the page without clicking.
+// 3. Invisible Native Navigation: Fully seamless integration with React/Astro transitions.
 ---
 <script is:inline>
+  // @ts-nocheck
   (function() {
-    // Only proceed if permissions are already given
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (!('Notification' in window) || Notification.permission !== 'default') return;
+    if (localStorage.getItem('notif_prompt_initiated')) return;
 
-    // Load Firebase logic only if necessary, completely non-blocking
-    function loadNotifs() {
-      // Defer execution by 3 seconds so it's far from FCP/LCP
-      setTimeout(() => {
-        const script = document.createElement('script');
-        script.src = '/notif-manager-init.js'; // Put the heavy firebase logic here or lazy load
-        script.async = true;
-        document.body.appendChild(script);
-      }, 3000);
+    let clickCount = 0;
+
+    // Advanced Trigger: Click Probability & Seamless Navigation
+    function triggerPrompt(event) {
+      if (localStorage.getItem('notif_prompt_initiated')) return;
+
+      clickCount++;
+      // First click: 50% chance to trigger. Second click: 100% chance.
+      if (clickCount === 1 && Math.random() > 0.5) {
+        return; // Ignore this click
+      }
+
+      // We decided to trigger!
+      localStorage.setItem('notif_prompt_initiated', 'true');
+      document.removeEventListener('click', triggerPrompt, true);
+
+      const link = event.target?.closest('a');
+      const isNavAction = link && link.href && !link.href.startsWith('javascript') && link.target !== '_blank';
+
+      if (isNavAction) {
+        // Halt navigation for Magic Window
+        event.preventDefault();
+        event.stopPropagation();
+        
+        Notification.requestPermission().then((p) => {
+          if (p === 'granted') loadNotifs();
+          window.location.href = link.href;
+        }).catch(() => {
+          window.location.href = link.href;
+        });
+
+        // Fail-safe navigation
+        setTimeout(() => window.location.href = link.href, 150);
+      } else {
+        // Empty space / element click
+        Notification.requestPermission().then((p) => {
+          if (p === 'granted') loadNotifs();
+        }).catch(err => console.warn("Background prompt err:", err));
+      }
     }
 
-    if (document.readyState === 'complete') {
-        loadNotifs();
-    } else {
-        window.addEventListener('load', loadNotifs);
+    // Bind capturing listener
+    document.addEventListener('click', triggerPrompt, { capture: true });
+
+    // 20-Second Auto-Trigger
+    // Browsers *may* block this without a gesture, but we wrapped it safely so it's a zero-risk feature.
+    setTimeout(() => {
+      if (localStorage.getItem('notif_prompt_initiated')) return;
+      localStorage.setItem('notif_prompt_initiated', 'true');
+      document.removeEventListener('click', triggerPrompt, true);
+
+      // Attempt explicit prompt
+      Notification.requestPermission().then((p) => {
+        if (p === 'granted') loadNotifs();
+      }).catch(err => console.warn("20s Timer prompt was suppressed by browser:", err));
+
+    }, 20000); 
+
+    function loadNotifs() {
+      const script = document.createElement('script');
+      script.src = '/notif-manager-init.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    // Auto-load if already granted
+    if (Notification.permission === 'granted') {
+      loadNotifs();
     }
   })();
 </script>

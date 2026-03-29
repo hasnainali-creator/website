@@ -86,7 +86,7 @@ export const articlesKs = collection({
     authors: fields.array(
       fields.relationship({
         label: "Authors",
-        collection: "authors",
+        collection: "editorial",
       }),
       {
         label: "Authors",

@@ -8,13 +8,14 @@
 @plugin "@tailwindcss/typography";
 
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark;
+  themes: light --default;
   root: ":root";
   logs: false;
 }
 
-/* Tailwind v4 Modern Variants */
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+/* Dark Mode is intentionally disabled. 
+   This unresolvable variant forces all 'dark:' classes to sit idle and prevents OS-level media queries from activating them. */
+@custom-variant dark (&:where([data-theme=disabled-dark-mode]));
 
 /* ---------- Custom Font Definitions ---------- */
 /* Inlined in head.astro to eliminate FOUT chain   */
@@ -44,43 +45,83 @@
   letter-spacing: -0.03em;
 }
 
+/* ---------- ChatGPT Style Advanced Internal Linking ---------- */
+.prose a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  transition: all 0.2s;
+  color: #3882f3; /* Enhanced Visible Blue */
+  font-weight: 500;
+}
+
+.prose a::after {
+  content: "";
+  display: inline-flex;
+  width: 0.95em;
+  height: 0.95em;
+  background-color: #3882f3; /* Matching Arrow Color */
+  opacity: 0.85;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='5' y1='19' x2='17' y2='7'%3E%3C/line%3E%3Cpolyline points='7 7 17 7 17 17'%3E%3C/polyline%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  margin-left: 0.2rem;
+}
+
+.prose a:hover, .prose a:active {
+  color: #3882f3;
+  text-decoration: none;
+}
+
+.prose a:hover::after {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------- */
+
 /* Tailwind v4 Layer System */
 @layer base {
   :root {
-    @apply cursor-default;
+    cursor: default;
   }
 
   html {
-    @apply h-full text-[16px];
+    height: 100%;
+    font-size: 16px;
   }
 
   @media (min-width: 1024px) {
     html {
-      @apply text-[17px];
+      font-size: 17px;
     }
   }
 
   body {
-    @apply font-sans antialiased h-full;
+    font-family: "Source Sans Pro", ui-sans-serif, system-ui, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100%;
   }
 
   h1,
   h2 {
-    @apply font-serif;
+    font-family: "Source Serif 4 Variable", ui-serif, Georgia, Cambria,
+      "Times New Roman", Times, serif;
   }
 
   small,
   time {
-    @apply text-sm;
+    font-size: 0.875rem;
   }
 
   .prose {
     pre {
       code {
-
         span,
         p {
-          @apply break-all;
+          word-break: break-all;
         }
       }
     }
@@ -104,7 +145,10 @@
 /* Custom Component Layers */
 @layer components {
   .a-01 {
-    @apply hover:underline decoration-primary;
+    text-decoration-color: var(--color-primary);
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 

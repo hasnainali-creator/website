@@ -68,8 +68,38 @@ export function modifiedTime() {
 
 export function readingTime() {
   return (tree, { data }) => {
+    // Advanced Precision Logic: Scanning tree for images and words
+    let images = 0;
+    
+    // Simple recursive traversal to find image nodes
+    const traverse = (node) => {
+      if (node.type === 'image') images++;
+      if (node.children) node.children.forEach(traverse);
+    }
+    traverse(tree);
+
     const textOnPage = ConvertToString(tree);
-    const readingTime = getReadingTime(textOnPage, { wordsPerMinute: 180 });
-    data.astro.frontmatter.minutesRead = readingTime.text;
+    const wordCount = textOnPage.trim().split(/\s+/).length || 0;
+    
+    // Logic: 275 WPM (Industry Standard) + Medium Image Scaling
+    const wordsPerMin = 275;
+    const wordSeconds = (wordCount / wordsPerMin) * 60;
+    
+    // Medium-style Image Logic: 12, 11, 10... up to min 3s per image
+    let imageSeconds = 0;
+    for (let i = 1; i <= images; i++) {
+       imageSeconds += Math.max(12 - i + 1, 3);
+    }
+    
+    const totalSeconds = Math.ceil(wordSeconds + imageSeconds);
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    
+    // Professional advanced format
+    let finalStr = "";
+    if (m > 0) finalStr += `${m} min `;
+    finalStr += `${s} sec read`;
+    
+    data.astro.frontmatter.minutesRead = finalStr;
   };
 }

@@ -8,6 +8,20 @@ import path from 'node:path';
  * This helps force Google to refresh the Site Name and Favicon in Search results.
  */
 async function forceUpdate() {
+    // SHIELD MODE CHECK: Do not index ANYTHING if shield is active!
+    try {
+        const configPath = path.resolve(process.cwd(), 'src/lib/config/index.ts');
+        if (fs.existsSync(configPath)) {
+            const configContent = fs.readFileSync(configPath, 'utf8');
+            if (configContent.includes('SHIELD_MODE: true')) {
+                console.log('🛡️ SHIELD MODE ACTIVE: Skipping Force-Update requests.');
+                return;
+            }
+        }
+    } catch (err) {
+        console.warn('⚠️ Could not check SHIELD_MODE, proceeding with caution.');
+    }
+
     let keyContent = process.env.GOOGLE_INDEXING_KEY;
 
     if (!keyContent) {
@@ -24,7 +38,11 @@ async function forceUpdate() {
     }
 
     if (!keyContent) {
-        console.error('❌ ERROR: GOOGLE_INDEXING_KEY not found. Cannot notify Google.');
+        if (process.env.CF_PAGES) {
+            console.error('❌ CRITICAL: GOOGLE_INDEXING_KEY is missing in Cloudflare Environment Variables!');
+        } else {
+            console.log('ℹ️ Local Environment: GOOGLE_INDEXING_KEY not found. Skipping force-update (This is normal for local builds).');
+        }
         return;
     }
 

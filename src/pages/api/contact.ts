@@ -4,17 +4,21 @@ interface ContactPayload {
     name: string;
     email: string;
     purpose: string;
+    subject: string;
     message: string;
     honeypot?: string;
 }
 
 const PURPOSE_LABELS: Record<string, string> = {
-    general: "General Message",
-    news: "News Tip / Story Lead",
+    editorial: "Factual Correction / Editorial Feedback",
+    tip: "Confidential News Tip / Story Lead",
+    copyright: "Copyright / DMCA Claim",
+    accessibility: "Accessibility Issue / Barrier Report",
+    privacy: "Data Privacy Request (GDPR/CCPA)",
     ads: "Advertising & Partnerships",
-    careers: "Join the Writing Team",
-    correction: "Report a Fact Error",
-    tech: "Technical Support",
+    careers: "Join the Editorial Team",
+    tech: "Technical Site Issue",
+    other: "General / Other Inquiry",
 };
 
 export async function POST({ request }: { request: Request }) {
@@ -31,9 +35,9 @@ export async function POST({ request }: { request: Request }) {
         }
 
         // --- Validation ---
-        if (!data.name || !data.email || !data.message) {
+        if (!data.name || !data.email || !data.message || !data.subject) {
             return new Response(
-                JSON.stringify({ error: "Missing required fields: name, email, and message." }),
+                JSON.stringify({ error: "Missing required fields: name, email, subject, and message." }),
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
@@ -47,8 +51,9 @@ export async function POST({ request }: { request: Request }) {
         }
 
         // --- Build the email ---
-        const purposeLabel = PURPOSE_LABELS[data.purpose] || "General Message";
-        const timestamp = new Date().toISOString();
+        const purposeLabel = PURPOSE_LABELS[data.purpose] || "General Inquiry";
+        const emailSubject = `[${purposeLabel}] ${data.subject}`;
+        const timestamp = new Date().toLocaleString('en-US', { timeZone: 'UTC' }) + ' UTC';
 
         // --- Send via Resend API ---
         const RESEND_API_KEY = (import.meta as any).env?.RESEND_API_KEY || process.env.RESEND_API_KEY;
@@ -71,27 +76,44 @@ export async function POST({ request }: { request: Request }) {
             body: JSON.stringify({
                 from: "OmnySports Contact <onboarding@resend.dev>",
                 to: [CONTACT_EMAIL],
-                subject: `[${purposeLabel}] New Contact from ${data.name}`,
+                subject: emailSubject,
                 html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: #1a1a2e; padding: 20px; border-radius: 8px 8px 0 0;">
-              <h2 style="color: #ffffff; margin: 0;">📨 New Contact Submission</h2>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1f2937;">
+            <div style="background: #111827; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h2 style="color: #ffffff; margin: 0; font-size: 24px;">New Professional Inquiry</h2>
+              <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 14px;">Source: OmnySports Contact Portal</p>
             </div>
-            <div style="padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 0; font-weight: bold; width: 140px;">Name:</td><td>${data.name}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold;">Email:</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold;">Purpose:</td><td>${purposeLabel}</td></tr>
-                <tr><td style="padding: 8px 0; font-weight: bold;">Time:</td><td>${timestamp}</td></tr>
-              </table>
-              <hr style="margin: 16px 0; border: none; border-top: 1px solid #e5e7eb;" />
-              <h3 style="margin-bottom: 8px;">Message:</h3>
-              <div style="background: #f9fafb; padding: 16px; border-radius: 6px; white-space: pre-wrap;">${data.message}</div>
+            
+            <div style="padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; background: #ffffff;">
+              <div style="margin-bottom: 25px;">
+                <h3 style="color: #374151; font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px;">Reader Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="padding: 6px 0; font-weight: bold; width: 120px; color: #6b7280;">Name:</td><td style="color: #111827;">${data.name}</td></tr>
+                  <tr><td style="padding: 6px 0; font-weight: bold; color: #6b7280;">Email:</td><td><a href="mailto:${data.email}" style="color: #2563eb; text-decoration: none;">${data.email}</a></td></tr>
+                  <tr><td style="padding: 6px 0; font-weight: bold; color: #6b7280;">Category:</td><td style="color: #111827;">${purposeLabel}</td></tr>
+                  <tr><td style="padding: 6px 0; font-weight: bold; color: #6b7280;">Time:</td><td style="color: #111827; font-size: 13px;">${timestamp}</td></tr>
+                </table>
+              </div>
+
+              <div style="margin-bottom: 25px;">
+                <h3 style="color: #374151; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px;">Subject / Topic</h3>
+                <div style="font-weight: bold; color: #111827; font-size: 18px;">${data.subject}</div>
+              </div>
+
+              <div>
+                <h3 style="color: #374151; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px;">Message Content</h3>
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; white-space: pre-wrap; color: #374151; line-height: 1.6; border: 1px solid #f3f4f6;">${data.message}</div>
+              </div>
+
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #e5e7eb; text-align: center; color: #9ca3af; font-size: 12px;">
+                This message was sent securely via the OmnySports professional contact system.
+              </div>
             </div>
           </div>
         `,
             }),
         });
+;
 
         if (!resendResponse.ok) {
             const errBody = await resendResponse.text();

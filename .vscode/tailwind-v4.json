@@ -1,0 +1,50 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@tailwind",
+      "description": "Tailwind CSS: Injects Tailwind's styles.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/functions-and-directives#tailwind" }]
+    },
+    {
+      "name": "@plugin",
+      "description": "Tailwind CSS v4: Registers a Tailwind plugin.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/v4-upgrade" }]
+    },
+    {
+      "name": "@theme",
+      "description": "Tailwind CSS v4: Defines theme tokens as CSS custom properties.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/v4-upgrade" }]
+    },
+    {
+      "name": "@utility",
+      "description": "Tailwind CSS v4: Defines a custom utility class.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/v4-upgrade" }]
+    },
+    {
+      "name": "@custom-variant",
+      "description": "Tailwind CSS v4: Defines a custom variant.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/v4-upgrade" }]
+    },
+    {
+      "name": "@variant",
+      "description": "Tailwind CSS v4: Applies a variant to a set of styles.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/v4-upgrade" }]
+    },
+    {
+      "name": "@apply",
+      "description": "Tailwind CSS: Applies utility classes inside custom CSS.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/functions-and-directives#apply" }]
+    },
+    {
+      "name": "@source",
+      "description": "Tailwind CSS v4: Tells Tailwind where to scan for class names.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs/v4-upgrade" }]
+    },
+    {
+      "name": "@import",
+      "description": "Standard CSS @import, also used by Tailwind CSS v4.",
+      "references": []
+    }
+  ]
+}
