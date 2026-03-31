@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { SignJWT, importPKCS8 } from 'jose';
 
+export const prerender = false;
+
 // Helper to generate a Google Cloud Platform OAuth2 Token entirely on the Cloudflare Edge
 async function getGoogleAuthToken(clientEmail: string, privateKey: string): Promise<string> {
     const alg = 'RS256';
@@ -40,7 +42,8 @@ async function getGoogleAuthToken(clientEmail: string, privateKey: string): Prom
     return data.access_token;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+    const { request, locals } = context;
     try {
         const body = await request.json();
         const token = body.token;
@@ -49,12 +52,15 @@ export const POST: APIRoute = async ({ request }) => {
             return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
         }
 
-        // Retrieve credentials safely inside the handler to prevent Cloudflare initialization cache errors
-        let projectId = process.env.FIREBASE_PROJECT_ID || import.meta.env.FIREBASE_PROJECT_ID;
-        let clientEmail = process.env.FIREBASE_CLIENT_EMAIL || import.meta.env.FIREBASE_CLIENT_EMAIL;
-        let privateKey = process.env.FIREBASE_PRIVATE_KEY || import.meta.env.FIREBASE_PRIVATE_KEY || '';
+        // Retrieve credentials safely inside the handler to prevent Cloudflare initialization cache errors.
+        // On Cloudflare Edge, variables added via dashboard are passed in locals.runtime.env.
+        const cfEnv = (locals as any)?.runtime?.env || {};
+        
+        let projectId = cfEnv.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || import.meta.env.FIREBASE_PROJECT_ID;
+        let clientEmail = cfEnv.FIREBASE_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL || import.meta.env.FIREBASE_CLIENT_EMAIL;
+        let privateKey = cfEnv.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY || import.meta.env.FIREBASE_PRIVATE_KEY || '';
 
-        const indexingKey = process.env.GOOGLE_INDEXING_KEY || import.meta.env.GOOGLE_INDEXING_KEY;
+        const indexingKey = cfEnv.GOOGLE_INDEXING_KEY || process.env.GOOGLE_INDEXING_KEY || import.meta.env.GOOGLE_INDEXING_KEY;
         if ((!projectId || !clientEmail || !privateKey) && indexingKey) {
             try {
                 const key = JSON.parse(indexingKey.trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n'));
