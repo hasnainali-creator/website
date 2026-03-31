@@ -1,85 +1,91 @@
 ---
 // NotificationManager.astro
-// Advanced Hybrid Push Notification System
+// Advanced Psychological Hybrid Push Notification System
 // Logic:
-// 1. Random Click Probability: 50% chance on the first click. 100% chance on the second click.
-// 2. 20-Second Auto-Fallback: Automatically attempts to trigger if the user stays on the page without clicking.
-// 3. Invisible Native Navigation: Fully seamless integration with React/Astro transitions.
+// 1. Persistence: Track clicks across page loads using sessionStorage.
+// 2. Click 1 (Coin Toss): 50% chance to show the native prompt. No spam.
+// 3. Click 2 (Guaranteed): If they haven't seen it, 100% chance on the next click.
+// 4. Invisible Native Navigation: Fully seamless integration with React/Astro transitions.
 ---
 <script is:inline>
   // @ts-nocheck
   (function() {
+    // 1. Global Checks: Browser Support and Permission Decision
     if (!('Notification' in window) || Notification.permission !== 'default') return;
+    
+    // 2. Persistent block: Don't show if already decided (Allowed or Blocked)
     if (localStorage.getItem('notif_prompt_initiated')) return;
 
-    let clickCount = 0;
-
-    // Advanced Trigger: Click Probability & Seamless Navigation
-    function triggerPrompt(event) {
+    function initiatePrompt(event) {
       if (localStorage.getItem('notif_prompt_initiated')) return;
 
-      clickCount++;
-      // First click: 50% chance to trigger. Second click: 100% chance.
-      if (clickCount === 1 && Math.random() > 0.5) {
-        return; // Ignore this click
-      }
-
-      // We decided to trigger!
+      // Mark as initiated to avoid redundant prompts
       localStorage.setItem('notif_prompt_initiated', 'true');
-      document.removeEventListener('click', triggerPrompt, true);
+      document.removeEventListener('click', handleInteraction, true);
 
-      const link = event.target?.closest('a');
+      const link = event?.target?.closest('a');
       const isNavAction = link && link.href && !link.href.startsWith('javascript') && link.target !== '_blank';
 
+      // Function to load the actual Firebase logic after permission decision
+      const finalize = (permission) => {
+        if (permission === 'granted') {
+          const script = document.createElement('script');
+          script.src = '/notif-manager-init.js';
+          script.async = true;
+          document.body.appendChild(script);
+        }
+      };
+
       if (isNavAction) {
-        // Halt navigation for Magic Window
+        // MAQSAD PURA: Pause navigation temporarily to allow the prompt to register
         event.preventDefault();
         event.stopPropagation();
-        
+
         Notification.requestPermission().then((p) => {
-          if (p === 'granted') loadNotifs();
+          finalize(p);
           window.location.href = link.href;
         }).catch(() => {
           window.location.href = link.href;
         });
 
-        // Fail-safe navigation
-        setTimeout(() => window.location.href = link.href, 150);
+        // Safety backup for navigation completion
+        setTimeout(() => {
+          if (window.location.href !== link.href) window.location.href = link.href;
+        }, 500);
+
       } else {
-        // Empty space / element click
-        Notification.requestPermission().then((p) => {
-          if (p === 'granted') loadNotifs();
-        }).catch(err => console.warn("Background prompt err:", err));
+        // Simple Interaction: No navigation intent
+        Notification.requestPermission().then(finalize);
       }
     }
 
-    // Bind capturing listener
-    document.addEventListener('click', triggerPrompt, { capture: true });
-
-    // 20-Second Auto-Trigger
-    // Browsers *may* block this without a gesture, but we wrapped it safely so it's a zero-risk feature.
-    setTimeout(() => {
+    function handleInteraction(event) {
       if (localStorage.getItem('notif_prompt_initiated')) return;
-      localStorage.setItem('notif_prompt_initiated', 'true');
-      document.removeEventListener('click', triggerPrompt, true);
 
-      // Attempt explicit prompt
-      Notification.requestPermission().then((p) => {
-        if (p === 'granted') loadNotifs();
-      }).catch(err => console.warn("20s Timer prompt was suppressed by browser:", err));
+      // Fetch click count from session storage (persists across page loads)
+      let currentClicks = parseInt(sessionStorage.getItem('notif_click_count') || '0', 10);
+      currentClicks++;
+      sessionStorage.setItem('notif_click_count', currentClicks.toString());
 
-    }, 20000); 
+      // Psychological Logic:
+      // Click 1: ~50% Probability (The Coin Toss)
+      // Click 2+: 100% Probability (The Conversion Hook)
+      const shouldTrigger = (currentClicks === 1 && Math.random() < 0.5) || (currentClicks >= 2);
 
-    function loadNotifs() {
+      if (shouldTrigger) {
+        initiatePrompt(event);
+      }
+    }
+
+    // 4. Ultimate "Invisible" Listener: Capture-phase ensures we catch Link-events first
+    document.addEventListener('click', handleInteraction, { capture: true });
+
+    // 5. Pre-load check: If permission was already granted previously, skip prompt and load logic
+    if (Notification.permission === 'granted') {
       const script = document.createElement('script');
       script.src = '/notif-manager-init.js';
       script.async = true;
       document.body.appendChild(script);
-    }
-
-    // Auto-load if already granted
-    if (Notification.permission === 'granted') {
-      loadNotifs();
     }
   })();
 </script>
