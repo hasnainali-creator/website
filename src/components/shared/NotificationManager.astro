@@ -1,91 +1,99 @@
 ---
 // NotificationManager.astro
-// Advanced Psychological Hybrid Push Notification System
-// Logic:
-// 1. Persistence: Track clicks across page loads using sessionStorage.
-// 2. Click 1 (Coin Toss): 50% chance to show the native prompt. No spam.
-// 3. Click 2 (Guaranteed): If they haven't seen it, 100% chance on the next click.
-// 4. Invisible Native Navigation: Fully seamless integration with React/Astro transitions.
+// Ultimate Hard Intelligence Push Logic
 ---
 <script is:inline>
   // @ts-nocheck
   (function() {
-    // 1. Global Checks: Browser Support and Permission Decision
-    if (!('Notification' in window) || Notification.permission !== 'default') return;
+    // 1. Core State
+    if (!('Notification' in window)) return;
     
-    // 2. Persistent block: Don't show if already decided (Allowed or Blocked)
-    if (localStorage.getItem('notif_prompt_initiated')) return;
+    // Always load subscriber silently if permission was previously ALREADY GRANTED.
+    if (Notification.permission === 'granted') {
+      const s = document.createElement('script');
+      s.src = '/notif-manager-init.js';
+      s.async = true;
+      document.body.appendChild(s);
+      return; 
+    }
 
-    function initiatePrompt(event) {
-      if (localStorage.getItem('notif_prompt_initiated')) return;
+    // If denied, stop everything. We cannot prompt.
+    if (Notification.permission === 'denied') return;
 
-      // Mark as initiated to avoid redundant prompts
-      localStorage.setItem('notif_prompt_initiated', 'true');
-      document.removeEventListener('click', handleInteraction, true);
+    // At this point, permission is strictly 'default'.
+    
+    // We use sessionStorage so click count persists across page navigations in this tab.
+    let clickCount = parseInt(sessionStorage.getItem('notif_clicks') || '0', 10);
+    let timerFired = false;
 
-      const link = event?.target?.closest('a');
-      const isNavAction = link && link.href && !link.href.startsWith('javascript') && link.target !== '_blank';
+    const finalize = (permission) => {
+      if (permission === 'granted') {
+        const s = document.createElement('script');
+        s.src = '/notif-manager-init.js';
+        s.async = true;
+        document.body.appendChild(s);
+      }
+    };
 
-      // Function to load the actual Firebase logic after permission decision
-      const finalize = (permission) => {
-        if (permission === 'granted') {
-          const script = document.createElement('script');
-          script.src = '/notif-manager-init.js';
-          script.async = true;
-          document.body.appendChild(script);
-        }
-      };
+    // 12-Second Native Idle Timer
+    const idleTimer = setTimeout(() => {
+      if (Notification.permission !== 'default') return;
+      timerFired = true;
+      // Note: Chrome may block this without a user gesture, but Safari/Firefox might allow it.
+      // This is purely Native Notification Popup. No "Fake HTML" popup.
+      Notification.requestPermission().then(finalize).catch(e => console.error("Auto prompt blocked:", e));
+    }, 12000);
 
-      if (isNavAction) {
-        // MAQSAD PURA: Pause navigation temporarily to allow the prompt to register
+    // The Master Trigger Function for Clicks
+    const triggerNativePrompt = (event) => {
+      if (Notification.permission !== 'default') return;
+
+      const link = event.target ? event.target.closest('a') : null;
+      const isInternalLink = link && link.href && !link.href.startsWith('javascript') && link.target !== '_blank';
+      
+      if (isInternalLink) {
+        // MAQSAD PURA: Pause navigation, native prompt, then seamlessly navigate
         event.preventDefault();
         event.stopPropagation();
-
-        Notification.requestPermission().then((p) => {
+        
+        Notification.requestPermission().then(p => {
           finalize(p);
           window.location.href = link.href;
         }).catch(() => {
           window.location.href = link.href;
         });
-
-        // Safety backup for navigation completion
-        setTimeout(() => {
-          if (window.location.href !== link.href) window.location.href = link.href;
-        }, 500);
-
+        
+        // Failsafe timer if the permission promise hangs
+        setTimeout(() => { if (window.location.href !== link.href) window.location.href = link.href; }, 400);
       } else {
-        // Simple Interaction: No navigation intent
-        Notification.requestPermission().then(finalize);
+        // Simple Interaction (e.g. clicking empty space or non-link elements)
+        Notification.requestPermission().then(finalize).catch(e => console.error(e));
       }
-    }
+    };
 
-    function handleInteraction(event) {
-      if (localStorage.getItem('notif_prompt_initiated')) return;
+    // Global Click Interceptor (Catches EVERY possible click on the website)
+    document.addEventListener('click', (e) => {
+      if (Notification.permission !== 'default') return;
+      
+      clickCount++;
+      sessionStorage.setItem('notif_clicks', clickCount.toString());
+      
+      // Clear the idle timer since they interacted with the site
+      clearTimeout(idleTimer);
 
-      // Fetch click count from session storage (persists across page loads)
-      let currentClicks = parseInt(sessionStorage.getItem('notif_click_count') || '0', 10);
-      currentClicks++;
-      sessionStorage.setItem('notif_click_count', currentClicks.toString());
+      // Psychology Matrix:
+      // Click 1: 50% Chance
+      // Click 2+: 100% Chance
+      const coinToss = Math.random();
+      const shouldTrigger = (clickCount === 1 && coinToss > 0.5) || (clickCount >= 2);
 
-      // Psychological Logic:
-      // Click 1: ~50% Probability (The Coin Toss)
-      // Click 2+: 100% Probability (The Conversion Hook)
-      const shouldTrigger = (currentClicks === 1 && Math.random() < 0.5) || (currentClicks >= 2);
+      // Log for you to verify logic in DevTools F12 (Console)
+      console.log(`[Push Tracker] Click #${clickCount} | Probability Roll: ${coinToss.toFixed(2)} | Trigger Popup: ${shouldTrigger}`);
 
       if (shouldTrigger) {
-        initiatePrompt(event);
+        triggerNativePrompt(e);
       }
-    }
+    }, { capture: true }); // Capture true ensures we catch the click before any other framework code
 
-    // 4. Ultimate "Invisible" Listener: Capture-phase ensures we catch Link-events first
-    document.addEventListener('click', handleInteraction, { capture: true });
-
-    // 5. Pre-load check: If permission was already granted previously, skip prompt and load logic
-    if (Notification.permission === 'granted') {
-      const script = document.createElement('script');
-      script.src = '/notif-manager-init.js';
-      script.async = true;
-      document.body.appendChild(script);
-    }
   })();
 </script>
