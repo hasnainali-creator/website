@@ -52,26 +52,36 @@ export const POST: APIRoute = async (context) => {
             return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
         }
 
-        // Retrieve credentials safely inside the handler to prevent Cloudflare initialization cache errors.
-        // On Cloudflare Edge, variables added via dashboard are passed in locals.runtime.env.
+        // RE-DIVE: Absolute Credential Extraction for Cloudflare Edge
         const cfEnv = (locals as any)?.runtime?.env || {};
         
-        let projectId = cfEnv.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || import.meta.env.FIREBASE_PROJECT_ID;
-        let clientEmail = cfEnv.FIREBASE_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL || import.meta.env.FIREBASE_CLIENT_EMAIL;
-        let privateKey = cfEnv.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY || import.meta.env.FIREBASE_PRIVATE_KEY || '';
+        let projectId = cfEnv.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
+        let clientEmail = cfEnv.FIREBASE_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL;
+        let privateKey = cfEnv.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY || '';
 
-        const indexingKey = cfEnv.GOOGLE_INDEXING_KEY || process.env.GOOGLE_INDEXING_KEY || import.meta.env.GOOGLE_INDEXING_KEY;
+        // Fallback: Try to extract from GOOGLE_INDEXING_KEY which we see IS present in your dashboard!
+        const indexingKey = cfEnv.GOOGLE_INDEXING_KEY || process.env.GOOGLE_INDEXING_KEY;
+        
         if ((!projectId || !clientEmail || !privateKey) && indexingKey) {
             try {
-                const key = JSON.parse(indexingKey.trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n'));
+                // Remove potential outer quotes and handle escaped newlines
+                const sanitized = indexingKey.trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n');
+                const key = JSON.parse(sanitized);
                 projectId = key.project_id;
                 clientEmail = key.client_email;
                 privateKey = key.private_key;
-            } catch (ignored) {}
+            } catch (err: any) {
+                console.error('[Firebase Edge API] Failed to parse GOOGLE_INDEXING_KEY:', err.message);
+            }
         }
 
         if (!projectId || !clientEmail || !privateKey) {
-            console.error('[Firebase Edge API] Missing credentials.');
+            console.error('[Firebase Edge API] Missing Credentials. Cloudflare Env Snapshot:', { 
+                hasIndexingKey: !!indexingKey,
+                hasProjectId: !!projectId,
+                hasEmail: !!clientEmail,
+                hasKey: privateKey.length > 0
+            });
             return new Response(JSON.stringify({ error: 'Server configuration error' }), { status: 500 });
         }
 
