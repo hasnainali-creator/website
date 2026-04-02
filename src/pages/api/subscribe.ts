@@ -52,19 +52,20 @@ export const POST: APIRoute = async (context) => {
             return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
         }
 
-        // [End Level] Flawless Variable Extraction
-        const cfEnv = (locals as any)?.runtime?.env || {};
+        // [End Level] Triple-Layer Variable Extraction (Foolproof for Cloudflare)
+        const cfContextEnv = (context as any).env || {};
+        const cfLocalsEnv = (locals as any)?.runtime?.env || {};
         const safeProcess = (globalThis as any).process?.env || {};
         
-        // Detailed extraction with fallback trace
-        const clientEmail = cfEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL;
-        const rawPrivateKey = cfEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
+        // Detailed extraction with multiple fallback layers
+        const clientEmail = cfContextEnv.FIREBASE_CLIENT_EMAIL || cfLocalsEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL;
+        const rawPrivateKey = cfContextEnv.FIREBASE_PRIVATE_KEY || cfLocalsEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
 
-        // If credentials are missing, we MUST know why
+        // If credentials are missing, we MUST know exactly where they are failing
         if (!clientEmail || !rawPrivateKey) {
             console.error('[End Level 🏆] Missing Credentials Trace:', {
-                hasEnv: !!(locals as any)?.runtime?.env,
-                hasProcess: !!(globalThis as any).process?.env,
+                hasContextEnv: !!(context as any).env,
+                hasLocalsEnv: !!(locals as any)?.runtime?.env,
                 emailFound: !!clientEmail,
                 keyFound: !!rawPrivateKey
             });
