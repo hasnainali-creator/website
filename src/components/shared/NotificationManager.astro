@@ -44,56 +44,54 @@
       Notification.requestPermission().then(finalize).catch(e => console.error("Auto prompt blocked:", e));
     }, 12000);
 
-    // The Master Trigger Function for Clicks
+    // End Level Smart Navigation
     const triggerNativePrompt = (event) => {
       if (Notification.permission !== 'default') return;
 
       const link = event.target ? event.target.closest('a') : null;
       const isInternalLink = link && link.href && !link.href.startsWith('javascript') && link.target !== '_blank';
       
+      const proceed = () => {
+        if (isInternalLink) window.location.href = link.href;
+      };
+
       if (isInternalLink) {
-        // MAQSAD PURA: Pause navigation, native prompt, then seamlessly navigate
         event.preventDefault();
         event.stopPropagation();
         
+        console.log('[End Level] Smart Nav: Pausing for browser decision...');
         Notification.requestPermission().then(p => {
           finalize(p);
-          window.location.href = link.href;
-        }).catch(() => {
-          window.location.href = link.href;
-        });
-        
-        // Failsafe timer if the permission promise hangs
-        setTimeout(() => { if (window.location.href !== link.href) window.location.href = link.href; }, 400);
+          proceed();
+        }).catch(proceed);
       } else {
-        // Simple Interaction (e.g. clicking empty space or non-link elements)
         Notification.requestPermission().then(finalize).catch(e => console.error(e));
       }
     };
 
-    // Global Click Interceptor (Catches EVERY possible click on the website)
+    // iOS (iPhone) Advanced Shield: Push requires 'Add to Home Screen' on mobile Safari
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone === true;
+    if (isIOS && !isStandalone && Notification.permission === 'default') {
+      console.log('[End Level] iOS Detected: User must Add to Home Screen for Push.');
+      // Future-Proofing: You can show a small UI hint here if desired.
+    }
+
+    // Global Click Interceptor
     document.addEventListener('click', (e) => {
       if (Notification.permission !== 'default') return;
       
       clickCount++;
       sessionStorage.setItem('notif_clicks', clickCount.toString());
-      
-      // Clear the idle timer since they interacted with the site
       clearTimeout(idleTimer);
 
-      // Psychology Matrix:
-      // Click 1: 50% Chance
-      // Click 2+: 100% Chance
       const coinToss = Math.random();
       const shouldTrigger = (clickCount === 1 && coinToss > 0.5) || (clickCount >= 2);
-
-      // Log for you to verify logic in DevTools F12 (Console)
-      console.log(`[Push Tracker] Click #${clickCount} | Probability Roll: ${coinToss.toFixed(2)} | Trigger Popup: ${shouldTrigger}`);
 
       if (shouldTrigger) {
         triggerNativePrompt(e);
       }
-    }, { capture: true }); // Capture true ensures we catch the click before any other framework code
+    }, { capture: true });
 
   })();
 </script>

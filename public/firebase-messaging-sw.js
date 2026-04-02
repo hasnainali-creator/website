@@ -1,6 +1,11 @@
 // @ts-nocheck
 /* eslint-disable */
 /* global importScripts, firebase, self */
+
+// [End Level] Instant Activation: Force the new Service Worker to take over immediately.
+self.addEventListener('install', () => { self.skipWaiting(); });
+self.addEventListener('activate', (event) => { event.waitUntil(self.clients.claim()); });
+
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
@@ -18,25 +23,35 @@ const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-    console.log('[firebase-messaging-sw.js] Received background message ', payload);
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/favicon-96x96.png',
-        image: payload.notification.image || payload.data?.image, // Large Image Support
-        badge: '/favicon-96x96.png',
-        data: {
-            url: payload.fcmOptions?.link || payload.data?.url || '/'
-        },
-        actions: [
-            {
-                action: 'open_url',
-                title: 'Read Now 🚀'
-            }
-        ]
-    };
+    const TAG = '[End Level 🏆]';
+    console.log(`${TAG} Background Message Captured:`, payload);
+    
+    try {
+        // PAYLOAD DEFENDER: Ensure we ALWAYS have a title and body
+        const title = payload.notification?.title || payload.data?.title || 'OmnySports Breaking Alert';
+        const bodyText = payload.notification?.body || payload.data?.body || 'New sports update available. Read now!';
+        
+        const notificationOptions = {
+            body: bodyText,
+            icon: '/favicon-96x96.png',
+            image: payload.notification?.image || payload.data?.image,
+            badge: '/favicon-96x96.png',
+            tag: payload.data?.tag || 'omnysports-push', // Prevent notification stacking if desired
+            data: {
+                url: payload.fcmOptions?.link || payload.data?.url || '/'
+            },
+            actions: [
+                {
+                    action: 'open_url',
+                    title: 'Read Now 🚀'
+                }
+            ]
+        };
 
-    return self.registration.showNotification(notificationTitle, notificationOptions);
+        return self.registration.showNotification(title, notificationOptions);
+    } catch (fatalErr) {
+        console.error(`${TAG} Service Worker crashed during display:`, fatalErr);
+    }
 });
 
 // Handle Notification Clicks

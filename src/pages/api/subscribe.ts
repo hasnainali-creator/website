@@ -52,37 +52,24 @@ export const POST: APIRoute = async (context) => {
             return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
         }
 
-        // RE-DIVE: Absolute Credential Extraction for Cloudflare Edge
+        // [End Level] Flawless Variable Extraction
         const cfEnv = (locals as any)?.runtime?.env || {};
+        const safeProcess = (globalThis as any).process?.env || {};
         
-        let projectId = cfEnv.FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
-        let clientEmail = cfEnv.FIREBASE_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL;
-        let privateKey = cfEnv.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY || '';
+        const projectId = 'omnysports-push-notifications'; // Hardcoded as it's public and safe
+        const clientEmail = cfEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL;
+        const privateKey = cfEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
 
-        // Fallback: Try to extract from GOOGLE_INDEXING_KEY which we see IS present in your dashboard!
-        const indexingKey = cfEnv.GOOGLE_INDEXING_KEY || process.env.GOOGLE_INDEXING_KEY;
-        
-        if ((!projectId || !clientEmail || !privateKey) && indexingKey) {
-            try {
-                // Remove potential outer quotes and handle escaped newlines
-                const sanitized = indexingKey.trim().replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n');
-                const key = JSON.parse(sanitized);
-                projectId = key.project_id;
-                clientEmail = key.client_email;
-                privateKey = key.private_key;
-            } catch (err: any) {
-                console.error('[Firebase Edge API] Failed to parse GOOGLE_INDEXING_KEY:', err.message);
-            }
-        }
-
-        if (!projectId || !clientEmail || !privateKey) {
-            console.error('[Firebase Edge API] Missing Credentials. Cloudflare Env Snapshot:', { 
-                hasIndexingKey: !!indexingKey,
-                hasProjectId: !!projectId,
-                hasEmail: !!clientEmail,
-                hasKey: privateKey.length > 0
-            });
-            return new Response(JSON.stringify({ error: 'Server configuration error' }), { status: 500 });
+        if (!clientEmail || !privateKey) {
+            return new Response(JSON.stringify({ 
+                error: 'Missing Firebase Credentials', 
+                status: 'End Level Focus',
+                debug: {
+                    hasEmail: !!clientEmail,
+                    hasKey: privateKey.length > 50,
+                    keyLength: privateKey.length
+                } 
+            }), { status: 500 });
         }
 
         // 1. Generate the Edge-Compatible Bearer Token
@@ -92,13 +79,19 @@ export const POST: APIRoute = async (context) => {
         // This is the direct REST mapping equivalent to admin.messaging().subscribeToTopic()
         const subscribeUrl = `https://iid.googleapis.com/iid/v1/${token}/rel/topics/all`;
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s Timeout for Edge Safety
+
         const response = await fetch(subscribeUrl, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'access_token_auth': 'true' // Recommended for pure OAuth requests on IID
-            }
+            },
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             const errText = await response.text();
