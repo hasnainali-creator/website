@@ -56,24 +56,48 @@ export const POST: APIRoute = async (context) => {
         const cfEnv = (locals as any)?.runtime?.env || {};
         const safeProcess = (globalThis as any).process?.env || {};
         
-        const projectId = 'omnysports-push-notifications'; // Hardcoded as it's public and safe
+        // Detailed extraction with fallback trace
         const clientEmail = cfEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL;
-        const privateKey = cfEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
+        const rawPrivateKey = cfEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
 
-        if (!clientEmail || !privateKey) {
+        // If credentials are missing, we MUST know why
+        if (!clientEmail || !rawPrivateKey) {
+            console.error('[End Level 🏆] Missing Credentials Trace:', {
+                hasEnv: !!(locals as any)?.runtime?.env,
+                hasProcess: !!(globalThis as any).process?.env,
+                emailFound: !!clientEmail,
+                keyFound: !!rawPrivateKey
+            });
+            
             return new Response(JSON.stringify({ 
-                error: 'Missing Firebase Credentials', 
-                status: 'End Level Focus',
+                error: 'Missing Firebase Credentials on Cloudflare', 
                 debug: {
-                    hasEmail: !!clientEmail,
-                    hasKey: privateKey.length > 50,
-                    keyLength: privateKey.length
+                    emailMissing: !clientEmail,
+                    keyMissing: !rawPrivateKey,
+                    advice: 'Ensure FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY are set in Cloudflare Settings > Variables (NOT Secrets).'
                 } 
-            }), { status: 500 });
+            }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
+        const projectId = 'omnysports-push-notifications';
+
         // 1. Generate the Edge-Compatible Bearer Token
-        const accessToken = await getGoogleAuthToken(clientEmail, privateKey);
+        let accessToken;
+        try {
+            // Robust Key Formatting: Handles both literal \n and real newlines
+            const formattedKey = rawPrivateKey
+                .replace(/\\n/g, '\n') // Handle literal \n strings
+                .replace(/"/g, '')     // Remove accidental quotes
+                .trim();               // Remove whitespace
+            
+            accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
+        } catch (authErr: any) {
+            console.error('[End Level 🏆] Auth Token Generation Failed:', authErr.message);
+            return new Response(JSON.stringify({ 
+                error: 'Authentication Handshake Failed', 
+                message: authErr.message 
+            }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+        }
 
         // 2. Subscribe the device token to the 'all' topic using FCM Instance ID API
         // This is the direct REST mapping equivalent to admin.messaging().subscribeToTopic()
