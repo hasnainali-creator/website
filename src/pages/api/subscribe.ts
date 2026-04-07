@@ -84,16 +84,24 @@ export const POST: APIRoute = async (context) => {
 
         // 1. Generate the Edge-Compatible Bearer Token
         let accessToken;
+        let base64Payload = '';
         try {
             // [End Level] Ultra-Robust PEM Cleaner
             // Extract purely the base64 characters from whatever dirty string is pasted
-            const base64Payload = rawPrivateKey
+            base64Payload = rawPrivateKey
                 .replace(/-----BEGIN PRIVATE KEY-----/g, '')
                 .replace(/-----END PRIVATE KEY-----/g, '')
                 .replace(/\\n/g, '') // remove literal \n strings if any
                 .replace(/\s+/g, '') // remove ALL physical spaces, tabs, newlines
                 .replace(/"/g, '')   // remove accidental JSON quotes
+                .replace(/-/g, '+')  // handle URL-safe base64 hyphen -> plus
+                .replace(/_/g, '/')  // handle URL-safe base64 underscore -> slash
                 .trim();
+            
+            // Critical Edge Fix: Base64 payload must be explicitly padded to a multiple of 4, otherwise atob() crashes tightly
+            while (base64Payload.length % 4 !== 0) {
+                base64Payload += '=';
+            }
             
             // Reconstruct a perfectly standard PEM that natively passes atob()
             const formattedKey = `-----BEGIN PRIVATE KEY-----\n${base64Payload.match(/.{1,64}/g)?.join('\n') || ''}\n-----END PRIVATE KEY-----`;
@@ -101,10 +109,12 @@ export const POST: APIRoute = async (context) => {
             accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
         } catch (authErr: any) {
             console.error('[End Level 🏆] Auth Token Generation Failed:', authErr.message);
+            // DEBUG TELEMETRY: If the base64 crashes, securely extract the length and edges to identify Cloudflare corruption.
+            const b64SafeDebug = base64Payload ? `[RAW_LEN: ${rawPrivateKey?.length || 0}] [B64_LEN: ${base64Payload.length}] START: ${base64Payload.substring(0, 10)}... END: ${base64Payload.substring(base64Payload.length - 10)}` : 'base64 extraction empty null';
             return new Response(JSON.stringify({ 
                 error: "Authentication Handshake Failed", 
                 message: authErr.message,
-                debug: "Check your FIREBASE_PRIVATE_KEY format in Cloudflare Variables."
+                debug: `Check your FIREBASE_PRIVATE_KEY format in Cloudflare Variables. Telemetry: ${b64SafeDebug}`
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
