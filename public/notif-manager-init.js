@@ -7,13 +7,21 @@
     try {
         if (Notification.permission !== 'granted') return;
         
-        // Wait for Service Worker Readiness (Ensures the 'engine' is started)
-        if ('serviceWorker' in navigator) {
-            await navigator.serviceWorker.ready;
-        }
-
         if (window._omny_push_active) return;
         window._omny_push_active = true;
+
+        let registration = null;
+        if ('serviceWorker' in navigator) {
+            try {
+                // 1) Explicitly register the SW. Firebase's automatic default registration can fail or block.
+                registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+                await navigator.serviceWorker.ready;
+                console.log(`${TAG} Service worker successfully registered and ready!`);
+            } catch (swErr) {
+                console.error(`${TAG} Critical: Failed to manually register service worker:`, swErr);
+                return; // Push cannot initialize if SW isn't ready
+            }
+        }
 
         console.log(`${TAG} Initializing secure push handshake...`);
 
@@ -44,7 +52,8 @@
         while (!token && retries < maxRetries) {
             try {
                 token = await messaging.getToken({
-                    vapidKey: 'BG8cX_gQzHwiMR-IC3b0oxTkFSFTrYGs_LtC1eEoSki5Ir6QZ6sCCSyem4_T6ZMEG7WAgwRi4W2UCkAjdV4w9s0'
+                    vapidKey: 'BG8cX_gQzHwiMR-IC3b0oxTkFSFTrYGs_LtC1eEoSki5Ir6QZ6sCCSyem4_T6ZMEG7WAgwRi4W2UCkAjdV4w9s0',
+                    serviceWorkerRegistration: registration
                 });
             } catch (retryErr) {
                 retries++;

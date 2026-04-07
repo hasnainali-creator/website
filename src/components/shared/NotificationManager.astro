@@ -28,6 +28,8 @@
 
     const finalize = (permission) => {
       if (permission === 'granted') {
+        if (document.querySelector('script[src="/notif-manager-init.js"]')) return;
+        
         const s = document.createElement('script');
         s.src = '/notif-manager-init.js';
         s.async = true;
