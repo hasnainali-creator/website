@@ -4,11 +4,11 @@ import { SignJWT, importPKCS8 } from 'jose';
 export const prerender = false;
 
 // Helper to generate a Google Cloud Platform OAuth2 Token entirely on the Cloudflare Edge
-async function getGoogleAuthToken(clientEmail: string, privateKey: string | Uint8Array): Promise<string> {
+async function getGoogleAuthToken(clientEmail: string, privateKey: string): Promise<string> {
     const alg = 'RS256';
     
-    // PEM string or Binary DER Uint8Array can both be imported by jose
-    const key = await importPKCS8(privateKey as any, alg);
+    // Import the PEM-formatted PKCS8 private key
+    const key = await importPKCS8(privateKey, alg);
 
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + 3600;
@@ -94,19 +94,17 @@ export const POST: APIRoute = async (context) => {
                 .replace(/-----BEGIN RSA PRIVATE KEY-----/g, '')
                 .replace(/-----END RSA PRIVATE KEY-----/g, '');
 
-            // 2) EXTRACT PURE BASE64: Strip ALL non-base64 characters FIRST (including the remaining '-' from unknown headers)
-            // We use the URL-safe hyphen/underscore set in the stripper too 
-            const strippedB64 = strippedHeaders.replace(/[^A-Za-z0-9+/ \-_]/g, '');
-
-            // 3) NORMALIZE BASE64: Convert URL-safe characters to standard Base64 AFTER stripping headers
-            base64Payload = strippedB64.replace(/-/g, '+').replace(/_/g, '/').replace(/\s+/g, '');
+            // 2) EXTRACT PURE STANDARD BASE64: Keep ONLY [A-Za-z0-9+/] characters, strip everything else
+            base64Payload = strippedHeaders.replace(/[^A-Za-z0-9+/]/g, '');
 
             // 4) RE-CALCULATE ACCURATE MODULO-4 PADDING
             const padLength = (4 - (base64Payload.length % 4)) % 4;
             base64Payload += '='.repeat(padLength);
             
-            // 5) [CRITICAL] RECONSTRUCT PEM STRING: The library specifically asked for a "formatted string" in the previous crash
-            const formattedKey = `-----BEGIN PRIVATE KEY-----\n${base64Payload}\n-----END PRIVATE KEY-----`;
+            // 5) [CRITICAL] RECONSTRUCT PEM STRING with 64-char line breaks (RFC 7468 standard)
+            // jose's importPKCS8 REQUIRES proper 64-character line wrapping. A single long line = "Invalid PKCS8 input"
+            const pemLines = base64Payload.match(/.{1,64}/g) || [];
+            const formattedKey = `-----BEGIN PRIVATE KEY-----\n${pemLines.join('\n')}\n-----END PRIVATE KEY-----`;
             
             accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
         } catch (authErr: any) {
