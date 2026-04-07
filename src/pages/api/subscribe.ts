@@ -86,35 +86,37 @@ export const POST: APIRoute = async (context) => {
         let accessToken;
         let base64Payload = '';
         try {
-            // [End Level] Ultra-Robust Binary DER Parser
-            // 1) Normalize the string by removing all headers and URL-safe characters
-            let rawStr = rawPrivateKey
+            // [End Level] Ultra-Robust PEM Isolation (Final Verifiably Fix)
+            // 1) ELIMINATE HEADERS FIRST: Strip the known PEM markers completely to avoid hyphen-to-plus corruption
+            const strippedHeaders = rawPrivateKey
                 .replace(/-----BEGIN PRIVATE KEY-----/g, '')
                 .replace(/-----END PRIVATE KEY-----/g, '')
-                .replace(/-----BEGIN RSA PRIVATE KEY-----/g, '') // Fallback for PKCS#1 Headers
-                .replace(/-----END RSA PRIVATE KEY-----/g, '')
-                .replace(/-/g, '+')
-                .replace(/_/g, '/');
-            
-            // 2) Strip ALL non-base64 characters (including corrupted '=' padding and whitespace)
-            base64Payload = rawStr.replace(/[^A-Za-z0-9+/]/g, '');
+                .replace(/-----BEGIN RSA PRIVATE KEY-----/g, '')
+                .replace(/-----END RSA PRIVATE KEY-----/g, '');
 
-            // 3) Re-calculate exact modulo-4 padding
+            // 2) EXTRACT PURE BASE64: Strip ALL non-base64 characters FIRST (including the remaining '-' from unknown headers)
+            // We use the URL-safe hyphen/underscore set in the stripper too 
+            const strippedB64 = strippedHeaders.replace(/[^A-Za-z0-9+/ \-_]/g, '');
+
+            // 3) NORMALIZE BASE64: Convert URL-safe characters to standard Base64 AFTER stripping headers
+            base64Payload = strippedB64.replace(/-/g, '+').replace(/_/g, '/').replace(/\s+/g, '');
+
+            // 4) RE-CALCULATE ACCURATE MODULO-4 PADDING
             const padLength = (4 - (base64Payload.length % 4)) % 4;
             base64Payload += '='.repeat(padLength);
             
-            // 4) [CRITICAL] Instead of PEM string, use Uint8Array (Binary DER)
-            // This bypasses the PEM-to-Binary parser inside 'jose' which is strict on Edge
-            const binaryDer = Uint8Array.from(atob(base64Payload), c => c.charCodeAt(0));
+            // 5) [CRITICAL] RECONSTRUCT PEM STRING: The library specifically asked for a "formatted string" in the previous crash
+            const formattedKey = `-----BEGIN PRIVATE KEY-----\n${base64Payload}\n-----END PRIVATE KEY-----`;
             
-            accessToken = await getGoogleAuthToken(clientEmail, binaryDer);
+            accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
         } catch (authErr: any) {
             console.error('[End Level 🏆] Auth Token Generation Failed:', authErr.message);
-            const b64SafeDebug = base64Payload ? `[RAW_LEN: ${rawPrivateKey?.length || 0}] [B64_LEN: ${base64Payload.length}] START: ${base64Payload.substring(0, 10)}... END: ${base64Payload.substring(base64Payload.length - 10)}` : 'base64 extraction empty null';
+            // DEBUG TELEMETRY: We MUST see the start of the payload to verify the headers are GONE
+            const b64SafeDebug = base64Payload ? `[B64_LEN: ${base64Payload.length}] START: ${base64Payload.substring(0, 15)}... END: ${base64Payload.substring(base64Payload.length - 10)}` : 'base64 extraction null';
             return new Response(JSON.stringify({ 
                 error: "Authentication Handshake Failed", 
                 message: authErr.message,
-                debug: `Check your FIREBASE_PRIVATE_KEY format in Cloudflare Variables. Telemetry: ${b64SafeDebug}`
+                debug: `Telemetry: ${b64SafeDebug}. Error Source: ${authErr.message}`
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
