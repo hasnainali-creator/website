@@ -87,21 +87,19 @@ export const POST: APIRoute = async (context) => {
         let base64Payload = '';
         try {
             // [End Level] Ultra-Robust PEM Cleaner
-            // Extract purely the base64 characters from whatever dirty string is pasted
-            base64Payload = rawPrivateKey
+            // First pass: removing headers and standardizing URL-safe characters
+            let rawStr = rawPrivateKey
                 .replace(/-----BEGIN PRIVATE KEY-----/g, '')
                 .replace(/-----END PRIVATE KEY-----/g, '')
-                .replace(/\\n/g, '') // remove literal \n strings if any
-                .replace(/\s+/g, '') // remove ALL physical spaces, tabs, newlines
-                .replace(/"/g, '')   // remove accidental JSON quotes
                 .replace(/-/g, '+')  // handle URL-safe base64 hyphen -> plus
-                .replace(/_/g, '/')  // handle URL-safe base64 underscore -> slash
-                .trim();
+                .replace(/_/g, '/'); // handle URL-safe base64 underscore -> slash
             
-            // Critical Edge Fix: Base64 payload must be explicitly padded to a multiple of 4, otherwise atob() crashes tightly
-            while (base64Payload.length % 4 !== 0) {
-                base64Payload += '=';
-            }
+            // Second pass: Extract strict unpadded Base64 payload, stripping EVERYTHING else (newlines, spaces, garbage, and corrupted '=' padding)
+            base64Payload = rawStr.replace(/[^A-Za-z0-9+/]/g, '');
+
+            // Third pass: Mathematically calculate and apply the EXACT required terminal padding
+            const padLength = (4 - (base64Payload.length % 4)) % 4;
+            base64Payload += '='.repeat(padLength);
             
             // Reconstruct a perfectly standard PEM that natively passes atob()
             const formattedKey = `-----BEGIN PRIVATE KEY-----\n${base64Payload.match(/.{1,64}/g)?.join('\n') || ''}\n-----END PRIVATE KEY-----`;
