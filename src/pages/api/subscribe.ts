@@ -55,10 +55,11 @@ export const POST: APIRoute = async (context) => {
         const cfContextEnv = (context as any).env || {};
         const cfLocalsEnv = (locals as any)?.runtime?.env || {};
         const safeProcess = (globalThis as any).process?.env || {};
+        const astroImportMeta = (import.meta as any).env || {};
         
         // Detailed extraction with multiple fallback layers
-        const clientEmail = cfContextEnv.FIREBASE_CLIENT_EMAIL || cfLocalsEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL;
-        const rawPrivateKey = cfContextEnv.FIREBASE_PRIVATE_KEY || cfLocalsEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
+        const clientEmail = cfContextEnv.FIREBASE_CLIENT_EMAIL || cfLocalsEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL || astroImportMeta.FIREBASE_CLIENT_EMAIL;
+        const rawPrivateKey = cfContextEnv.FIREBASE_PRIVATE_KEY || cfLocalsEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || astroImportMeta.FIREBASE_PRIVATE_KEY || '';
 
         // If credentials are missing, we MUST know exactly where they are failing
         if (!clientEmail || !rawPrivateKey) {
@@ -85,12 +86,17 @@ export const POST: APIRoute = async (context) => {
         let accessToken;
         try {
             // [End Level] Ultra-Robust PEM Cleaner
-            // Eliminates "atob() called with invalid base64" errors
-            const formattedKey = rawPrivateKey
-                .replace(/\\n/g, '\n') // Normalize literal \n
-                .replace(/\r/g, '')    // Strip carriage returns
-                .replace(/"/g, '')     // Strip accidental quotes
-                .trim();               // Final spacing cleanup
+            // Extract purely the base64 characters from whatever dirty string is pasted
+            const base64Payload = rawPrivateKey
+                .replace(/-----BEGIN PRIVATE KEY-----/g, '')
+                .replace(/-----END PRIVATE KEY-----/g, '')
+                .replace(/\\n/g, '') // remove literal \n strings if any
+                .replace(/\s+/g, '') // remove ALL physical spaces, tabs, newlines
+                .replace(/"/g, '')   // remove accidental JSON quotes
+                .trim();
+            
+            // Reconstruct a perfectly standard PEM that natively passes atob()
+            const formattedKey = `-----BEGIN PRIVATE KEY-----\n${base64Payload.match(/.{1,64}/g)?.join('\n') || ''}\n-----END PRIVATE KEY-----`;
             
             accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
         } catch (authErr: any) {

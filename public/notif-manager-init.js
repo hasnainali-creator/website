@@ -75,7 +75,8 @@
                 console.log(`${TAG} 100% VERIFIED. You are now subscribed to All Sports Alerts! 🏆`);
             } else {
                 const errData = await res.json();
-                console.error(`${TAG} Edge Verification Error:`, errData);
+                console.error(`${TAG} Edge API Failed:`, errData);
+                alert(`Push Error Backend:\n${errData.error}\n\nDebug: ${errData.debug || errData.message || 'Check Cloudflare settings'}`);
             }
         } else {
             console.error(`${TAG} Critical: Could not establish secure handshake after ${maxRetries} attempts.`);
