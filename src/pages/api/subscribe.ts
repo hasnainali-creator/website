@@ -7,9 +7,8 @@ export const prerender = false;
 async function getGoogleAuthToken(clientEmail: string, privateKey: string): Promise<string> {
     const alg = 'RS256';
     
-    // Safety check and reformat private key for Cloudflare env variables
-    const formattedKey = privateKey.replace(/\\n/g, '\n');
-    const key = await importPKCS8(formattedKey, alg);
+    // PEM format must be strictly clean for atob() to work in Edge runtimes
+    const key = await importPKCS8(privateKey, alg);
 
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + 3600;
@@ -85,18 +84,21 @@ export const POST: APIRoute = async (context) => {
         // 1. Generate the Edge-Compatible Bearer Token
         let accessToken;
         try {
-            // Robust Key Formatting: Handles both literal \n and real newlines
+            // [End Level] Ultra-Robust PEM Cleaner
+            // Eliminates "atob() called with invalid base64" errors
             const formattedKey = rawPrivateKey
-                .replace(/\\n/g, '\n') // Handle literal \n strings
-                .replace(/"/g, '')     // Remove accidental quotes
-                .trim();               // Remove whitespace
+                .replace(/\\n/g, '\n') // Normalize literal \n
+                .replace(/\r/g, '')    // Strip carriage returns
+                .replace(/"/g, '')     // Strip accidental quotes
+                .trim();               // Final spacing cleanup
             
             accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
         } catch (authErr: any) {
             console.error('[End Level 🏆] Auth Token Generation Failed:', authErr.message);
             return new Response(JSON.stringify({ 
-                error: 'Authentication Handshake Failed', 
-                message: authErr.message 
+                error: "Authentication Handshake Failed", 
+                message: authErr.message,
+                debug: "Check your FIREBASE_PRIVATE_KEY format in Cloudflare Variables."
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
