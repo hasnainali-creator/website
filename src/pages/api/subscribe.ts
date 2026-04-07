@@ -4,11 +4,11 @@ import { SignJWT, importPKCS8 } from 'jose';
 export const prerender = false;
 
 // Helper to generate a Google Cloud Platform OAuth2 Token entirely on the Cloudflare Edge
-async function getGoogleAuthToken(clientEmail: string, privateKey: string): Promise<string> {
+async function getGoogleAuthToken(clientEmail: string, privateKey: string | Uint8Array): Promise<string> {
     const alg = 'RS256';
     
-    // PEM format must be strictly clean for atob() to work in Edge runtimes
-    const key = await importPKCS8(privateKey, alg);
+    // PEM string or Binary DER Uint8Array can both be imported by jose
+    const key = await importPKCS8(privateKey as any, alg);
 
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + 3600;
@@ -86,28 +86,30 @@ export const POST: APIRoute = async (context) => {
         let accessToken;
         let base64Payload = '';
         try {
-            // [End Level] Ultra-Robust PEM Cleaner
-            // First pass: removing headers and standardizing URL-safe characters
+            // [End Level] Ultra-Robust Binary DER Parser
+            // 1) Normalize the string by removing all headers and URL-safe characters
             let rawStr = rawPrivateKey
                 .replace(/-----BEGIN PRIVATE KEY-----/g, '')
                 .replace(/-----END PRIVATE KEY-----/g, '')
-                .replace(/-/g, '+')  // handle URL-safe base64 hyphen -> plus
-                .replace(/_/g, '/'); // handle URL-safe base64 underscore -> slash
+                .replace(/-----BEGIN RSA PRIVATE KEY-----/g, '') // Fallback for PKCS#1 Headers
+                .replace(/-----END RSA PRIVATE KEY-----/g, '')
+                .replace(/-/g, '+')
+                .replace(/_/g, '/');
             
-            // Second pass: Extract strict unpadded Base64 payload, stripping EVERYTHING else (newlines, spaces, garbage, and corrupted '=' padding)
+            // 2) Strip ALL non-base64 characters (including corrupted '=' padding and whitespace)
             base64Payload = rawStr.replace(/[^A-Za-z0-9+/]/g, '');
 
-            // Third pass: Mathematically calculate and apply the EXACT required terminal padding
+            // 3) Re-calculate exact modulo-4 padding
             const padLength = (4 - (base64Payload.length % 4)) % 4;
             base64Payload += '='.repeat(padLength);
             
-            // Reconstruct a perfectly standard PEM that natively passes atob()
-            const formattedKey = `-----BEGIN PRIVATE KEY-----\n${base64Payload.match(/.{1,64}/g)?.join('\n') || ''}\n-----END PRIVATE KEY-----`;
+            // 4) [CRITICAL] Instead of PEM string, use Uint8Array (Binary DER)
+            // This bypasses the PEM-to-Binary parser inside 'jose' which is strict on Edge
+            const binaryDer = Uint8Array.from(atob(base64Payload), c => c.charCodeAt(0));
             
-            accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
+            accessToken = await getGoogleAuthToken(clientEmail, binaryDer);
         } catch (authErr: any) {
             console.error('[End Level 🏆] Auth Token Generation Failed:', authErr.message);
-            // DEBUG TELEMETRY: If the base64 crashes, securely extract the length and edges to identify Cloudflare corruption.
             const b64SafeDebug = base64Payload ? `[RAW_LEN: ${rawPrivateKey?.length || 0}] [B64_LEN: ${base64Payload.length}] START: ${base64Payload.substring(0, 10)}... END: ${base64Payload.substring(base64Payload.length - 10)}` : 'base64 extraction empty null';
             return new Response(JSON.stringify({ 
                 error: "Authentication Handshake Failed", 
