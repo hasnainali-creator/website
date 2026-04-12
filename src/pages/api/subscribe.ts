@@ -87,37 +87,23 @@ export const POST: APIRoute = async (context) => {
 
         // 1. Generate the Edge-Compatible Bearer Token
         let accessToken;
-        let base64Payload = '';
         try {
-            // [End Level] Ultra-Robust PEM Isolation (Final Verifiably Fix)
-            // 1) ELIMINATE HEADERS FIRST: Strip the known PEM markers completely to avoid hyphen-to-plus corruption
-            const strippedHeaders = rawPrivateKey
-                .replace(/-----BEGIN PRIVATE KEY-----/g, '')
-                .replace(/-----END PRIVATE KEY-----/g, '')
-                .replace(/-----BEGIN RSA PRIVATE KEY-----/g, '')
-                .replace(/-----END RSA PRIVATE KEY-----/g, '');
-
-            // 2) EXTRACT PURE STANDARD BASE64: Keep ONLY [A-Za-z0-9+/] characters, strip everything else
-            base64Payload = strippedHeaders.replace(/[^A-Za-z0-9+/]/g, '');
-
-            // 4) RE-CALCULATE ACCURATE MODULO-4 PADDING
-            const padLength = (4 - (base64Payload.length % 4)) % 4;
-            base64Payload += '='.repeat(padLength);
-            
-            // 5) [CRITICAL] RECONSTRUCT PEM STRING with 64-char line breaks (RFC 7468 standard)
-            // jose's importPKCS8 REQUIRES proper 64-character line wrapping. A single long line = "Invalid PKCS8 input"
-            const pemLines = base64Payload.match(/.{1,64}/g) || [];
-            const formattedKey = `-----BEGIN PRIVATE KEY-----\n${pemLines.join('\n')}\n-----END PRIVATE KEY-----`;
+            // [End Level] The Golden Rule: Handle Cloudflare literal \n strings ONLY
+            // No more manual PEM reconstruction - keeping the key PURE.
+            const formattedKey = rawPrivateKey
+                .replace(/\\n/g, '\n')
+                .replace(/"/g, '')
+                .trim();
             
             accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
         } catch (authErr: any) {
             console.error('[End Level 🏆] Auth Token Generation Failed:', authErr.message);
-            // DEBUG TELEMETRY: We MUST see the start of the payload to verify the headers are GONE
-            const b64SafeDebug = base64Payload ? `[B64_LEN: ${base64Payload.length}] START: ${base64Payload.substring(0, 15)}... END: ${base64Payload.substring(base64Payload.length - 10)}` : 'base64 extraction null';
+            // Minimalist Telemetry: Just enough to verify the key exists but doesn't leak it
+            const keyDebug = rawPrivateKey ? `[Key Length: ${rawPrivateKey.length}]` : 'Key Null';
             return new Response(JSON.stringify({ 
                 error: "Authentication Handshake Failed", 
                 message: authErr.message,
-                debug: `Telemetry: ${b64SafeDebug}. Error Source: ${authErr.message}`
+                debug: `Telemetry: ${keyDebug}. Error Source: ${authErr.message}`
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
