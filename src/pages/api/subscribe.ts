@@ -1,17 +1,47 @@
 import type { APIRoute } from 'astro';
-import { SignJWT, importPKCS8 } from 'jose';
+import { SignJWT } from 'jose';
 
 export const prerender = false;
 
-// Helper: Convert a base64 string to Uint8Array Removed 
-// Helper to generate a Google Cloud Platform OAuth2 Token entirely on the Cloudflare Edge
-async function getGoogleAuthToken(clientEmail: string, formattedKey: string): Promise<string> {
-    const alg = 'RS256';
+// Bulletproof: Generate Google OAuth2 token using Web Crypto API directly.
+// NO jose importPKCS8. NO atob through jose. We do it ourselves.
+async function getGoogleAuthToken(clientEmail: string, rawKey: string): Promise<string> {
     
-    // Pass the perfectly formatted, 64-character line break PEM directly to jose.
-    // This avoids edge-case Web Crypto DOMExceptions and handles ASN.1 parsing flawlessly.
-    const key = await importPKCS8(formattedKey, alg);
-
+    // STEP 1: Strip PEM headers completely
+    let stripped = rawKey
+        .replace(/-----BEGIN (?:RSA )?PRIVATE KEY-----/g, '')
+        .replace(/-----END (?:RSA )?PRIVATE KEY-----/g, '');
+    
+    // STEP 2: Kill EVERY non-base64 character. This handles:
+    // - Literal \n (backslash + n from Cloudflare text fields)
+    // - Real newlines, carriage returns, tabs
+    // - Stray quotes, spaces, anything
+    stripped = stripped.replace(/\\n/g, ''); // Kill literal \n first
+    stripped = stripped.replace(/[^A-Za-z0-9+/=]/g, ''); // Keep ONLY valid base64
+    
+    // STEP 3: Fix padding (base64 must be divisible by 4)
+    const remainder = stripped.length % 4;
+    if (remainder === 2) stripped += '==';
+    else if (remainder === 3) stripped += '=';
+    else if (remainder === 1) stripped = stripped.slice(0, -1); // Invalid, trim
+    
+    // STEP 4: Decode base64 to binary using atob()
+    const binaryString = atob(stripped);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    // STEP 5: Import as CryptoKey via Web Crypto API
+    const cryptoKey = await crypto.subtle.importKey(
+        'pkcs8',
+        bytes.buffer,
+        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+        false,
+        ['sign']
+    );
+    
+    // STEP 6: Create JWT with jose (jose accepts CryptoKey directly)
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + 3600;
 
@@ -22,11 +52,11 @@ async function getGoogleAuthToken(clientEmail: string, formattedKey: string): Pr
         exp,
         iat
     })
-    .setProtectedHeader({ alg, typ: 'JWT' })
-    .sign(key);
+    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+    .sign(cryptoKey);
 
-    // 7) Exchange the JWT for an OAuth2 access token
-    const res = await fetch('https://oauth2.googleapis.com/token', {
+    // STEP 7: Exchange JWT for OAuth2 access token
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -35,12 +65,12 @@ async function getGoogleAuthToken(clientEmail: string, formattedKey: string): Pr
         }).toString()
     });
 
-    if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`Google OAuth token exchange failed: ${err}`);
+    if (!tokenRes.ok) {
+        const errText = await tokenRes.text();
+        throw new Error(`OAuth token exchange failed: ${errText}`);
     }
 
-    const data = await res.json();
+    const data = await tokenRes.json();
     return data.access_token;
 }
 
@@ -54,71 +84,44 @@ export const POST: APIRoute = async (context) => {
             return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
         }
 
-        // [End Level] Triple-Layer Variable Extraction (Foolproof for Cloudflare)
+        // Extract Firebase credentials from Cloudflare environment
         const cfContextEnv = (context as any).env || {};
         const cfLocalsEnv = (locals as any)?.runtime?.env || {};
         const safeProcess = (globalThis as any).process?.env || {};
-        const astroImportMeta = (import.meta as any).env || {};
         
-        // Detailed extraction with multiple fallback layers
-        const clientEmail = cfContextEnv.FIREBASE_CLIENT_EMAIL || cfLocalsEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL || astroImportMeta.FIREBASE_CLIENT_EMAIL;
-        const rawPrivateKey = cfContextEnv.FIREBASE_PRIVATE_KEY || cfLocalsEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || astroImportMeta.FIREBASE_PRIVATE_KEY || '';
+        const clientEmail = cfContextEnv.FIREBASE_CLIENT_EMAIL || cfLocalsEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL;
+        const rawPrivateKey = cfContextEnv.FIREBASE_PRIVATE_KEY || cfLocalsEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
 
-        // If credentials are missing, we MUST know exactly where they are failing
         if (!clientEmail || !rawPrivateKey) {
-            console.error('[End Level 🏆] Missing Credentials Trace:', {
-                hasContextEnv: !!(context as any).env,
-                hasLocalsEnv: !!(locals as any)?.runtime?.env,
-                emailFound: !!clientEmail,
-                keyFound: !!rawPrivateKey
-            });
-            
             return new Response(JSON.stringify({ 
-                error: 'Missing Firebase Credentials on Cloudflare', 
-                debug: {
-                    emailMissing: !clientEmail,
-                    keyMissing: !rawPrivateKey,
-                    advice: 'Ensure FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY are set in Cloudflare Settings > Variables (NOT Secrets).'
-                } 
+                error: 'Missing Firebase Credentials',
+                debug: { emailMissing: !clientEmail, keyMissing: !rawPrivateKey }
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
-        const projectId = 'omnysports-push-notifications';
-
-        // 1. Generate the Edge-Compatible Bearer Token
+        // Generate OAuth token (handles ALL key format issues internally)
         let accessToken;
         try {
-            // [End Level] The Golden Rule: Handle Cloudflare literal \n strings ONLY
-            // No more manual PEM reconstruction - keeping the key PURE.
-            const formattedKey = rawPrivateKey
-                .replace(/\\n/g, '\n')
-                .replace(/"/g, '')
-                .trim();
-            
-            accessToken = await getGoogleAuthToken(clientEmail, formattedKey);
+            accessToken = await getGoogleAuthToken(clientEmail, rawPrivateKey);
         } catch (authErr: any) {
-            console.error('[End Level 🏆] Auth Token Generation Failed:', authErr.message);
-            // Minimalist Telemetry: Just enough to verify the key exists but doesn't leak it
-            const keyDebug = rawPrivateKey ? `[Key Length: ${rawPrivateKey.length}]` : 'Key Null';
+            console.error('[Push API] Auth failed:', authErr.message);
             return new Response(JSON.stringify({ 
-                error: "Authentication Handshake Failed", 
-                message: authErr.message,
-                debug: `Telemetry: ${keyDebug}. Error Source: ${authErr.message}`
+                error: 'Authentication Handshake Failed',
+                message: authErr.message
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
-        // 2. Subscribe the device token to the 'all' topic using FCM Instance ID API
-        // This is the direct REST mapping equivalent to admin.messaging().subscribeToTopic()
+        // Subscribe device to 'all' topic
         const subscribeUrl = `https://iid.googleapis.com/iid/v1/${token}/rel/topics/all`;
         
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s Timeout for Edge Safety
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(subscribeUrl, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
-                'access_token_auth': 'true' // Recommended for pure OAuth requests on IID
+                'access_token_auth': 'true'
             },
             signal: controller.signal
         });
@@ -127,19 +130,18 @@ export const POST: APIRoute = async (context) => {
 
         if (!response.ok) {
             const errText = await response.text();
-            console.error('[Firebase Edge API] Failed to subscribe to topic:', errText);
-            return new Response(JSON.stringify({ error: 'Subscription failed' }), { status: 500 });
+            console.error('[Push API] Topic subscription failed:', errText);
+            return new Response(JSON.stringify({ error: 'Subscription failed', detail: errText }), { status: 500 });
         }
 
-        console.log('[Firebase Edge API] Successfully subscribed token to topic "all"');
-
-        return new Response(JSON.stringify({ success: true, message: 'Device subscribed accurately via Edge API.' }), {
+        console.log('[Push API] Successfully subscribed to topic "all"');
+        return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });
 
     } catch (error: any) {
-        console.error('[Firebase Edge API] Fatal Error:', error.message);
+        console.error('[Push API] Fatal:', error.message);
         return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
     }
 };
