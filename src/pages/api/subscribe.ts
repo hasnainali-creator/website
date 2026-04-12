@@ -1,47 +1,13 @@
 import type { APIRoute } from 'astro';
-import { SignJWT } from 'jose';
+import { SignJWT, importPKCS8 } from 'jose';
 
 export const prerender = false;
 
-// Bulletproof: Generate Google OAuth2 token using Web Crypto API directly.
-// NO jose importPKCS8. NO atob through jose. We do it ourselves.
-async function getGoogleAuthToken(clientEmail: string, rawKey: string): Promise<string> {
-    
-    // STEP 1: Strip PEM headers completely
-    let stripped = rawKey
-        .replace(/-----BEGIN (?:RSA )?PRIVATE KEY-----/g, '')
-        .replace(/-----END (?:RSA )?PRIVATE KEY-----/g, '');
-    
-    // STEP 2: Kill EVERY non-base64 character. This handles:
-    // - Literal \n (backslash + n from Cloudflare text fields)
-    // - Real newlines, carriage returns, tabs
-    // - Stray quotes, spaces, anything
-    stripped = stripped.replace(/\\n/g, ''); // Kill literal \n first
-    stripped = stripped.replace(/[^A-Za-z0-9+/=]/g, ''); // Keep ONLY valid base64
-    
-    // STEP 3: Fix padding (base64 must be divisible by 4)
-    const remainder = stripped.length % 4;
-    if (remainder === 2) stripped += '==';
-    else if (remainder === 3) stripped += '=';
-    else if (remainder === 1) stripped = stripped.slice(0, -1); // Invalid, trim
-    
-    // STEP 4: Decode base64 to binary using atob()
-    const binaryString = atob(stripped);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    
-    // STEP 5: Import as CryptoKey via Web Crypto API
-    const cryptoKey = await crypto.subtle.importKey(
-        'pkcs8',
-        bytes.buffer,
-        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-        false,
-        ['sign']
-    );
-    
-    // STEP 6: Create JWT with jose (jose accepts CryptoKey directly)
+const API_VERSION = 'v6-base64';
+
+async function getGoogleAuthToken(clientEmail: string, pemKey: string): Promise<string> {
+    const key = await importPKCS8(pemKey, 'RS256');
+
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + 3600;
 
@@ -53,10 +19,9 @@ async function getGoogleAuthToken(clientEmail: string, rawKey: string): Promise<
         iat
     })
     .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
-    .sign(cryptoKey);
+    .sign(key);
 
-    // STEP 7: Exchange JWT for OAuth2 access token
-    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    const res = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -65,12 +30,12 @@ async function getGoogleAuthToken(clientEmail: string, rawKey: string): Promise<
         }).toString()
     });
 
-    if (!tokenRes.ok) {
-        const errText = await tokenRes.text();
-        throw new Error(`OAuth token exchange failed: ${errText}`);
+    if (!res.ok) {
+        const err = await res.text();
+        throw new Error(`OAuth failed: ${err}`);
     }
 
-    const data = await tokenRes.json();
+    const data = await res.json();
     return data.access_token;
 }
 
@@ -84,38 +49,47 @@ export const POST: APIRoute = async (context) => {
             return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
         }
 
-        // Extract Firebase credentials from Cloudflare environment
-        const cfContextEnv = (context as any).env || {};
-        const cfLocalsEnv = (locals as any)?.runtime?.env || {};
-        const safeProcess = (globalThis as any).process?.env || {};
-        
-        const clientEmail = cfContextEnv.FIREBASE_CLIENT_EMAIL || cfLocalsEnv.FIREBASE_CLIENT_EMAIL || safeProcess.FIREBASE_CLIENT_EMAIL;
-        const rawPrivateKey = cfContextEnv.FIREBASE_PRIVATE_KEY || cfLocalsEnv.FIREBASE_PRIVATE_KEY || safeProcess.FIREBASE_PRIVATE_KEY || '';
+        // Get credentials from Cloudflare
+        const env = (locals as any)?.runtime?.env || (context as any).env || {};
+        const clientEmail = env.FIREBASE_CLIENT_EMAIL;
+        const rawKey = env.FIREBASE_PRIVATE_KEY || '';
 
-        if (!clientEmail || !rawPrivateKey) {
+        if (!clientEmail || !rawKey) {
             return new Response(JSON.stringify({ 
-                error: 'Missing Firebase Credentials',
-                debug: { emailMissing: !clientEmail, keyMissing: !rawPrivateKey }
+                error: 'Missing credentials', 
+                version: API_VERSION 
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
-        // Generate OAuth token (handles ALL key format issues internally)
+        // DECODE THE KEY:
+        // The key is stored as base64(entire PEM) in Cloudflare.
+        // This eliminates ALL formatting issues - no \n problems, no PEM parsing problems.
+        let pemKey: string;
+        try {
+            // Try base64 decode first (new format)
+            pemKey = atob(rawKey.trim());
+        } catch {
+            // Fallback: raw PEM with literal \n replacement (old format)
+            pemKey = rawKey.split('\\n').join('\n').replace(/"/g, '').trim();
+        }
+
         let accessToken;
         try {
-            accessToken = await getGoogleAuthToken(clientEmail, rawPrivateKey);
+            accessToken = await getGoogleAuthToken(clientEmail, pemKey);
         } catch (authErr: any) {
-            console.error('[Push API] Auth failed:', authErr.message);
             return new Response(JSON.stringify({ 
-                error: 'Authentication Handshake Failed',
-                message: authErr.message
+                error: 'Auth Failed',
+                message: authErr.message,
+                version: API_VERSION,
+                keyLen: rawKey.length
             }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
 
-        // Subscribe device to 'all' topic
+        // Subscribe to 'all' topic
         const subscribeUrl = `https://iid.googleapis.com/iid/v1/${token}/rel/topics/all`;
         
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const tid = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(subscribeUrl, {
             method: 'POST',
@@ -126,22 +100,19 @@ export const POST: APIRoute = async (context) => {
             signal: controller.signal
         });
         
-        clearTimeout(timeoutId);
+        clearTimeout(tid);
 
         if (!response.ok) {
             const errText = await response.text();
-            console.error('[Push API] Topic subscription failed:', errText);
             return new Response(JSON.stringify({ error: 'Subscription failed', detail: errText }), { status: 500 });
         }
 
-        console.log('[Push API] Successfully subscribed to topic "all"');
-        return new Response(JSON.stringify({ success: true }), {
+        return new Response(JSON.stringify({ success: true, version: API_VERSION }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });
 
     } catch (error: any) {
-        console.error('[Push API] Fatal:', error.message);
-        return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+        return new Response(JSON.stringify({ error: 'Server Error', message: error.message, version: API_VERSION }), { status: 500 });
     }
 };
