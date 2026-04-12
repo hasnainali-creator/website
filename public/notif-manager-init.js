@@ -92,11 +92,19 @@
                     icon: '/favicon-96x96.png',
                     image: payload.notification?.image || payload.data?.image,
                     badge: '/favicon-96x96.png',
+                    tag: payload.data?.tag || 'foreground-push',
                     data: {
                         url: payload.fcmOptions?.link || payload.data?.url || '/'
                     }
                 };
-                new Notification(title, options);
+                
+                const notification = new Notification(title, options);
+                notification.onclick = (e) => {
+                    e.preventDefault();
+                    window.focus();
+                    window.location.href = options.data.url;
+                    notification.close();
+                };
             }
         });
 
