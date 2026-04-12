@@ -1,15 +1,48 @@
 import type { APIRoute } from 'astro';
-import { SignJWT, importPKCS8 } from 'jose';
+import { SignJWT } from 'jose';
 
 export const prerender = false;
 
-// Helper to generate a Google Cloud Platform OAuth2 Token entirely on the Cloudflare Edge
-async function getGoogleAuthToken(clientEmail: string, privateKey: string): Promise<string> {
-    const alg = 'RS256';
-    
-    // Import the PEM-formatted PKCS8 private key
-    const key = await importPKCS8(privateKey, alg);
+// Helper: Convert a base64 string to Uint8Array
+function base64ToUint8Array(base64: string): Uint8Array {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}
 
+// Helper to generate a Google Cloud Platform OAuth2 Token entirely on the Cloudflare Edge
+// Uses Web Crypto API directly — NO jose importPKCS8 (which wraps errors and hides real failures)
+async function getGoogleAuthToken(clientEmail: string, rawPrivateKey: string): Promise<string> {
+    // 1) Strip PEM headers
+    const stripped = rawPrivateKey
+        .replace(/-----BEGIN PRIVATE KEY-----/g, '')
+        .replace(/-----END PRIVATE KEY-----/g, '')
+        .replace(/-----BEGIN RSA PRIVATE KEY-----/g, '')
+        .replace(/-----END RSA PRIVATE KEY-----/g, '');
+
+    // 2) Extract ONLY valid base64 characters (strip whitespace, newlines, quotes, etc.)
+    let b64 = stripped.replace(/[^A-Za-z0-9+/]/g, '');
+
+    // 3) Add correct padding
+    const padLen = (4 - (b64.length % 4)) % 4;
+    b64 += '='.repeat(padLen);
+
+    // 4) Decode to binary DER
+    const binaryDer = base64ToUint8Array(b64);
+
+    // 5) Import the key using Web Crypto API DIRECTLY (bypasses jose's broken PEM parser)
+    const cryptoKey = await crypto.subtle.importKey(
+        'pkcs8',
+        binaryDer,
+        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+        false,
+        ['sign']
+    );
+
+    // 6) Create and sign the JWT using jose's SignJWT with the CryptoKey
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + 3600;
 
@@ -20,9 +53,10 @@ async function getGoogleAuthToken(clientEmail: string, privateKey: string): Prom
         exp,
         iat
     })
-    .setProtectedHeader({ alg, typ: 'JWT' })
-    .sign(key);
+    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+    .sign(cryptoKey);
 
+    // 7) Exchange the JWT for an OAuth2 access token
     const res = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -34,7 +68,7 @@ async function getGoogleAuthToken(clientEmail: string, privateKey: string): Prom
 
     if (!res.ok) {
         const err = await res.text();
-        throw new Error(`Failed to fetch Google OAuth token: ${err}`);
+        throw new Error(`Google OAuth token exchange failed: ${err}`);
     }
 
     const data = await res.json();
