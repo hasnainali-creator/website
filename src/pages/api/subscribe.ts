@@ -1,118 +1,126 @@
 import type { APIRoute } from 'astro';
-import { SignJWT, importPKCS8 } from 'jose';
+import { SignJWT } from 'jose';
 
 export const prerender = false;
-
-const API_VERSION = 'v6-base64';
-
-async function getGoogleAuthToken(clientEmail: string, pemKey: string): Promise<string> {
-    const key = await importPKCS8(pemKey, 'RS256');
-
-    const iat = Math.floor(Date.now() / 1000);
-    const exp = iat + 3600;
-
-    const jwt = await new SignJWT({
-        iss: clientEmail,
-        scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/firebase.messaging',
-        aud: 'https://oauth2.googleapis.com/token',
-        exp,
-        iat
-    })
-    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
-    .sign(key);
-
-    const res = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            assertion: jwt
-        }).toString()
-    });
-
-    if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`OAuth failed: ${err}`);
-    }
-
-    const data = await res.json();
-    return data.access_token;
-}
+const V = 'v7';
 
 export const POST: APIRoute = async (context) => {
     const { request, locals } = context;
     try {
         const body = await request.json();
         const token = body.token;
+        if (!token) return new Response(JSON.stringify({ error: 'No token' }), { status: 400 });
 
-        if (!token) {
-            return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
-        }
-
-        // Get credentials from Cloudflare
         const env = (locals as any)?.runtime?.env || (context as any).env || {};
         const clientEmail = env.FIREBASE_CLIENT_EMAIL;
-        const rawKey = env.FIREBASE_PRIVATE_KEY || '';
+        const rawKey: string = env.FIREBASE_PRIVATE_KEY || '';
 
         if (!clientEmail || !rawKey) {
-            return new Response(JSON.stringify({ 
-                error: 'Missing credentials', 
-                version: API_VERSION 
-            }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+            return new Response(JSON.stringify({ error: 'No creds', v: V }), { status: 500 });
         }
 
-        // DECODE THE KEY:
-        // The key is stored as base64(entire PEM) in Cloudflare.
-        // This eliminates ALL formatting issues - no \n problems, no PEM parsing problems.
-        let pemKey: string;
+        // ========== STEP 1: Extract pure base64 from PEM ==========
+        // Remove PEM headers/footers
+        let b64 = rawKey
+            .replace(/-----BEGIN[\s\S]*?-----/g, '')
+            .replace(/-----END[\s\S]*?-----/g, '');
+
+        // Remove EVERYTHING that is not a valid base64 character
+        // This handles: literal \n, real newlines, \r, spaces, quotes, backslashes, etc.
+        b64 = b64.replace(/[^A-Za-z0-9+\/]/g, '');
+
+        // Fix padding
+        const padLen = (4 - (b64.length % 4)) % 4;
+        if (padLen > 0 && padLen < 4) b64 += '='.repeat(padLen);
+
+        // ========== STEP 2: Decode base64 to binary ==========
+        let binaryStr: string;
         try {
-            // Try base64 decode first (new format)
-            pemKey = atob(rawKey.trim());
-        } catch {
-            // Fallback: raw PEM with literal \n replacement (old format)
-            pemKey = rawKey.split('\\n').join('\n').replace(/"/g, '').trim();
-        }
-
-        let accessToken;
-        try {
-            accessToken = await getGoogleAuthToken(clientEmail, pemKey);
-        } catch (authErr: any) {
+            binaryStr = atob(b64);
+        } catch (e: any) {
             return new Response(JSON.stringify({ 
-                error: 'Auth Failed',
-                message: authErr.message,
-                version: API_VERSION,
-                keyLen: rawKey.length
-            }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+                error: 'base64 decode failed', 
+                v: V, 
+                b64Len: b64.length,
+                b64Start: b64.substring(0, 10),
+                b64End: b64.substring(b64.length - 10),
+                msg: e.message 
+            }), { status: 500 });
         }
 
-        // Subscribe to 'all' topic
-        const subscribeUrl = `https://iid.googleapis.com/iid/v1/${token}/rel/topics/all`;
-        
-        const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 10000);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+            bytes[i] = binaryStr.charCodeAt(i);
+        }
 
-        const response = await fetch(subscribeUrl, {
+        // ========== STEP 3: Import key via Web Crypto ==========
+        let cryptoKey: CryptoKey;
+        try {
+            cryptoKey = await crypto.subtle.importKey(
+                'pkcs8',
+                bytes.buffer,
+                { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+        } catch (e: any) {
+            return new Response(JSON.stringify({ 
+                error: 'Web Crypto importKey failed', 
+                v: V, 
+                derLen: bytes.length,
+                msg: e.message 
+            }), { status: 500 });
+        }
+
+        // ========== STEP 4: Create & sign JWT ==========
+        const iat = Math.floor(Date.now() / 1000);
+        const jwt = await new SignJWT({
+            iss: clientEmail,
+            scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/firebase.messaging',
+            aud: 'https://oauth2.googleapis.com/token',
+            exp: iat + 3600,
+            iat
+        })
+        .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+        .sign(cryptoKey);
+
+        // ========== STEP 5: Exchange JWT for access token ==========
+        const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'access_token_auth': 'true'
-            },
-            signal: controller.signal
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                assertion: jwt
+            }).toString()
         });
-        
-        clearTimeout(tid);
 
-        if (!response.ok) {
-            const errText = await response.text();
-            return new Response(JSON.stringify({ error: 'Subscription failed', detail: errText }), { status: 500 });
+        if (!tokenRes.ok) {
+            const err = await tokenRes.text();
+            return new Response(JSON.stringify({ error: 'OAuth failed', v: V, msg: err }), { status: 500 });
         }
 
-        return new Response(JSON.stringify({ success: true, version: API_VERSION }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        const { access_token } = await tokenRes.json();
+
+        // ========== STEP 6: Subscribe to topic ==========
+        const subRes = await fetch(
+            `https://iid.googleapis.com/iid/v1/${token}/rel/topics/all`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${access_token}`,
+                    'access_token_auth': 'true'
+                }
+            }
+        );
+
+        if (!subRes.ok) {
+            const err = await subRes.text();
+            return new Response(JSON.stringify({ error: 'Subscribe failed', v: V, msg: err }), { status: 500 });
+        }
+
+        return new Response(JSON.stringify({ success: true, v: V }), { status: 200 });
 
     } catch (error: any) {
-        return new Response(JSON.stringify({ error: 'Server Error', message: error.message, version: API_VERSION }), { status: 500 });
+        return new Response(JSON.stringify({ error: 'Fatal', v: V, msg: error.message }), { status: 500 });
     }
 };
