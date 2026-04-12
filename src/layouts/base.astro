@@ -30,25 +30,28 @@ if (!meta) {
   <body class="flex flex-col">
     <style is:inline>
       #brand-splash {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: #0a0a0a;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 99999;
-        transition: opacity 0.5s ease-in-out, visibility 0.5s;
+        display: none; /* Hidden by default for website visitors */
       }
+      
+      /* ONLY show the splash screen when launched as a standalone App */
+      @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+        #brand-splash {
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: #0a0a0a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 99999;
+          transition: opacity 0.4s ease-in-out, visibility 0.4s;
+        }
+      }
+
       #brand-splash.hide { opacity: 0; visibility: hidden; }
       .splash-logo {
         width: 80px; height: 80px;
         fill: #ffffff;
-        animation: pulse-soft 2s ease-in-out infinite;
-      }
-      @keyframes pulse-soft {
-        0%, 100% { transform: scale(1); opacity: 0.7; }
-        50% { transform: scale(1.08); opacity: 1; }
       }
     </style>
     <div id="brand-splash">
@@ -57,14 +60,15 @@ if (!meta) {
       </svg>
     </div>
     <script is:inline>
-      // Professional Splash Handler
-      window.addEventListener('DOMContentLoaded', () => {
-        const splash = document.getElementById('brand-splash');
-        // Give it a tiny bit of breath after content is ready for a smooth transition
-        setTimeout(() => {
-          splash.classList.add('hide');
-        }, 400);
-      });
+      // Professional Splash Handler - Only for PWA launch
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        window.addEventListener('load', () => {
+          const splash = document.getElementById('brand-splash');
+          setTimeout(() => {
+            splash.classList.add('hide');
+          }, 300);
+        });
+      }
     </script>
 
     <Header />
