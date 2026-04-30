@@ -9,7 +9,6 @@ import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
 import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
-import partytown from "@astrojs/partytown";
 
 import cloudflare from "@astrojs/cloudflare";
 import astroPWA from "@vite-pwa/astro";

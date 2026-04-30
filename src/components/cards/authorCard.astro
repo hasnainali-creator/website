@@ -40,6 +40,6 @@ const { author, loading = "lazy", fetchpriority = "auto" } = Astro.props;
         {author.data.name}
       </a>
     </h3>
-    <p class="text-sm text-primary dark:text-secondary">{author.data.job}</p>
+    <span class="text-[13px] font-medium text-primary dark:text-secondary">{author.data.job}</span>
   </div>
 </li>

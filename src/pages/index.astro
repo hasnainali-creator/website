@@ -5,7 +5,7 @@ import Headlines from "@/pages/_home/headlines.astro";
 import LatestNews from "@/pages/_home/latestNews.astro";
 import Authors from "@/pages/_home/authors.astro";
 import { articlesHandler } from "@/lib/handlers/articles";
-import { getImage } from "astro:assets";
+
 
 const entry = await getEntry("views", "home");
 const mainHeadlineArticle = await articlesHandler.mainHeadline();

@@ -2,8 +2,7 @@
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import Divider from "../bases/divider.astro";
-import { render } from "astro:content";
-import { getDateDistance } from "@/lib/utils/date";
+import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
 const catProvider = await categoriesHandler.getProvider();
 
@@ -13,8 +12,6 @@ type Props = {
   isLast?: boolean;
 };
 const { article, isLast, isFirst } = Astro.props;
-
-const { remarkPluginFrontmatter } = await render(article);
 ---
 
 <article
@@ -27,7 +24,9 @@ const { remarkPluginFrontmatter } = await render(article);
   <div class="flex flex-col flex-1">
     <div class="flex items-center gap-2 mb-1">
       <div class="flex-1">
-        <h3 class="text-base lg:group-hover:underline mb-1">
+        <h3
+      class="text-[17px] leading-6 font-bold lg:group-hover:underline underline-offset-2 line-clamp-2 text-pretty"
+    >
           <a href={`/articles/${article.id}`}>
             <span class="absolute inset-0 z-10"></span>
             {article.data.title}
@@ -41,11 +40,16 @@ const { remarkPluginFrontmatter } = await render(article);
       </div>
     </div>
     <div class="flex items-center text-xs text-base-content/80 mt-1 lg:mt-auto">
-      <p class="text-sm font-semibold text-primary dark:text-secondary capitalize">
+      <p class="text-[13px] font-medium text-primary dark:text-secondary capitalize">
         {catProvider.getDisplayPath(normalizeCategoryData(article.data.category)[0]?.discriminant || "uncategorized")}
       </p>
       <Divider />
-      <span>{getDateDistance(remarkPluginFrontmatter.lastModified)}</span>
+      <time
+        datetime={normalizeDate(article.data.publishedTime)}
+        data-relative
+      >
+        {getDateDistance(normalizeDate(article.data.publishedTime))}
+      </time>
     </div>
   </div>
 
@@ -66,4 +70,3 @@ const { remarkPluginFrontmatter } = await render(article);
     />
   </div>
 </article>
-

@@ -113,7 +113,7 @@ export async function POST({ request }: { request: Request }) {
         `,
             }),
         });
-;
+
 
         if (!resendResponse.ok) {
             const errBody = await resendResponse.text();

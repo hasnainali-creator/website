@@ -50,13 +50,13 @@ const articles = catProvider.categories.map(c => ({
               </a>
             </div>
             <div class="snap-x">
-              {/* {latestArticles.slice(0, 6).map((article, index) => (
-                <NewsCard article={article} index={index} />
+              {/* {latestArticles.slice(0, 6).map((article) => (
+                <NewsCard article={article} />
               ))} */}
               <div class="flex overflow-x-auto pb-4 space-x-4 snap-x snap-proximity">
-                {latestArticles.slice(0, 6).map((article, index) => (
+                {latestArticles.slice(0, 6).map((article) => (
                   <div class="snap-start flex-none lg:flex-initial">
-                    <NewsCard article={article} index={index} />
+                    <NewsCard article={article} />
                   </div>
                 ))}
               </div>

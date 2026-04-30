@@ -22,6 +22,7 @@ const meta = metaProp || (entry ? await getMeta(entry) : undefined);
 if (!meta) {
   throw new Error("BaseLayout requires either an entry or a meta prop.");
 }
+import TimeEngine from "@/components/shared/TimeEngine.astro";
 ---
 
 <!doctype html>
@@ -34,7 +35,7 @@ if (!meta) {
       <slot />
     </main>
     <Footer />
-    <script src="/z-engine.js" defer is:inline></script>
     <NotificationManager />
+    <TimeEngine />
   </body>
 </html>

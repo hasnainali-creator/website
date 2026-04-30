@@ -17,28 +17,45 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
 // Zenith: High-Fidelity Universal Speed Path
 import { getImage } from "astro:assets";
-const isArticleMeta = (meta: any): meta is ArticleMeta => meta.type === "article";
+const isArticleMeta = (meta: any): meta is ArticleMeta =>
+  meta.type === "article";
 const OGImage = new URL(meta.ogImage, Astro.url).href;
 
 let preloadSrcset = "";
 
-
 if (preloadImage) {
-  if (typeof preloadImage === 'object') {
+  if (typeof preloadImage === "object") {
     const q = 30; // Extreme Aggressive quality for Universal Speed (< 1.0s LCP)
-    const img400 = await getImage({ src: preloadImage, format: 'avif', width: 400, quality: q });
-    const img665 = await getImage({ src: preloadImage, format: 'avif', width: 665, quality: q });
-    const img800 = await getImage({ src: preloadImage, format: 'avif', width: 800, quality: q });
-    const img1024 = await getImage({ src: preloadImage, format: 'avif', width: 1024, quality: q });
+    const img400 = await getImage({
+      src: preloadImage,
+      format: "avif",
+      width: 400,
+      quality: q,
+    });
+    const img665 = await getImage({
+      src: preloadImage,
+      format: "avif",
+      width: 665,
+      quality: q,
+    });
+    const img800 = await getImage({
+      src: preloadImage,
+      format: "avif",
+      width: 800,
+      quality: q,
+    });
+    const img1024 = await getImage({
+      src: preloadImage,
+      format: "avif",
+      width: 1024,
+      quality: q,
+    });
     preloadSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1024.src} 1024w`;
-
   } else {
     preloadSrcset = `${preloadImage} 400w, ${preloadImage} 665w, ${preloadImage} 800w, ${preloadImage} 1024w`;
-
   }
 } else if (isArticleMeta(meta)) {
   preloadSrcset = `${OGImage} 400w, ${OGImage} 665w, ${OGImage} 800w, ${OGImage} 1024w`;
-
 }
 
 const schemaOrg: any = {
@@ -194,13 +211,49 @@ const breadcrumbSchemaString = breadcrumbSchema
   <link rel="preconnect" href="https://omnysports.pages.dev" crossorigin />
   <link rel="dns-prefetch" href="https://omnysports.pages.dev" />
 
-  {/* Priority #1 (LCP Monopolization Target): Image gets highest native network priority */}
-  {preloadSrcset && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
+  {
+    /* Priority #1 (LCP Monopolization Target): Image gets highest native network priority */
+  }
+  {
+    preloadSrcset && (
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        imagesrcset={preloadSrcset}
+        imagesizes={preloadSizes}
+        fetchpriority="high"
+      />
+    )
+  }
 
-  {/* Priority #2 (FCP / Visual Completion Sync): All fonts fetch parallel but deprioritized to preserve LCP bandwidth */}
-  <link rel="preload" href="/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" fetchpriority="low" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/source-sans-pro-latin-400-normal.woff2" as="font" type="font/woff2" fetchpriority="low" crossorigin="anonymous" />
-  <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" fetchpriority="low" crossorigin="anonymous" />
+  {
+    /* Priority #2 (FCP / Visual Completion Sync): All fonts fetch parallel but deprioritized to preserve LCP bandwidth */
+  }
+  <link
+    rel="preload"
+    href="/fonts/source-serif-4-latin-wght-normal.woff2"
+    as="font"
+    type="font/woff2"
+    fetchpriority="low"
+    crossorigin="anonymous"
+  />
+  <link
+    rel="preload"
+    href="/fonts/source-sans-pro-latin-400-normal.woff2"
+    as="font"
+    type="font/woff2"
+    fetchpriority="low"
+    crossorigin="anonymous"
+  />
+  <link
+    rel="preload"
+    href="/fonts/inter-latin-wght-normal.woff2"
+    as="font"
+    type="font/woff2"
+    fetchpriority="low"
+    crossorigin="anonymous"
+  />
 
   {/* Universal Light Mode Enforcement */}
   <!-- Global Metadata -->
@@ -245,7 +298,6 @@ const breadcrumbSchemaString = breadcrumbSchema
     }
   </style>
 
-
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalURL} />
 
@@ -265,25 +317,10 @@ const breadcrumbSchemaString = breadcrumbSchema
     )
   }
 
-  <!-- Favicons -->
-  <!-- 1. Modern Dynamic SVG (Theme-Aware Tab & Search) -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=21" sizes="any" />
-
-
-
-
-  <!-- 3. Professional PNG Fallback (High-Res for Google Search results) -->
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="96x96"
-    href="/favicon-96x96.png?v=21"
-  />
-  <link
-    rel="apple-touch-icon"
-    sizes="180x180"
-    href="/apple-touch-icon.png?v=21"
-  />
+  <!-- 1. Master Brand Logo (Consolidated System) -->
+  <link rel="icon" type="image/png" href="/omnysports-logo.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/omnysports-logo.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/omnysports-logo.png" />
   <meta name="apple-mobile-web-app-title" content={SITE.title} />
   <meta name="application-name" content={SITE.title} />
   <link rel="manifest" href="/site.webmanifest" />

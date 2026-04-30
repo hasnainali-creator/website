@@ -1,0 +1,71 @@
+---
+// TimeEngine.astro - Client-side high-performance relative time manager
+// This script runs on the user's device and updates time strings every minute.
+---
+
+<script is:inline>
+  /**
+   * Time Engine: Client-Side Live Clock Synchronization
+   * This logic calculates the distance between the article's publish time 
+   * and the user's current clock, updating the UI every 60 seconds 
+   * without needing a page refresh or server rebuild.
+   */
+  (function () {
+    function updateTimeDistances() {
+      const relativeElements = document.querySelectorAll("[data-relative]");
+
+      relativeElements.forEach((el) => {
+        const dateTimeStr = el.getAttribute("datetime");
+        if (!dateTimeStr) return;
+
+        try {
+          const past = new Date(dateTimeStr);
+          const now = new Date();
+          const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+          let display = "";
+
+          if (diffInSeconds < 60) {
+            display = "just now";
+          } else if (diffInSeconds < 3600) {
+            const mins = Math.floor(diffInSeconds / 60);
+            display = `${mins} minute${mins > 1 ? "s" : ""} ago`;
+          } else if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            display = `${hours} hour${hours > 1 ? "s" : ""} ago`;
+          } else if (diffInSeconds < 2592000) {
+            const days = Math.floor(diffInSeconds / 86400);
+            display = `${days} day${days > 1 ? "s" : ""} ago`;
+          } else if (diffInSeconds < 31536000) {
+            const months = Math.floor(diffInSeconds / 2592000);
+            display = `${months} month${months > 1 ? "s" : ""} ago`;
+          } else {
+            const years = Math.floor(diffInSeconds / 31536000);
+            display = `${years} year${years > 1 ? "s" : ""} ago`;
+          }
+
+          // Optimization: Only update DOM if text has changed to prevent unnecessary reflows
+          if (el.textContent.trim() !== display) {
+            const span = el.querySelector("span");
+            if (span) {
+              span.textContent = display;
+            } else {
+              el.textContent = display;
+            }
+          }
+        } catch (e) {
+          console.error("Time Engine error:", e);
+        }
+      });
+    }
+
+    // Run immediately on load
+    updateTimeDistances();
+
+    // High Accuracy Sync: Run every 60 seconds
+    setInterval(updateTimeDistances, 60000);
+
+    // Astro-specific: Handle View Transitions (if enabled in future)
+    document.addEventListener("astro:page-load", updateTimeDistances);
+  })();
+</script>

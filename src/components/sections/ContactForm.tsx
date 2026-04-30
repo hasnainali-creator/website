@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useRef, useCallback, type FormEvent } from 'react';
 
 type PurposeType = 'editorial' | 'tip' | 'copyright' | 'accessibility' | 'privacy' | 'ads' | 'careers' | 'tech' | 'other';
 
@@ -252,7 +252,7 @@ const ContactForm = () => {
         }
     }, []);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (formData.honeypot) return;
 

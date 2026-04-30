@@ -6,10 +6,13 @@ const FORMAT_SHORT = "MMMM dd, yyyy zz";
 const dateCache = new Map<string, Date>();
 
 
-export const getDateDistance = (date: string) =>
-  formatDistanceToNow(parseISO(date), {
+export const getDateDistance = (date: string) => {
+  const distance = formatDistanceToNow(parseISO(date), {
     addSuffix: true,
   });
+  // Remove fuzzy prefixes like "about ", "almost ", "over " for cleaner UI
+  return distance.replace(/^(about|almost|over)\s+/i, "");
+};
 
 
 export const normalizeDate = (date: string | Date): string =>

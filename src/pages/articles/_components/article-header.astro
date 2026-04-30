@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
-import { formatDate, normalizeDate } from "@/lib/utils/date";
+import { formatDate, getDateDistance, normalizeDate } from "@/lib/utils/date";
 import ResourcesAdd from "@/assets/svgs/resources-add.astro";
 import Time04 from "@/assets/svgs/time-04.astro";
 import Calendar04 from "@/assets/svgs/calendar-04.astro";
@@ -14,10 +14,9 @@ import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
 
 type Props = {
   article: CollectionEntry<"articles">;
-  readingTime: string;
 };
 
-const { article, readingTime } = Astro.props;
+const { article } = Astro.props;
 
 // Zenith High-Performance Execution: Manual AVIF Generation for Universal Speed
 import { getImage } from "astro:assets";
@@ -61,7 +60,7 @@ const breadcrumbs = [
   <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
     <ResourcesAdd size="16" />
     {cats[0]?.discriminant && (
-      <a href={`/categories/${cats[0].discriminant}/1`} class="a-01 font-semibold">
+      <a href={`/categories/${cats[0].discriminant}/1`} class="a-01 font-semibold text-primary dark:text-secondary">
         {catProvider.getDisplayPath(cats[0].discriminant)}
       </a>
     )}
@@ -75,7 +74,7 @@ const breadcrumbs = [
       <div class="text-base-content/70 flex items-center gap-2">
         <span class="hidden lg:flex items-center gap-1">
           <ResourcesAdd size="15" />
-          <a href={`/categories/${category.id}/1`} class="a-01 font-semibold"
+          <a href={`/categories/${category.id}/1`} class="a-01 font-semibold text-primary dark:text-secondary"
             >{category.data.title}</a
           >
         </span>
@@ -100,7 +99,9 @@ const breadcrumbs = [
         <Divider />
         <span class="flex items-center gap-1">
           <Time04 size="15" />
-          <span>{readingTime}</span>
+          <time datetime={normalizeDate(article.data.publishedTime)} data-relative>
+            {getDateDistance(normalizeDate(article.data.publishedTime))}
+          </time>
         </span>
       </div>
       <!-- TODO: fix name, href, avatar of author -->
