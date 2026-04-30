@@ -318,9 +318,11 @@ const breadcrumbSchemaString = breadcrumbSchema
   }
 
   <!-- 1. Master Brand Logo (Consolidated System) -->
-  <link rel="icon" type="image/png" href="/omnysports-logo.png" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/omnysports-logo.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/omnysports-logo.png" />
+  <!-- SVG renders crisp at any size — no pixelation -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
+  <!-- PNG fallback for older browsers + Apple -->
+  <link rel="icon" type="image/png" sizes="96x96" href="/omnysports-logo.png?v=3" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/omnysports-logo.png?v=3" />
   <meta name="apple-mobile-web-app-title" content={SITE.title} />
   <meta name="application-name" content={SITE.title} />
   <link rel="manifest" href="/site.webmanifest" />
