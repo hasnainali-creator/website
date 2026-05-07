@@ -6,7 +6,10 @@ import ResourcesAdd from "@/assets/svgs/resources-add.astro";
 import Time04 from "@/assets/svgs/time-04.astro";
 import Calendar04 from "@/assets/svgs/calendar-04.astro";
 import Divider from "@/components/bases/divider.astro";
-import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+import {
+  categoriesHandler,
+  normalizeCategoryData,
+} from "@/lib/handlers/categories";
 import { authorsHandler } from "@/lib/handlers/authors";
 import Share from "@/components/elements/share.astro";
 
@@ -20,21 +23,58 @@ const { article } = Astro.props;
 
 // Zenith High-Performance Execution: Manual AVIF Generation for Universal Speed
 import { getImage } from "astro:assets";
-const q = 30; // Absolute Zero matching for <1.0s LCP hit
-const img400 = await getImage({ src: article.data.cover, format: 'avif', width: 400, quality: q });
-const img665 = await getImage({ src: article.data.cover, format: 'avif', width: 665, quality: q });
-const img800 = await getImage({ src: article.data.cover, format: 'avif', width: 800, quality: q });
-const img1024 = await getImage({ src: article.data.cover, format: 'avif', width: 1024, quality: q });
-const lcpSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1024.src} 1024w`;
+const q = 85; // High-Fidelity Zenith: Flawless AVIF quality for 2K/FHD delivery
+const img400 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 400,
+  quality: q,
+});
+const img665 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 665,
+  quality: q,
+});
+const img800 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 800,
+  quality: q,
+});
+const img1024 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 1024,
+  quality: q,
+});
+const img1920 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 1920,
+  quality: q,
+});
+const img2560 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 2560,
+  quality: q,
+});
+const lcpSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1024.src} 1024w, ${img1920.src} 1920w, ${img2560.src} 2560w`;
 
 const authors = await authorsHandler.getAuthors(article.data.authors);
 const catProvider = await categoriesHandler.getProvider();
 const cats = normalizeCategoryData(article.data.category);
-const category = catProvider.oneCategory(cats[0]?.discriminant || "uncategorized");
+const category = catProvider.oneCategory(
+  cats[0]?.discriminant || "uncategorized",
+);
 
 const breadcrumbs = [
-  { label: category.data.title || "Category", url: `/categories/${category.id}/1` },
-  { label: article.data.title || "Article", url: `/articles/${article.id}` }
+  {
+    label: category.data.title || "Category",
+    url: `/categories/${category.id}/1`,
+  },
+  { label: article.data.title || "Article", url: `/articles/${article.id}` },
 ];
 ---
 
@@ -47,8 +87,10 @@ const breadcrumbs = [
     <img
       src={img800.src}
       srcset={lcpSrcset}
-      alt={article.data.coverAlt || article.data.title || "OmnySports Article Cover"}
-      sizes="(max-width: 768px) 100vw, 1024px"
+      alt={article.data.coverAlt ||
+        article.data.title ||
+        "OmnySports Article Cover"}
+      sizes="(max-width: 1024px) 100vw, 1024px"
       loading="eager"
       fetchpriority="high"
       decoding="sync"
@@ -59,22 +101,31 @@ const breadcrumbs = [
   </div>
   <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
     <ResourcesAdd size="16" />
-    {cats[0]?.discriminant && (
-      <a href={`/categories/${cats[0].discriminant}/1`} class="a-01 font-semibold text-primary dark:text-secondary">
-        {catProvider.getDisplayPath(cats[0].discriminant)}
-      </a>
-    )}
+    {
+      cats[0]?.discriminant && (
+        <a
+          href={`/categories/${cats[0].discriminant}/1`}
+          class="a-01 font-medium text-[#0A8BF3] dark:text-secondary"
+        >
+          {catProvider.getDisplayPath(cats[0].discriminant)}
+        </a>
+      )
+    }
   </div>
   <div class="container max-w-5xl">
     <Breadcrumbs crumbs={breadcrumbs} />
-    <h1 class="text-3xl lg:text-4xl font-bold text-left text-pretty mt-1 lg:mt-2">
+    <h1
+      class="text-3xl lg:text-4xl font-bold text-left text-pretty mt-1 lg:mt-2"
+    >
       {article.data.title}
     </h1>
     <div class="flex flex-col gap-4 items-start mt-2 lg:mt-6 text-sm">
       <div class="text-base-content/70 flex items-center gap-2">
         <span class="hidden lg:flex items-center gap-1">
           <ResourcesAdd size="15" />
-          <a href={`/categories/${category.id}/1`} class="a-01 font-semibold text-primary dark:text-secondary"
+          <a
+            href={`/categories/${category.id}/1`}
+            class="a-01 font-medium text-[#0A8BF3] dark:text-secondary"
             >{category.data.title}</a
           >
         </span>
@@ -99,7 +150,10 @@ const breadcrumbs = [
         <Divider />
         <span class="flex items-center gap-1">
           <Time04 size="15" />
-          <time datetime={normalizeDate(article.data.publishedTime)} data-relative>
+          <time
+            datetime={normalizeDate(article.data.publishedTime)}
+            data-relative
+          >
             {getDateDistance(normalizeDate(article.data.publishedTime))}
           </time>
         </span>
@@ -128,7 +182,9 @@ const breadcrumbs = [
                         />
                       ) : (
                         <div class="w-8 h-8 bg-base-300 flex items-center justify-center rounded-full">
-                          <span class="text-xs font-bold uppercase">{(author.data.name || "?").charAt(0)}</span>
+                          <span class="text-xs font-bold uppercase">
+                            {(author.data.name || "?").charAt(0)}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -144,4 +200,3 @@ const breadcrumbs = [
     </div>
   </div>
 </section>
-

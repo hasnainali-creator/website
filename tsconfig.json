@@ -1,4 +1,5 @@
 {
+  "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -23,10 +24,15 @@
       "@assets/*": [
         "src/assets/*"
       ]
-    }
+    },
+    "types": [
+      "astro/client",
+      "node"
+    ]
   },
   "include": [
     ".astro/types.d.ts",
+    "src/**/*",
     "**/*"
   ],
   "exclude": [

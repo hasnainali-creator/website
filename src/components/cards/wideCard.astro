@@ -1,10 +1,12 @@
 ---
-import { Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import Divider from "../bases/divider.astro";
-import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+import {
+  categoriesHandler,
+  normalizeCategoryData,
+} from "@/lib/handlers/categories";
 const catProvider = await categoriesHandler.getProvider();
 
 type Props = {
@@ -14,20 +16,48 @@ type Props = {
   fetchpriority?: "high" | "low" | "auto";
 };
 
-const { article, isLast, loading = "lazy", fetchpriority = "auto" } = Astro.props;
+const {
+  article,
+  isLast,
+  loading = "lazy",
+  fetchpriority = "auto",
+} = Astro.props;
 await render(article);
+
+// Zenith High-Performance Execution: Manual AVIF Generation
+import { getImage } from "astro:assets";
+const q = 80; // Zenith Fidelity: Professional grade wide-aspect rendering
+const img400 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 400,
+  quality: q,
+});
+const img800 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 800,
+  quality: q,
+});
+const img1200 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 1200,
+  quality: q,
+});
+const lcpSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`;
 ---
 
 <li
   class="group w-full max-w-md mx-auto lg:max-w-full relative isolate flex flex-col lg:flex-row gap-4"
 >
-    <time
-      class="flex-shrink-0 aspect-square w-32 text-sm text-base-content/60 text-pretty capitalize hidden lg:flex pt-1"
-      datetime={normalizeDate(article.data.publishedTime)}
-      data-relative
-    >
-      {getDateDistance(normalizeDate(article.data.publishedTime))}
-    </time>
+  <time
+    class="flex-shrink-0 aspect-square w-32 text-sm text-base-content/60 text-pretty capitalize hidden lg:flex pt-1"
+    datetime={normalizeDate(article.data.publishedTime)}
+    data-relative
+  >
+    {getDateDistance(normalizeDate(article.data.publishedTime))}
+  </time>
   <div
     class:list={[
       "flex-1 flex flex-col gap-4 lg:flex-row-reverse pb-2 lg:pb-4",
@@ -35,17 +65,19 @@ await render(article);
     ]}
   >
     <div class="w-full lg:w-60 aspect-video relative">
-      <Picture
-        src={article.data.cover}
-        alt={article.data.coverAlt || article.data.title || "Sports News Article"}
-        width={400}
-        height={225}
+      <img
+        src={img800.src}
+        srcset={lcpSrcset}
+        alt={article.data.coverAlt ||
+          article.data.title ||
+          "Sports News Article"}
+        sizes="(max-width: 1024px) 100vw, 300px"
         loading={loading}
         fetchpriority={fetchpriority}
-        formats={["avif", "webp"]}
-        fallbackFormat="jpg"
         decoding={loading === "eager" ? "sync" : "async"}
         class="aspect-video rounded w-full h-full object-cover"
+        width="800"
+        height="450"
         style="aspect-ratio: 16/9; content-visibility: auto; contain-intrinsic-size: 225px;"
       />
     </div>
@@ -72,8 +104,15 @@ await render(article);
       </time>
       <Divider />
       <small class="flex items-center gap-1">
-        <span class="text-[13px] font-medium text-primary dark:text-secondary capitalize">
-          {catProvider.getDisplayPath(normalizeCategoryData(article.data.category)[0]?.discriminant || "uncategorized")}
+        <span
+          class="text-[13px] font-medium text-[#0A8BF3] dark:text-secondary capitalize"
+        >
+          {
+            catProvider.getDisplayPath(
+              normalizeCategoryData(article.data.category)[0]?.discriminant ||
+                "uncategorized",
+            )
+          }
         </span>
       </small>
     </div>

@@ -11,7 +11,17 @@ import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
 
 import cloudflare from "@astrojs/cloudflare";
-import astroPWA from "@vite-pwa/astro";
+import node from "@astrojs/node";
+
+const isCloudflare = process.env.CF_PAGES === '1';
+const adapter = isCloudflare 
+  ? cloudflare({
+      imageService: "compile",
+      platformProxy: { enabled: false }
+    })
+  : node({
+      mode: "standalone"
+    });
 
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
@@ -20,58 +30,6 @@ const integrations = [
   sitemap(), 
   react(), 
   pagefind(),
-  // NOTE: Partytown REMOVED — its service worker uses deprecated APIs
-  // (SharedStorage, AttributionReporting) causing Best Practices = 81%.
-  // Will re-add when Ads/Analytics are actually integrated.
-  astroPWA({
-    registerType: 'autoUpdate',
-    workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,avif,webp,jpg}'],
-      maximumFileSizeToCacheInBytes: 10000000,
-      runtimeCaching: [
-        {
-          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico)$/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'images-cache',
-            expiration: { maxEntries: 100, maxAgeSeconds: 365 * 24 * 60 * 60 },
-            cacheableResponse: { statuses: [0, 200] }
-          }
-        },
-        {
-          urlPattern: /\.(?:woff2|woff|ttf|otf)$/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'fonts-cache',
-            expiration: { maxEntries: 20, maxAgeSeconds: 365 * 24 * 60 * 60 },
-            cacheableResponse: { statuses: [0, 200] }
-          }
-        },
-        {
-          urlPattern: ({ request }) => request.mode === 'navigate',
-          handler: 'StaleWhileRevalidate',
-          options: {
-            cacheName: 'pages-cache',
-            expiration: { maxEntries: 50, maxAgeSeconds: 24 * 60 * 60 },
-            cacheableResponse: { statuses: [0, 200] }
-          }
-        }
-      ]
-    },
-    manifest: {
-      name: SITE.title,
-      short_name: SITE.title,
-      description: SITE.description,
-      theme_color: '#ffffff',
-      icons: [
-        {
-          src: 'favicon-96x96.png',
-          sizes: '96x96',
-          type: 'image/png'
-        }
-      ]
-    }
-  })
 ];
 
 if (RUN_KEYSTATIC === "true") {
@@ -98,7 +56,7 @@ export default defineConfig({
 
   image: {
     responsiveStyles: true,
-    breakpoints: [640, 1280],
+    breakpoints: [640, 768, 1024, 1280, 1920, 2560],
   },
 
   integrations,
@@ -117,12 +75,7 @@ export default defineConfig({
     }
   },
 
-  adapter: cloudflare({
-    imageService: "compile",
-    platformProxy: {
-      enabled: false
-    }
-  })
+  adapter,
 });
 
 // Deployment Trigger: 2026-03-10 01:35 - Force Bun Build Strategy Sync

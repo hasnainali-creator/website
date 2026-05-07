@@ -1,5 +1,4 @@
 ---
-import { Picture } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 
 type Props = {
@@ -9,30 +8,53 @@ type Props = {
 };
 
 const { author, loading = "lazy", fetchpriority = "auto" } = Astro.props;
+
+// Zenith High-Performance Execution: Manual AVIF Generation
+import { getImage } from "astro:assets";
+const q = 90; // Zenith Portrait: High-quality avatar rendering
+const img160 = author.data.avatar
+  ? await getImage({
+      src: author.data.avatar,
+      format: "avif",
+      width: 160,
+      quality: q,
+    })
+  : null;
+const img320 = author.data.avatar
+  ? await getImage({
+      src: author.data.avatar,
+      format: "avif",
+      width: 320,
+      quality: q,
+    })
+  : null;
+const lcpSrcset =
+  img160 && img320 ? `${img160.src} 160w, ${img320.src} 320w` : "";
 ---
 
 <li class="group relative isolate mx-auto w-full">
-  {author.data.avatar ? (
-    <Picture
-      class="w-320 aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md bg-slate-800"
-      src={author.data.avatar}
-      alt={author.data.name || "Author Profile"}
-      layout="constrained"
-      loading={loading}
-      fetchpriority={fetchpriority}
-      formats={["avif", "webp"]}
-      fallbackFormat="jpg"
-      decoding="async"
-      width={160}
-      height={160}
-    />
-  ) : (
-    <div class="w-full aspect-square max-w-full rounded-md bg-base-300 filter grayscale group-hover:grayscale-0 flex items-center justify-center border border-base-content/10 transition-all duration-300">
-      <span class="text-6xl text-base-content/40 font-bold uppercase">
-        {(author.data.name || "?").charAt(0)}
-      </span>
-    </div>
-  )}
+  {
+    author.data.avatar && img160 ? (
+      <img
+        class="w-320 aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md bg-slate-800"
+        src={img160.src}
+        srcset={lcpSrcset}
+        alt={author.data.name || "Author Profile"}
+        sizes="160px"
+        loading={loading}
+        fetchpriority={fetchpriority}
+        decoding="async"
+        width="160"
+        height="160"
+      />
+    ) : (
+      <div class="w-full aspect-square max-w-full rounded-md bg-base-300 filter grayscale group-hover:grayscale-0 flex items-center justify-center border border-base-content/10 transition-all duration-300">
+        <span class="text-6xl text-base-content/40 font-bold uppercase">
+          {(author.data.name || "?").charAt(0)}
+        </span>
+      </div>
+    )
+  }
   <div class="flex flex-col gap-0.5 mt-2">
     <h3 class="text-base font-semibold group-hover:underline">
       <a href={`/authors/${author.id}`}>
@@ -40,6 +62,8 @@ const { author, loading = "lazy", fetchpriority = "auto" } = Astro.props;
         {author.data.name}
       </a>
     </h3>
-    <span class="text-[13px] font-medium text-primary dark:text-secondary">{author.data.job}</span>
+    <span class="text-[13px] font-medium text-[#0A8BF3] dark:text-secondary"
+      >{author.data.job}</span
+    >
   </div>
 </li>

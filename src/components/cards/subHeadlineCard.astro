@@ -1,9 +1,11 @@
 ---
-import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import Divider from "../bases/divider.astro";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
-import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+import {
+  categoriesHandler,
+  normalizeCategoryData,
+} from "@/lib/handlers/categories";
 const catProvider = await categoriesHandler.getProvider();
 
 type Props = {
@@ -12,6 +14,23 @@ type Props = {
   isLast?: boolean;
 };
 const { article, isLast, isFirst } = Astro.props;
+
+// Zenith High-Performance Execution: Manual AVIF Generation
+import { getImage } from "astro:assets";
+const q = 75; // Zenith Density: Perfect clarity for sub-headlines
+const img200 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 200,
+  quality: q,
+});
+const img400 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 400,
+  quality: q,
+});
+const lcpSrcset = `${img200.src} 200w, ${img400.src} 400w`;
 ---
 
 <article
@@ -25,8 +44,8 @@ const { article, isLast, isFirst } = Astro.props;
     <div class="flex items-center gap-2 mb-1">
       <div class="flex-1">
         <h3
-      class="text-[17px] leading-6 font-bold lg:group-hover:underline underline-offset-2 line-clamp-2 text-pretty"
-    >
+          class="text-[17px] leading-6 font-bold lg:group-hover:underline underline-offset-2 line-clamp-2 text-pretty"
+        >
           <a href={`/articles/${article.id}`}>
             <span class="absolute inset-0 z-10"></span>
             {article.data.title}
@@ -40,14 +59,18 @@ const { article, isLast, isFirst } = Astro.props;
       </div>
     </div>
     <div class="flex items-center text-xs text-base-content/80 mt-1 lg:mt-auto">
-      <p class="text-[13px] font-medium text-primary dark:text-secondary capitalize">
-        {catProvider.getDisplayPath(normalizeCategoryData(article.data.category)[0]?.discriminant || "uncategorized")}
+      <p
+        class="text-[13px] font-medium text-[#0A8BF3] dark:text-secondary capitalize"
+      >
+        {
+          catProvider.getDisplayPath(
+            normalizeCategoryData(article.data.category)[0]?.discriminant ||
+              "uncategorized",
+          )
+        }
       </p>
       <Divider />
-      <time
-        datetime={normalizeDate(article.data.publishedTime)}
-        data-relative
-      >
+      <time datetime={normalizeDate(article.data.publishedTime)} data-relative>
         {getDateDistance(normalizeDate(article.data.publishedTime))}
       </time>
     </div>
@@ -56,16 +79,17 @@ const { article, isLast, isFirst } = Astro.props;
   <div
     class="overflow-hidden w-[165px] h-[125px] md:w-[120px] md:h-full shrink-0 relative"
   >
-    <Image
-      src={article.data.cover}
+    <img
+      src={img200.src}
+      srcset={lcpSrcset}
       alt={article.data.coverAlt || article.data.title || "Sub Headline News"}
-      width={200}
-      height={150}
+      sizes="(max-width: 768px) 165px, 120px"
       loading="lazy"
       fetchpriority="low"
-      format="avif"
       decoding="async"
       class="object-cover rounded w-full h-full"
+      width="200"
+      height="150"
       style="aspect-ratio: 4/3; content-visibility: auto; contain-intrinsic-size: 125px;"
     />
   </div>

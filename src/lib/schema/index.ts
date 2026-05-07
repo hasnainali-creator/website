@@ -1,4 +1,4 @@
-import { z } from "astro:content";
+import { z } from "zod";
 import type { ImageFunction } from "astro:content";
 
 export const articleSchema = (image: ImageFunction) =>

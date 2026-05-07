@@ -1,6 +1,5 @@
 ---
 import { SOCIAL_LINKS } from "@/lib/config";
-import Hashtag from "@/assets/svgs/hashtag.astro";
 import Icon from "../bases/icon.astro";
 import { getCollection } from "astro:content";
 
@@ -65,7 +64,7 @@ const OTHER_LINKS = [
           OTHER_LINKS.map(({ href, text, target }) => (
             <a
               href={href}
-              class="link link-hover"
+              class="link link-hover hover:text-[#0A8BF3] transition-colors duration-300"
               target={target ?? "_self"}
               rel={target === "_blank" ? "noopener noreferrer" : undefined}
             >
