@@ -1,19 +1,26 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import type { Meta } from "@/lib/types";
+import type { Meta, ArticleMeta } from "@/lib/types";
 import BaseLayout from "./base.astro";
 import ViewListHeader from "@/components/shared/view-list-header.astro";
 
 type Props = {
   header: string;
   entry: CollectionEntry<"views">;
-  meta?: Meta;
+  meta?: Meta | ArticleMeta;
+  preloadImage?: string | any;
+  preloadSizes?: string;
 };
 
-const { entry, header, meta } = Astro.props;
+const { entry, header, meta, preloadImage, preloadSizes } = Astro.props;
 ---
 
-<BaseLayout entry={entry} meta={meta}>
+<BaseLayout
+  entry={entry}
+  meta={meta}
+  preloadImage={preloadImage}
+  preloadSizes={preloadSizes}
+>
   <div
     class="container flex flex-col h-full pb-8 pt-4"
     data-pagefind-ignore="all"

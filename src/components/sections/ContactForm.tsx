@@ -125,15 +125,15 @@ const ValidMark = () => (
 
 // Custom styled dropdown
 const PURPOSE_OPTIONS = [
-    { value: 'editorial',     label: 'Factual Correction / Editorial Feedback' },
-    { value: 'tip',           label: 'Confidential News Tip / Story Lead' },
-    { value: 'copyright',     label: 'Copyright / DMCA Claim' },
+    { value: 'editorial', label: 'Factual Correction / Editorial Feedback' },
+    { value: 'tip', label: 'Confidential News Tip / Story Lead' },
+    { value: 'copyright', label: 'Copyright / DMCA Claim' },
     { value: 'accessibility', label: 'Accessibility Issue / Barrier Report' },
-    { value: 'privacy',       label: 'Data Privacy Request (GDPR/CCPA)' },
-    { value: 'ads',           label: 'Advertising & Partnerships' },
-    { value: 'careers',       label: 'Join the Editorial Team' },
-    { value: 'tech',          label: 'Technical Site Issue' },
-    { value: 'other',         label: 'Other / General Inquiry' },
+    { value: 'privacy', label: 'Data Privacy Request (GDPR/CCPA)' },
+    { value: 'ads', label: 'Advertising & Partnerships' },
+    { value: 'careers', label: 'Join the Editorial Team' },
+    { value: 'tech', label: 'Technical Site Issue' },
+    { value: 'other', label: 'Other / General Inquiry' },
 ];
 
 const CustomSelect = ({
@@ -186,11 +186,10 @@ const CustomSelect = ({
                             role="option"
                             aria-selected={opt.value === value}
                             onClick={() => { onChange(opt.value as PurposeType); setOpen(false); }}
-                            className={`px-5 py-3 text-sm font-medium cursor-pointer transition-colors duration-150 ${
-                                opt.value === value
+                            className={`px-5 py-3 text-sm font-medium cursor-pointer transition-colors duration-150 ${opt.value === value
                                     ? 'bg-blue-50 text-blue-500 font-semibold'
                                     : 'text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900'
-                            }`}
+                                }`}
                         >
                             {opt.label}
                         </li>
@@ -240,7 +239,7 @@ const ContactForm = () => {
         const name = e.target.name as keyof FormData;
         const value = e.target.value;
         setTouched(prev => ({ ...prev, [name]: true }));
-        
+
         const field = name as keyof FieldErrors;
         if (['name', 'email', 'subject', 'message'].includes(field)) {
             const err = validateField(field, value);
@@ -393,7 +392,7 @@ const ContactForm = () => {
                                 <label htmlFor="name" className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">
                                     Full Name
                                 </label>
-                                <InfoTooltip text={FIELD_HINTS.name} />
+                                <InfoTooltip text={FIELD_HINTS.name || ""} />
                             </div>
                             <input
                                 type="text"
@@ -407,7 +406,7 @@ const ContactForm = () => {
                                 className={`w-full px-0 py-4 bg-transparent border-b-2 ${borderClass('name')} focus:border-blue-500 outline-none transition-all duration-300 font-medium text-lg text-zinc-900 placeholder:text-zinc-200`}
                                 placeholder="John Doe"
                             />
-                            {touched.name && errors.name && <FieldError message={errors.name} />}
+                            {touched.name && errors.name && <FieldError message={errors.name || ""} />}
                             {touched.name && !errors.name && formData.name && <ValidMark />}
                         </div>
 
@@ -417,7 +416,7 @@ const ContactForm = () => {
                                 <label htmlFor="email" className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">
                                     Email Address
                                 </label>
-                                <InfoTooltip text={FIELD_HINTS.email} />
+                                <InfoTooltip text={FIELD_HINTS.email || ""} />
                             </div>
                             <input
                                 type="email"
@@ -431,7 +430,7 @@ const ContactForm = () => {
                                 className={`w-full px-0 py-4 bg-transparent border-b-2 ${borderClass('email')} focus:border-blue-500 outline-none transition-all duration-300 font-medium text-lg text-zinc-900 placeholder:text-zinc-200`}
                                 placeholder="name@email.com"
                             />
-                            {touched.email && errors.email && <FieldError message={errors.email} />}
+                            {touched.email && errors.email && <FieldError message={errors.email || ""} />}
                             {touched.email && !errors.email && formData.email && <ValidMark />}
                         </div>
                     </div>
@@ -451,7 +450,7 @@ const ContactForm = () => {
                             <label htmlFor="subject" className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">
                                 {subjectLabel}
                             </label>
-                            <InfoTooltip text={FIELD_HINTS.subject} />
+                            <InfoTooltip text={FIELD_HINTS.subject || ""} />
                         </div>
                         <input
                             type="text"
@@ -465,7 +464,7 @@ const ContactForm = () => {
                             className={`w-full px-0 py-4 bg-transparent border-b-2 ${borderClass('subject')} focus:border-blue-500 outline-none transition-all duration-300 font-medium text-lg text-zinc-900 placeholder:text-zinc-200`}
                             placeholder={formData.purpose === 'other' ? 'Briefly specify your topic (min. 10 chars)' : 'Inquiry subject line (min. 10 chars)'}
                         />
-                        {touched.subject && errors.subject && <FieldError message={errors.subject} />}
+                        {touched.subject && errors.subject && <FieldError message={errors.subject || ""} />}
                         {touched.subject && !errors.subject && formData.subject && <ValidMark />}
                     </div>
 
@@ -476,14 +475,13 @@ const ContactForm = () => {
                                 <label htmlFor="message" className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">
                                     Detailed Description
                                 </label>
-                                <InfoTooltip text={FIELD_HINTS.message} />
+                                <InfoTooltip text={FIELD_HINTS.message || ""} />
                             </div>
                             {/* Character counter */}
-                            <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
-                                msgOverLimit ? 'text-red-500' :
-                                msgLen >= MIN_LENGTHS.message ? 'text-emerald-500' :
-                                msgLen > 0 ? 'text-amber-500' : 'text-zinc-300'
-                            }`}>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${msgOverLimit ? 'text-red-500' :
+                                    msgLen >= MIN_LENGTHS.message ? 'text-emerald-500' :
+                                        msgLen > 0 ? 'text-amber-500' : 'text-zinc-300'
+                                }`}>
                                 {msgLen} / {MESSAGE_MAX}
                             </span>
                         </div>
@@ -511,7 +509,7 @@ const ContactForm = () => {
                             </div>
                         )}
 
-                        {touched.message && errors.message && <FieldError message={errors.message} />}
+                        {touched.message && errors.message && <FieldError message={errors.message || ""} />}
                         {touched.message && !errors.message && formData.message && <ValidMark />}
                     </div>
 

@@ -17,7 +17,7 @@ export const articlesKs = collection({
 
     tags: fields.array(fields.text({ label: "Tag" }), {
       label: "Hashtags / Keywords",
-      itemLabel: (props) => props.value,
+      itemLabel: (props: any) => String(props.value || ""),
     }),
     publishing: fields.object({
       isMainHeadline: fields.checkbox({
@@ -72,9 +72,10 @@ export const articlesKs = collection({
       ),
       {
         label: "Categories",
-        itemLabel: (props) => {
+        itemLabel: (props: any) => {
           const sub = typeof props.value === 'string' ? props.value : (props.value as any)?.value;
-          return sub ? `${props.discriminant} > ${sub}` : props.discriminant;
+          const disc = String(props.discriminant || "");
+          return sub ? `${disc} > ${sub}` : disc;
         },
         validation: { length: { min: 1 } },
       }
@@ -90,7 +91,7 @@ export const articlesKs = collection({
       }),
       {
         label: "Authors",
-        itemLabel: (props) => props.value ?? "",
+        itemLabel: (props: any) => String(props.value ?? ""),
         validation: {
           length: {
             min: 1,

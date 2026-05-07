@@ -12,7 +12,11 @@ const subHeadlinesArticles = await articlesHandler.subHeadlines();
   data-pagefind-ignore="all"
 >
   <div class="col-span-1 md:col-span-6">
-    <MainHeadline article={mainHeadlineArticle} />
+    {
+      mainHeadlineArticle && (
+        <MainHeadline article={mainHeadlineArticle as any} />
+      )
+    }
   </div>
   <div class="col-span-1 md:col-span-4">
     {

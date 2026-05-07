@@ -4,35 +4,60 @@ import Icon from "../bases/icon.astro";
 import { getCollection } from "astro:content";
 
 const views = await getCollection("views");
-const excludedIds = ["home", "error404", "articles", "authors", "author", "categories", "search"];
+const excludedIds = [
+  "home",
+  "error404",
+  "articles",
+  "authors",
+  "author",
+  "categories",
+  "search",
+];
 const OTHER_LINKS = [
   ...views
-    .filter(view => !excludedIds.includes(view.id))
+    .filter((view) => !excludedIds.includes(view.id))
     .sort((a, b) => (a.data.sortOrder || 20) - (b.data.sortOrder || 20))
-    .map(view => ({
+    .map((view) => ({
       href: `/${view.data.slug || view.id}`,
       text: view.data.title || view.id,
-      target: "_self"
+      target: "_self",
     })),
   { href: "/our-editorial-team", text: "Our Editorial Team", target: "_self" },
-  { href: "https://omnysports.pages.dev/rss.xml", text: "RSS", target: "_blank" },
-  { href: "https://omnysports.pages.dev/sitemap-index.xml", text: "Sitemap", target: "_blank" }
+  {
+    href: "https://omnysports.pages.dev/rss.xml",
+    text: "RSS",
+    target: "_blank",
+  },
+  {
+    href: "https://omnysports.pages.dev/sitemap-index.xml",
+    text: "Sitemap",
+    target: "_blank",
+  },
 ];
 ---
 
 <footer
   class="footer border-t border-primary-content/80 dark:border-primary-content/20 py-6"
+  style="content-visibility: auto; contain-intrinsic-size: 0 300px;"
 >
   <div class="container">
     <div class="flex flex-col gap-4">
       <aside class="flex items-center gap-2">
-        <img src="/omnysports-logo.png" alt="Logo" class="w-[27px] h-[27px] object-contain" />
+        <img
+          src="/omnysports-logo.png"
+          alt="Logo"
+          class="w-[27px] h-[27px] object-contain"
+        />
         <p class="leading-tight flex flex-col">
           <strong class="text-base tracking-tight">OmnySports</strong>
-          <span class="opacity-80 -mt-1">Your source for precision sports coverage.</span>
+          <span class="opacity-80 -mt-1"
+            >Your source for precision sports coverage.</span
+          >
         </p>
       </aside>
-      {/* Navigation links (Home, Articles, Categories) removed as per user request */}
+      {
+        /* Navigation links (Home, Articles, Categories) removed as per user request */
+      }
     </div>
     <div class="divider w-full h-1"></div>
     <div class="flex flex-col gap-4">

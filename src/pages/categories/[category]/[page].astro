@@ -2,7 +2,10 @@
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { articlesHandler } from "@/lib/handlers/articles";
-import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+import {
+  categoriesHandler,
+  normalizeCategoryData,
+} from "@/lib/handlers/categories";
 import ListLayout from "@/layouts/list.astro";
 
 import Pagination from "@/components/shared/pagination.astro";
@@ -16,33 +19,41 @@ export const getStaticPaths = (async ({ paginate }) => {
   const allArticles = await articlesHandler.allArticles();
 
   return allCategories.flatMap((category) => {
-    const filteredArticles = allArticles.filter(
-      (article) => {
-        const cats = normalizeCategoryData(article.data.category);
-        return cats.some(cat => {
-            return cat.discriminant === category.id || 
-                   catProvider.isDescendantOf(cat.discriminant, category.id);
-        });
-      }
-    );
+    const filteredArticles = allArticles.filter((article) => {
+      const cats = normalizeCategoryData(article.data.category);
+      return cats.some((cat) => {
+        return (
+          cat.discriminant === category.id ||
+          catProvider.isDescendantOf(cat.discriminant, category.id)
+        );
+      });
+    });
 
     if (filteredArticles.length === 0) {
-        return [{
-            params: { category: category.id, page: "1" },
-            props: { 
-                page: { 
-                    data: [],
-                    start: 0,
-                    end: 0,
-                    total: 0,
-                    size: SITE.postsPerPage,
-                    currentPage: 1,
-                    lastPage: 1,
-                    url: { current: `/categories/${category.id}/1`, prev: undefined, next: undefined, first: undefined, last: undefined }
-                },
-                postsLength: 0 
-            }
-        }];
+      return [
+        {
+          params: { category: category.id, page: "1" },
+          props: {
+            page: {
+              data: [],
+              start: 0,
+              end: 0,
+              total: 0,
+              size: SITE.postsPerPage,
+              currentPage: 1,
+              lastPage: 1,
+              url: {
+                current: `/categories/${category.id}/1`,
+                prev: undefined,
+                next: undefined,
+                first: undefined,
+                last: undefined,
+              },
+            },
+            postsLength: 0,
+          },
+        },
+      ];
     }
 
     return paginate(filteredArticles, {
@@ -67,36 +78,44 @@ if (!entry) {
 }
 const catProvider = await categoriesHandler.getProvider();
 const categoryInfo = catProvider.oneCategory(params.category);
-const headerTitle = catProvider.getDisplayPath(categoryInfo.id);
+const headerTitle = catProvider.getDisplayPath(categoryInfo.id) || "Category";
+
+import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
 
 const meta = await getMeta(entry);
 meta.title = `${headerTitle} - ${SITE.title}`;
 meta.breadcrumbs = [
-  { label: headerTitle, url: `/categories/${categoryInfo.id}/1` }
+  { label: headerTitle, url: `/categories/${categoryInfo.id}/1` },
 ];
-meta.prev = page.url.prev;
-meta.next = page.url.next;
-
-import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
+(meta as any).prev = page.url.prev;
+(meta as any).next = page.url.next;
 ---
 
-<ListLayout header={headerTitle} entry={entry} meta={meta}>
+<ListLayout
+  header={headerTitle}
+  entry={entry}
+  meta={meta as any}
+  preloadImage={articles[0]?.data.cover}
+  preloadSizes="(max-width: 1024px) 100vw, 300px"
+>
   <div class="mb-4">
     <Breadcrumbs crumbs={meta.breadcrumbs} />
   </div>
   <ul class="flex flex-col gap-2 flex-1">
     {
       articles.length > 0 ? (
-        articles.map((article) => (
-            <WideCard
+        articles.map((article, index) => (
+          <WideCard
             article={article}
-            isLast={articles.lastIndexOf(article) === articles.length - 1}
-            />
+            isLast={index === articles.length - 1}
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchpriority={index === 0 ? "high" : "auto"}
+          />
         ))
       ) : (
-          <div class="py-20 text-center opacity-50">
-              No articles found in this category.
-          </div>
+        <div class="py-20 text-center opacity-50">
+          No articles found in this category.
+        </div>
       )
     }
   </ul>

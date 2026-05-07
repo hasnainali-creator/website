@@ -10,7 +10,7 @@ export function getDynamicCategories() {
             const content: any = categoryFiles[filepath];
             // Extract the category ID from the path (folder name)
             const parts = filepath.split(/[\\\/]/);
-            const catId = parts[parts.length - 2];
+            const catId = parts[parts.length - 2] || "unknown";
 
             // Default title is the slugified folder name
             let title = catId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -39,10 +39,10 @@ export function getDynamicCategories() {
 
 const cats = getDynamicCategories();
 
-export const categoryOptions = cats.map(c => ({ label: c.title, value: c.id }));
+export const categoryOptions = (cats as any[]).map(c => ({ label: c.title, value: c.id }));
 
 export const subCategoryFields: Record<string, any> = Object.fromEntries(
-    cats.map(c => [
+    (cats as any[]).map(c => [
         c.id,
         {
             label: "Sub-category",

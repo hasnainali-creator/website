@@ -10,9 +10,9 @@ import { getMeta } from "@/lib/utils/getMeta";
 
 type Props = {
   entry?: Entry;
-  meta?: Meta | ArticleMeta;
+  meta?: Meta | ArticleMeta | undefined;
   preloadImage?: string | any;
-  preloadSizes?: string;
+  preloadSizes?: string | undefined;
 };
 
 const {

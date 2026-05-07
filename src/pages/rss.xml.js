@@ -21,11 +21,14 @@ export async function GET(context) {
     },
     customData: `<language>${SITE.locale.toLowerCase()}</language>`,
     items: sortedArticles.map((article) => {
-      // Resolve the cover image source correctly
+      // Resolve the cover image source correctly (Ensure large 1200px+ images for Discover)
       const imageUrl = article.data.cover?.src;
       const absoluteImageUrl = imageUrl
-        ? (imageUrl.startsWith('http') ? imageUrl : `${context.site.origin}${imageUrl}`)
-        : `${context.site.origin}/favicon-96x96.png`;
+        ? (imageUrl.startsWith('http') ? imageUrl : `${SITE.url}${imageUrl}`)
+        : `${SITE.url}/omnysports-logo.png`;
+
+      // Google News Center Protocol: Absolute links are mandatory
+      const articleLink = `${SITE.url}/articles/${article.id}/`;
 
       // Google News Publisher Center prefers exact author & categories
       const categoryTags = article.data.category ? article.data.category.map(cat => `<category>${cat}</category>`).join('') : '';
@@ -35,11 +38,13 @@ export async function GET(context) {
         title: article.data.title,
         pubDate: article.data.publishedTime,
         description: article.data.description,
-        link: `/articles/${article.id}/`,
+        link: articleLink,
+        guid: articleLink,
         customData: `
+          <content:encoded><![CDATA[${article.data.description}]]></content:encoded>
           ${categoryTags}
           ${authors}
-          <media:content url="${absoluteImageUrl}" medium="image" />
+          <media:content url="${absoluteImageUrl}" medium="image" width="1200" height="675" />
         `.trim(),
       };
     }),

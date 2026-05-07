@@ -29,8 +29,8 @@ export type Meta = {
   ogImageAlt: string;
   keywords?: string;
   breadcrumbs?: { label: string; url: string }[];
-  prev?: string;
-  next?: string;
+  prev?: string | undefined;
+  next?: string | undefined;
 };
 
 export type ArticleMeta = Meta & {

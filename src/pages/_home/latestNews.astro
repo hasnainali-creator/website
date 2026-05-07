@@ -6,17 +6,17 @@ import { articlesHandler } from "@/lib/handlers/articles";
 const articles = await articlesHandler.allArticles();
 ---
 
-<section class="container pt-12 pb-0 space-y-4" data-pagefind-ignore="all">
+<section
+  class="container pt-12 pb-0 space-y-4"
+  data-pagefind-ignore="all"
+  style="content-visibility: auto; contain-intrinsic-size: 0 800px;"
+>
   <HeaderSection
     title="Latest News"
     link_title="View all"
     link_url="/articles"
   />
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 gap-y-6 md:grid-rows-2">
-    {
-      articles
-        .slice(0, 6)
-        .map((article) => <NewsCard article={article} />)
-    }
+    {articles.slice(0, 6).map((article) => <NewsCard article={article} />)}
   </div>
 </section>

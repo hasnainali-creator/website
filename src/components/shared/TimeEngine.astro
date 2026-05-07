@@ -6,8 +6,8 @@
 <script is:inline>
   /**
    * Time Engine: Client-Side Live Clock Synchronization
-   * This logic calculates the distance between the article's publish time 
-   * and the user's current clock, updating the UI every 60 seconds 
+   * This logic calculates the distance between the article's publish time
+   * and the user's current clock, updating the UI every 60 seconds
    * without needing a page refresh or server rebuild.
    */
   (function () {
@@ -21,7 +21,9 @@
         try {
           const past = new Date(dateTimeStr);
           const now = new Date();
-          const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+          const diffInSeconds = Math.floor(
+            (now.getTime() - past.getTime()) / 1000,
+          );
 
           let display = "";
 
@@ -59,11 +61,21 @@
       });
     }
 
-    // Run immediately on load
-    updateTimeDistances();
-
-    // High Accuracy Sync: Run every 60 seconds
-    setInterval(updateTimeDistances, 60000);
+    // Zenith Optimization: Defer initialization to idle periods to protect LCP window
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => {
+        updateTimeDistances();
+        setInterval(updateTimeDistances, 60000);
+      });
+    } else {
+      // Fallback for older browsers: Delay slightly after load
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          updateTimeDistances();
+          setInterval(updateTimeDistances, 60000);
+        }, 1000);
+      });
+    }
 
     // Astro-specific: Handle View Transitions (if enabled in future)
     document.addEventListener("astro:page-load", updateTimeDistances);

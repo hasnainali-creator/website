@@ -44,18 +44,18 @@ if (preloadImage) {
       width: 800,
       quality: q,
     });
-    const img1024 = await getImage({
+    const img1200 = await getImage({
       src: preloadImage,
       format: "avif",
-      width: 1024,
+      width: 1200,
       quality: q,
     });
-    preloadSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1024.src} 1024w`;
+    preloadSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1200.src} 1200w`;
   } else {
     preloadSrcset = `${preloadImage} 400w, ${preloadImage} 665w, ${preloadImage} 800w, ${preloadImage} 1024w`;
   }
 } else if (isArticleMeta(meta)) {
-  preloadSrcset = `${OGImage} 400w, ${OGImage} 665w, ${OGImage} 800w, ${OGImage} 1024w`;
+  preloadSrcset = `${OGImage} 400w, ${OGImage} 665w, ${OGImage} 800w, ${OGImage} 1200w`;
 }
 
 const schemaOrg: any = {
@@ -246,14 +246,18 @@ const breadcrumbSchemaString = breadcrumbSchema
     fetchpriority="low"
     crossorigin="anonymous"
   />
-  <link
-    rel="preload"
-    href="/fonts/inter-latin-wght-normal.woff2"
-    as="font"
-    type="font/woff2"
-    fetchpriority="low"
-    crossorigin="anonymous"
-  />
+  {
+    isArticleMeta(meta) && (
+      <link
+        rel="preload"
+        href="/fonts/inter-latin-wght-normal.woff2"
+        as="font"
+        type="font/woff2"
+        fetchpriority="low"
+        crossorigin="anonymous"
+      />
+    )
+  }
 
   {/* Universal Light Mode Enforcement */}
   <!-- Global Metadata -->
@@ -313,7 +317,10 @@ const breadcrumbSchemaString = breadcrumbSchema
     SITE.SHIELD_MODE ? (
       <meta name="robots" content="noindex, nofollow, noarchive" />
     ) : (
-      <meta name="robots" content="index, follow" />
+      <>
+        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="max-image-preview:large" />
+      </>
     )
   }
 
@@ -321,8 +328,17 @@ const breadcrumbSchemaString = breadcrumbSchema
   <!-- SVG renders crisp at any size — no pixelation -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
   <!-- PNG fallback for older browsers + Apple -->
-  <link rel="icon" type="image/png" sizes="96x96" href="/omnysports-logo.png?v=3" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/omnysports-logo.png?v=3" />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="96x96"
+    href="/omnysports-logo.png?v=3"
+  />
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/omnysports-logo.png?v=3"
+  />
   <meta name="apple-mobile-web-app-title" content={SITE.title} />
   <meta name="application-name" content={SITE.title} />
   <link rel="manifest" href="/site.webmanifest" />
