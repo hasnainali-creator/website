@@ -25,17 +25,11 @@ let preloadSrcset = "";
 
 if (preloadImage) {
   if (typeof preloadImage === "object") {
-    const q = 30; // Extreme Aggressive quality for Universal Speed (< 1.0s LCP)
+    const q = 35; // Surgical balance for sub-1s mobile LCP
     const img400 = await getImage({
       src: preloadImage,
       format: "avif",
       width: 400,
-      quality: q,
-    });
-    const img665 = await getImage({
-      src: preloadImage,
-      format: "avif",
-      width: 665,
       quality: q,
     });
     const img800 = await getImage({
@@ -50,12 +44,12 @@ if (preloadImage) {
       width: 1200,
       quality: q,
     });
-    preloadSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1200.src} 1200w`;
+    preloadSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`;
   } else {
-    preloadSrcset = `${preloadImage} 400w, ${preloadImage} 665w, ${preloadImage} 800w, ${preloadImage} 1024w`;
+    preloadSrcset = `${preloadImage} 400w, ${preloadImage} 800w, ${preloadImage} 1200w`;
   }
 } else if (isArticleMeta(meta)) {
-  preloadSrcset = `${OGImage} 400w, ${OGImage} 665w, ${OGImage} 800w, ${OGImage} 1200w`;
+  preloadSrcset = `${OGImage} 400w, ${OGImage} 800w, ${OGImage} 1200w`;
 }
 
 const schemaOrg: any = {
@@ -439,7 +433,7 @@ const breadcrumbSchemaString = breadcrumbSchema
               { "not": { "selector_matches": "[rel~=nofollow]" } }
             ]
           },
-          "eagerness": "moderate"
+          "eagerness": "conservative"
         }
       ]
     }

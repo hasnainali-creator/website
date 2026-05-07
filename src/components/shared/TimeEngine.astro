@@ -62,19 +62,23 @@
     }
 
     // Zenith Optimization: Defer initialization to idle periods to protect LCP window
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(() => {
-        updateTimeDistances();
-        setInterval(updateTimeDistances, 60000);
-      });
-    } else {
-      // Fallback for older browsers: Delay slightly after load
-      window.addEventListener("load", () => {
-        setTimeout(() => {
+    /** @type {any} */
+    const win = typeof window !== "undefined" ? window : null;
+    if (win) {
+      if ("requestIdleCallback" in win) {
+        win.requestIdleCallback(() => {
           updateTimeDistances();
           setInterval(updateTimeDistances, 60000);
-        }, 1000);
-      });
+        });
+      } else {
+        // Fallback for older browsers: Delay slightly after load
+        win.addEventListener("load", () => {
+          setTimeout(() => {
+            updateTimeDistances();
+            setInterval(updateTimeDistances, 60000);
+          }, 1000);
+        });
+      }
     }
 
     // Astro-specific: Handle View Transitions (if enabled in future)

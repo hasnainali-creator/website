@@ -1,7 +1,10 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import Divider from "@/components/bases/divider.astro";
-import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+import {
+  categoriesHandler,
+  normalizeCategoryData,
+} from "@/lib/handlers/categories";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import { getImage } from "astro:assets";
 
@@ -14,16 +17,33 @@ type Props = {
 const { article } = Astro.props;
 
 // Zenith High-Performance Execution: Manual AVIF Generation for Universal Speed
-const q = 30; // Absolute Zero matching for <1.0s LCP hit
-const img400 = await getImage({ src: article.data.cover, format: 'avif', width: 400, quality: q });
-const img665 = await getImage({ src: article.data.cover, format: 'avif', width: 665, quality: q });
-const img800 = await getImage({ src: article.data.cover, format: 'avif', width: 800, quality: q });
-const img1024 = await getImage({ src: article.data.cover, format: 'avif', width: 1024, quality: q });
-const lcpSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, ${img1024.src} 1024w`;
+const q = 35; // Surgical alignment with head.astro for 100% cache hit
+const img400 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 400,
+  quality: q,
+});
+const img800 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 800,
+  quality: q,
+});
+const img1200 = await getImage({
+  src: article.data.cover,
+  format: "avif",
+  width: 1200,
+  quality: q,
+});
+const lcpSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`;
 ---
 
 <article class="group relative isolate flex flex-col-reverse md:flex-col gap-4">
-  <div class="overflow-hidden rounded-md relative" style="aspect-ratio: 16 / 9; width: 100%;">
+  <div
+    class="overflow-hidden rounded-md relative"
+    style="aspect-ratio: 16 / 9; width: 100%;"
+  >
     <img
       src={img800.src}
       srcset={lcpSrcset}
@@ -39,9 +59,7 @@ const lcpSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, $
   </div>
   <div class="flex flex-col gap-2">
     <div>
-      <h2
-        class="text-xl font-bold lg:group-hover:underline underline-offset-2"
-      >
+      <h2 class="text-xl font-bold lg:group-hover:underline underline-offset-2">
         <a href={`/articles/${article.id}`}>
           <span class="absolute inset-0 z-10"></span>
           {article.data.title}
@@ -53,13 +71,15 @@ const lcpSrcset = `${img400.src} 400w, ${img665.src} 665w, ${img800.src} 800w, $
     </div>
     <div class="flex items-center text-xs text-base-content/80 mt-2">
       <span class="text-[13px] font-medium text-[#0A8BF3] dark:text-secondary"
-        >{catProvider.getDisplayPath(normalizeCategoryData(article.data.category)[0]?.discriminant || "uncategorized")}</span
+        >{
+          catProvider.getDisplayPath(
+            normalizeCategoryData(article.data.category)[0]?.discriminant ||
+              "uncategorized",
+          )
+        }</span
       >
       <Divider />
-      <time
-        datetime={normalizeDate(article.data.publishedTime)}
-        data-relative
-      >
+      <time datetime={normalizeDate(article.data.publishedTime)} data-relative>
         {getDateDistance(normalizeDate(article.data.publishedTime))}
       </time>
     </div>
