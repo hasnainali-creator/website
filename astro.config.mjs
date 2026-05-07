@@ -9,26 +9,20 @@ import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
 import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
-
 import cloudflare from "@astrojs/cloudflare";
-import node from "@astrojs/node";
 
-const isCloudflare = process.env.CF_PAGES === '1';
-const adapter = isCloudflare 
-  ? cloudflare({
-      imageService: "compile",
-      platformProxy: { enabled: false }
-    })
-  : node({
-      mode: "standalone"
-    });
+// Zenith Production Strategy: Standardized Cloudflare Adapter for Infinite Scale
+const adapter = cloudflare({
+  imageService: "compile",
+  platformProxy: { enabled: false }
+});
 
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
 const integrations = [
-  mdx(), 
-  sitemap(), 
-  react(), 
+  mdx(),
+  sitemap(),
+  react(),
   pagefind(),
 ];
 
