@@ -1,14 +1,24 @@
 ---
+export const prerender = true;
 import ContentLayout from "@/layouts/content.astro";
 import BaseLayout from "@/layouts/base.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
   const views = await getCollection("views");
-  const excludedIds = ["home", "error404", "articles", "authors", "author", "categories", "search", "contact"];
-  
+  const excludedIds = [
+    "home",
+    "error404",
+    "articles",
+    "authors",
+    "author",
+    "categories",
+    "search",
+    "contact",
+  ];
+
   return views
-    .filter(view => !excludedIds.includes(view.id))
+    .filter((view) => !excludedIds.includes(view.id))
     .map((view) => {
       // Use custom slug if provided in CMS, otherwise fallback to the markdown filename (ID)
       const slugStr = view.data.slug || view.id;

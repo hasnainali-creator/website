@@ -1,4 +1,5 @@
 ---
+export const prerender = true;
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { articlesHandler } from "@/lib/handlers/articles";
@@ -32,7 +33,6 @@ const articles = page.data;
 const pathname = new URL(Astro.request.url).pathname.split("/");
 const basePath = `${pathname[1]}/${pathname[2]}`;
 
-
 const entry = await getEntry("views", "author");
 const author = await authorsHandler.findAuthor(params.id!);
 
@@ -43,11 +43,10 @@ if (!entry) {
 const meta = await getMeta(entry);
 meta.title = `${author.data.name}'s Profile - ${SITE.title}`;
 meta.breadcrumbs = [
-  { label: author.data.name, url: `/authors/${author.id}/1` }
+  { label: author.data.name, url: `/authors/${author.id}/1` },
 ];
 meta.prev = page.url.prev;
 meta.next = page.url.next;
-
 
 const headerTitle = entry.data.title || "Articles";
 
@@ -55,15 +54,17 @@ const headerTitle = entry.data.title || "Articles";
 const schema = {
   "@context": "https://schema.org",
   "@type": "Person",
-  "name": author.data.name,
-  "jobTitle": author.data.job,
-  "description": author.data.bio,
-  "worksFor": {
+  name: author.data.name,
+  jobTitle: author.data.job,
+  description: author.data.bio,
+  worksFor: {
     "@type": "NewsMediaOrganization",
-    "name": SITE.title,
-    "url": Astro.site ? Astro.site.origin : "https://omnysports.pages.dev"
+    name: SITE.title,
+    url: Astro.site ? Astro.site.origin : "https://omnysports.pages.dev",
   },
-  "url": Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.href
+  url: Astro.site
+    ? new URL(Astro.url.pathname, Astro.site).href
+    : Astro.url.href,
 };
 ---
 
@@ -78,7 +79,11 @@ const schema = {
   meta={meta}
 >
   <!-- Injecting Advanced SEO -->
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(schema)}
+  />
 
   <div
     class="container flex flex-col h-full pb-8 pt-4"
@@ -87,39 +92,57 @@ const schema = {
     <!-- Dynamic Author Header Design (NOW AT THE TOP) -->
     <div class="flex flex-col mb-8 pt-4">
       <div class="flex items-center gap-4">
-        {author.data.avatar ? (
-          <Image 
-            src={author.data.avatar as any} 
-            alt={`Profile picture of ${author.data.name}`} 
-            width={64} 
-            height={64} 
-            loading="eager"
-            fetchpriority="high"
-            class="w-16 h-16 rounded-full object-cover shadow-sm border border-base-content/10 flex-shrink-0"
-          />
-        ) : (
-          <div class="w-16 h-16 rounded-full bg-base-300 flex items-center justify-center border border-base-content/10 flex-shrink-0 shadow-sm">
-            <span class="text-2xl text-base-content/50 uppercase font-bold">{(author.data.name || "?").charAt(0)}</span>
-          </div>
-        )}
+        {
+          author.data.avatar ? (
+            <Image
+              src={author.data.avatar as any}
+              alt={`Profile picture of ${author.data.name}`}
+              width={64}
+              height={64}
+              loading="eager"
+              fetchpriority="high"
+              class="w-16 h-16 rounded-full object-cover shadow-sm border border-base-content/10 flex-shrink-0"
+            />
+          ) : (
+            <div class="w-16 h-16 rounded-full bg-base-300 flex items-center justify-center border border-base-content/10 flex-shrink-0 shadow-sm">
+              <span class="text-2xl text-base-content/50 uppercase font-bold">
+                {(author.data.name || "?").charAt(0)}
+              </span>
+            </div>
+          )
+        }
         <div>
-          <h1 class="text-3xl font-black font-sans m-0 leading-tight" style="font-family: 'Inter', sans-serif; font-weight: 900;">{author.data.name}</h1>
-          <p class="text-sm text-primary font-medium uppercase tracking-wider mt-1">{author.data.job}</p>
+          <h1
+            class="text-3xl font-black font-sans m-0 leading-tight"
+            style="font-family: 'Inter', sans-serif; font-weight: 900;"
+          >
+            {author.data.name}
+          </h1>
+          <p
+            class="text-sm text-primary font-medium uppercase tracking-wider mt-1"
+          >
+            {author.data.job}
+          </p>
         </div>
       </div>
-      {author.data.bio && (
-        <p class="text-base text-base-content/80 mt-4 leading-relaxed max-w-3xl">
-          {author.data.bio}
-        </p>
-      )}
-
-
+      {
+        author.data.bio && (
+          <p class="text-base text-base-content/80 mt-4 leading-relaxed max-w-3xl">
+            {author.data.bio}
+          </p>
+        )
+      }
     </div>
 
     <hr class="border-t border-base-content/10 mb-8 w-full" />
 
     <div class="mb-8">
-      <h2 class="text-4xl md:text-5xl font-black font-sans mb-4" style="font-family: 'Inter', sans-serif; font-weight: 900;">{author.data.name}'s {headerTitle}</h2>
+      <h2
+        class="text-4xl md:text-5xl font-black font-sans mb-4"
+        style="font-family: 'Inter', sans-serif; font-weight: 900;"
+      >
+        {author.data.name}'s {headerTitle}
+      </h2>
       <Breadcrumbs crumbs={meta.breadcrumbs} />
     </div>
 

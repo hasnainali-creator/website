@@ -7,13 +7,12 @@ import { modifiedTime, readingTime } from "./src/lib/utils/remarks.mjs";
 import { SITE } from "./src/lib/config";
 import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
-import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
+import { loadEnv } from "vite";
 import cloudflare from "@astrojs/cloudflare";
 
 // Zenith Production Strategy: Standardized Cloudflare Adapter for Infinite Scale
 const adapter = cloudflare({
-  imageService: "compile",
   platformProxy: { enabled: false }
 });
 
@@ -23,21 +22,20 @@ const integrations = [
   mdx(),
   sitemap(),
   react(),
-  pagefind(),
 ];
 
 if (RUN_KEYSTATIC === "true") {
   integrations.push(keystatic());
 }
 
-// https://astro.build/config
+// Standard Zenith Baseline: Unified site properties and mobile-first compression protocols
 export default defineConfig({
   cacheDir: './node_modules/.astro',
   site: SITE.url,
   base: SITE.basePath,
+  output: "server",
 
   compressHTML: true,
-
 
   build: {
     // Absolute Render Unblocking: Forces all CSS directly into the HTML to eliminate network requests

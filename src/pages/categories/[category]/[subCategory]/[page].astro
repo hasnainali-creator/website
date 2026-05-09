@@ -1,8 +1,12 @@
 ---
+export const prerender = true;
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { articlesHandler } from "@/lib/handlers/articles";
-import { categoriesHandler, normalizeCategoryData } from "@/lib/handlers/categories";
+import {
+  categoriesHandler,
+  normalizeCategoryData,
+} from "@/lib/handlers/categories";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
@@ -16,53 +20,61 @@ export const getStaticPaths = (async ({ paginate }) => {
   const allArticles = await articlesHandler.allArticles();
 
   const paths = allCategories.flatMap((category) => {
-    const subCatArray = (category.data as any).subCategories as string[] | undefined;
+    const subCatArray = (category.data as any).subCategories as
+      | string[]
+      | undefined;
     if (!subCatArray || subCatArray.length === 0) return [];
 
-    return subCatArray.flatMap(subName => {
+    return subCatArray.flatMap((subName) => {
       const subSlug = toSlug(subName);
-      
-      const filteredArticles = allArticles.filter(
-        (article) => {
-            const cats = normalizeCategoryData(article.data.category);
-            return cats.some(cat => {
-                const artCatId = cat.discriminant;
-                if (artCatId !== category.id) return false;
-                
-                const artSubId = cat.value;
-                return toSlug(artSubId || "") === toSlug(subName);
-            });
-        }
-      );
+
+      const filteredArticles = allArticles.filter((article) => {
+        const cats = normalizeCategoryData(article.data.category);
+        return cats.some((cat) => {
+          const artCatId = cat.discriminant;
+          if (artCatId !== category.id) return false;
+
+          const artSubId = cat.value;
+          return toSlug(artSubId || "") === toSlug(subName);
+        });
+      });
 
       // Even if filteredArticles is empty, we must return one path for the page to exist
       if (filteredArticles.length === 0) {
-          return [{
-              params: { category: category.id, subCategory: subSlug, page: "1" },
-              props: { 
-                  page: { 
-                      data: [],
-                      start: 0,
-                      end: 0,
-                      total: 0,
-                      size: SITE.postsPerPage,
-                      currentPage: 1,
-                      lastPage: 1,
-                      url: { current: `/categories/${category.id}/${subSlug}/1`, prev: undefined, next: undefined, first: undefined, last: undefined }
-                  },
-                  postsLength: 0,
-                  mainCategory: category.data.title,
-                  subCategoryName: subName
-              }
-          }];
+        return [
+          {
+            params: { category: category.id, subCategory: subSlug, page: "1" },
+            props: {
+              page: {
+                data: [],
+                start: 0,
+                end: 0,
+                total: 0,
+                size: SITE.postsPerPage,
+                currentPage: 1,
+                lastPage: 1,
+                url: {
+                  current: `/categories/${category.id}/${subSlug}/1`,
+                  prev: undefined,
+                  next: undefined,
+                  first: undefined,
+                  last: undefined,
+                },
+              },
+              postsLength: 0,
+              mainCategory: category.data.title,
+              subCategoryName: subName,
+            },
+          },
+        ];
       }
 
       return paginate(filteredArticles, {
         params: { category: category.id, subCategory: subSlug },
-        props: { 
-            postsLength: filteredArticles.length,
-            mainCategory: category.data.title,
-            subCategoryName: subName
+        props: {
+          postsLength: filteredArticles.length,
+          mainCategory: category.data.title,
+          subCategoryName: subName,
         },
         pageSize: SITE.postsPerPage,
       });
@@ -91,15 +103,15 @@ const headerTitle = `${mainCategory} / ${subCategoryName}`;
     {
       articles.length > 0 ? (
         articles.map((article) => (
-            <WideCard
+          <WideCard
             article={article}
             isLast={articles.lastIndexOf(article) === articles.length - 1}
-            />
+          />
         ))
       ) : (
-          <div class="py-20 text-center opacity-50">
-              No articles found in this sub-category (nothing post).
-          </div>
+        <div class="py-20 text-center opacity-50">
+          No articles found in this sub-category (nothing post).
+        </div>
       )
     }
   </ul>

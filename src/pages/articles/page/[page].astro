@@ -1,0 +1,63 @@
+---
+export const prerender = true;
+import type { GetStaticPaths } from "astro";
+import { SITE } from "@/lib/config";
+import { articlesHandler } from "@/lib/handlers/articles";
+import ListLayout from "@/layouts/list.astro";
+import Pagination from "@/components/shared/pagination.astro";
+import WideCard from "@/components/cards/wideCard.astro";
+import { getEntry } from "astro:content";
+
+export const getStaticPaths = (async ({ paginate }) => {
+    const allArticles = await articlesHandler.allArticles();
+
+    return paginate(allArticles, {
+        pageSize: SITE.postsPerPage,
+    });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+const articles = page.data;
+const postsLength = (await articlesHandler.allArticles()).length;
+
+const entry = await getEntry("views", "articles");
+
+if (!entry) {
+    return Astro.redirect("/404");
+}
+
+const headerTitle = entry.data.title || "Latest Articles";
+---
+
+<ListLayout
+    header={headerTitle}
+    entry={entry}
+    preloadImage={articles[0]?.data.cover}
+    preloadSizes="(max-width: 1024px) 100vw, 300px"
+>
+    <ul class="flex flex-col gap-2 flex-1">
+        {
+            articles.map((article, index) => (
+                <WideCard
+                    article={article}
+                    isLast={index === articles.length - 1}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchpriority={index === 0 ? "high" : "auto"}
+                />
+            ))
+        }
+    </ul>
+    {
+        postsLength > SITE.postsPerPage ? (
+            <Pagination
+                length={page.lastPage}
+                currentUrl={page.url.current}
+                currentPage={page.currentPage}
+                baseUrl="/articles/page"
+                prevUrl={page.url.prev}
+                nextUrl={page.url.next}
+                lastUrl={`/articles/page/${page.lastPage}`}
+            />
+        ) : null
+    }
+</ListLayout>
