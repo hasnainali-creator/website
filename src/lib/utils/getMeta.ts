@@ -1,7 +1,8 @@
 import { render, type CollectionEntry } from "astro:content";
 import { authorsHandler } from "@/lib/handlers/authors";
 import { SITE } from "@/lib/config";
-import defaultImage from "../../assets/images/default-image.jpg";
+// Fallback image for SEO/OG tags
+const DEFAULT_OG_IMAGE = "https://images.unsplash.com/photo-1461896704190-321aa88bc11f?q=80&w=1200&auto=format&fit=crop";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import { capitalizeFirstLetter } from "@/lib/utils/letter";
 import { normalizeDate } from "@/lib/utils/date";
@@ -84,7 +85,7 @@ export const getMeta = async (
         title,
         metaTitle: metaTitle,
         description: metaDescription,
-        ogImage: defaultImage.src,
+        ogImage: DEFAULT_OG_IMAGE,
         ogImageAlt: SITE.title,
         type: "website",
       };

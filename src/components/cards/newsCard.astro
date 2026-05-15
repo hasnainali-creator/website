@@ -15,60 +15,80 @@ type Props = {
 
 const { article } = Astro.props;
 const q = 70; // Zenith Sharpness: Optimized balance for grid density
-const img400 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 400,
-  quality: q,
-});
-const img800 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 800,
-  quality: q,
-});
-const img1200 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 1200,
-  quality: q,
-});
-const lcpSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`;
+const hasCover = !!article.data.cover;
+
+const img400 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 400,
+      quality: q,
+    })
+  : null;
+const img800 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 800,
+      quality: q,
+    })
+  : null;
+const img1200 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 1200,
+      quality: q,
+    })
+  : null;
+const lcpSrcset = hasCover
+  ? `${img400?.src} 400w, ${img800?.src} 800w, ${img1200?.src} 1200w`
+  : "";
 ---
 
 <article
   class="col-span-1 group max-w-sm mx-auto flex flex-col gap-2 h-full relative isolate"
+  style="content-visibility: auto; contain-intrinsic-size: 350px 450px;"
 >
-  <div class="aspect-video overflow-hidden rounded-md relative">
-    <img
-      src={img800.src}
-      srcset={lcpSrcset}
-      alt={article.data.coverAlt || article.data.title || "Latest Sports News"}
-      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
-      loading="lazy"
-      fetchpriority="auto"
-      decoding="async"
-      class="w-full h-full object-cover"
-      width="800"
-      height="450"
-      style="aspect-ratio: 16/9; content-visibility: auto; contain-intrinsic-size: 225px;"
-    />
+  <div
+    class="overflow-hidden rounded-md relative bg-base-300"
+    style="aspect-ratio: 16 / 9;"
+  >
+    {
+      hasCover && img800 && (
+        <img
+          src={img800.src}
+          srcset={lcpSrcset}
+          alt={
+            article.data.coverAlt || article.data.title || "Latest Sports News"
+          }
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+          loading="lazy"
+          fetchpriority="auto"
+          decoding="async"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          width="800"
+          height="450"
+        />
+      )
+    }
   </div>
   <div class="flex flex-col flex-1">
     <h3
-      class="text-xl font-serif font-bold lg:group-hover:underline line-clamp-2"
+      class="text-[18px] font-semibold leading-tight tracking-tight lg:group-hover:underline line-clamp-2"
     >
       <a href={`/articles/${article.id}`}>
         <span class="absolute inset-0 z-10"></span>
         {article.data.title}
       </a>
     </h3>
-    <p class="text-sm text-base-content/80 line-clamp-3 text-pretty lg:mb-auto">
+    <p
+      class="text-[13.3px] text-base-content/75 line-clamp-3 text-pretty lg:mb-auto leading-snug"
+    >
       {article.data.description}
     </p>
-    <div class="flex items-center text-xs text-base-content/80 mt-2">
-      <span
-        class="text-[13px] font-medium text-[#0A8BF3] dark:text-secondary capitalize"
+    <div class="flex items-center text-[12.7px] text-base-content/70 mt-2">
+      <span class="font-medium text-[#0A8BF3] dark:text-secondary capitalize"
         >{
           catProvider.getDisplayPath(
             normalizeCategoryData(article.data.category)[0]?.discriminant ||

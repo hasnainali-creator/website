@@ -10,7 +10,7 @@ import { getEntry } from "astro:content";
 import { getMeta } from "@/lib/utils/getMeta";
 import BaseLayout from "@/layouts/base.astro";
 import Breadcrumbs from "@/components/elements/breadcrumbs.astro";
-import { Image } from "astro:assets";
+import { Picture } from "astro:assets";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const allAuthors = await authorsHandler.allAuthors();
@@ -48,15 +48,15 @@ meta.breadcrumbs = [
 meta.prev = page.url.prev;
 meta.next = page.url.next;
 
-const headerTitle = entry.data.title || "Articles";
-
-// Advanced SEO: JSON-LD Structured Data for Person (Entity Verification)
 const schema = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: author.data.name,
   jobTitle: author.data.job,
   description: author.data.bio,
+  image: author.data.avatar
+    ? new URL(author.data.avatar.src, Astro.url).href
+    : undefined,
   worksFor: {
     "@type": "NewsMediaOrganization",
     name: SITE.title,
@@ -78,7 +78,7 @@ const schema = {
   }}
   meta={meta}
 >
-  <!-- Injecting Advanced SEO -->
+  <!-- Zenith Authority: Injecting High-Performance Identity Schema -->
   <script
     is:inline
     type="application/ld+json"
@@ -89,59 +89,65 @@ const schema = {
     class="container flex flex-col h-full pb-8 pt-4"
     data-pagefind-ignore="all"
   >
-    <!-- Dynamic Author Header Design (NOW AT THE TOP) -->
+    <!-- Premium Author Hub Header -->
     <div class="flex flex-col mb-8 pt-4">
-      <div class="flex items-center gap-4">
+      <div class="flex flex-col md:flex-row md:items-center gap-6">
         {
           author.data.avatar ? (
-            <Image
-              src={author.data.avatar as any}
-              alt={`Profile picture of ${author.data.name}`}
-              width={64}
-              height={64}
-              loading="eager"
-              fetchpriority="high"
-              class="w-16 h-16 rounded-full object-cover shadow-sm border border-base-content/10 flex-shrink-0"
-            />
+            <div class="relative w-24 h-24 md:w-32 md:h-32">
+              <Picture
+                src={author.data.avatar as any}
+                formats={["avif", "webp"]}
+                widths={[128, 256, 512]}
+                alt={`Official Portrait of ${author.data.name}`}
+                sizes="(max-width: 768px) 96px, 128px"
+                loading="eager"
+                fetchpriority="high"
+                class="w-full h-full rounded-2xl object-cover shadow-xl border-2 border-base-content/5"
+                quality={100}
+              />
+            </div>
           ) : (
-            <div class="w-16 h-16 rounded-full bg-base-300 flex items-center justify-center border border-base-content/10 flex-shrink-0 shadow-sm">
-              <span class="text-2xl text-base-content/50 uppercase font-bold">
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-base-300 flex items-center justify-center border-2 border-base-content/5 flex-shrink-0 shadow-xl">
+              <span class="text-4xl text-base-content/50 uppercase font-bold">
                 {(author.data.name || "?").charAt(0)}
               </span>
             </div>
           )
         }
-        <div>
-          <h1
-            class="text-3xl font-black font-sans m-0 leading-tight"
-            style="font-family: 'Inter', sans-serif; font-weight: 900;"
-          >
-            {author.data.name}
-          </h1>
+        <div class="flex-1">
+          <div class="flex flex-wrap items-center gap-3">
+            <h1
+              class="text-3xl md:text-4xl font-extrabold font-sans m-0 leading-tight tracking-tight"
+              style="font-weight: 800;"
+            >
+              {author.data.name}
+            </h1>
+          </div>
           <p
-            class="text-sm text-primary font-medium uppercase tracking-wider mt-1"
+            class="text-sm md:text-base text-primary font-bold uppercase tracking-widest mt-2 opacity-80"
           >
             {author.data.job}
           </p>
+          {
+            author.data.bio && (
+              <p class="text-lg text-base-content/70 mt-4 leading-relaxed max-w-2xl font-medium">
+                {author.data.bio}
+              </p>
+            )
+          }
         </div>
       </div>
-      {
-        author.data.bio && (
-          <p class="text-base text-base-content/80 mt-4 leading-relaxed max-w-3xl">
-            {author.data.bio}
-          </p>
-        )
-      }
     </div>
 
     <hr class="border-t border-base-content/10 mb-8 w-full" />
 
     <div class="mb-8">
       <h2
-        class="text-4xl md:text-5xl font-black font-sans mb-4"
-        style="font-family: 'Inter', sans-serif; font-weight: 900;"
+        class="text-2xl md:text-3xl font-extrabold font-sans mb-4 tracking-tight"
+        style="font-weight: 800;"
       >
-        {author.data.name}'s {headerTitle}
+        Recent Work by {author.data.name}
       </h2>
       <Breadcrumbs crumbs={meta.breadcrumbs} />
     </div>

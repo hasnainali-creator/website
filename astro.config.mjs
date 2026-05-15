@@ -10,11 +10,18 @@ import react from "@astrojs/react";
 import pagefind from "astro-pagefind";
 import { loadEnv } from "vite";
 import cloudflare from "@astrojs/cloudflare";
+import node from "@astrojs/node";
+import os from "node:os";
 
-// Zenith Production Strategy: Standardized Cloudflare Adapter for Infinite Scale
-const adapter = cloudflare({
-  platformProxy: { enabled: false }
-});
+// Zenith Stability Strategy: Hybrid Adapter for Crash-Free Local Dev & Production Edge
+// Windows environments use @astrojs/node to bypass native Cloudflare stream conflicts (write EOF)
+const isWindows = os.platform() === "win32";
+
+const adapter = isWindows
+  ? node({ mode: "standalone" })
+  : cloudflare({
+    platformProxy: { enabled: false }
+  });
 
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 

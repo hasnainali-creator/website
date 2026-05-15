@@ -64,6 +64,14 @@ const schemaOrg: any = {
       publisher: {
         "@id": `${Astro.site}#organization`,
       },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${SITE.url}/search?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
     },
     {
       "@type": "NewsMediaOrganization",
@@ -94,6 +102,10 @@ const schemaOrg: any = {
         url: new URL("contact", Astro.site).href,
         email: "contact@omnysports.com",
       },
+      verified: "true",
+      foundingDate: "2024",
+      ethicsPolicy: "https://omnysports.pages.dev/editorial-policy",
+      correctionsPolicy: "https://omnysports.pages.dev/contact",
     },
   ],
 };
@@ -117,13 +129,25 @@ if (isArticleMeta(meta)) {
     mainEntityOfPage: {
       "@id": canonicalURL,
     },
-    image: [OGImage],
+    primaryImageOfPage: { "@id": `${canonicalURL}#image` },
+    image: {
+      "@type": "ImageObject",
+      "@id": `${canonicalURL}#image`,
+      url: OGImage,
+      width: 1200,
+      height: 630,
+      caption: meta.metaTitle || meta.title || SITE.title,
+    },
     author: (meta.authors && meta.authors.length > 0
       ? meta.authors
       : [{ name: SITE.author, link: "admin" }]
     ).map((author) => ({
       "@type": "Person",
       name: author.name,
+      jobTitle: author.jobTitle || "Journalist",
+      description:
+        author.description ||
+        `${author.name} is a professional contributor to ${SITE.title}.`,
       url: new URL(`authors/${author.link}`, Astro.site).href,
     })),
     publisher: {
@@ -135,12 +159,26 @@ if (isArticleMeta(meta)) {
       },
     },
     inLanguage: SITE.locale,
+    wordCount: meta.description?.length
+      ? Math.ceil(meta.description.length / 5)
+      : 100,
     about: meta.keywords
       ? meta.keywords.split(",").map((kw: string) => ({
           "@type": "Thing",
           name: kw.trim(),
+          sameAs: meta.wikidataId
+            ? `https://www.wikidata.org/wiki/${meta.wikidataId}`
+            : undefined,
         }))
       : undefined,
+    contentLocation: meta.itemLocation
+      ? {
+          "@type": "Place",
+          name: meta.itemLocation,
+        }
+      : undefined,
+    abstract: meta.description,
+    articleBody: (meta as any).articleBody || meta.description,
     speakable: {
       "@type": "SpeakableSpecification",
       cssSelector: [".article-headline", ".article-content"],
@@ -226,32 +264,12 @@ const breadcrumbSchemaString = breadcrumbSchema
   }
   <link
     rel="preload"
-    href="/fonts/source-serif-4-latin-wght-normal.woff2"
+    href="/fonts/inter-latin-wght-normal.woff2"
     as="font"
     type="font/woff2"
     fetchpriority="low"
     crossorigin="anonymous"
   />
-  <link
-    rel="preload"
-    href="/fonts/source-sans-pro-latin-400-normal.woff2"
-    as="font"
-    type="font/woff2"
-    fetchpriority="low"
-    crossorigin="anonymous"
-  />
-  {
-    isArticleMeta(meta) && (
-      <link
-        rel="preload"
-        href="/fonts/inter-latin-wght-normal.woff2"
-        as="font"
-        type="font/woff2"
-        fetchpriority="low"
-        crossorigin="anonymous"
-      />
-    )
-  }
 
   {/* Universal Light Mode Enforcement */}
   <!-- Global Metadata -->
@@ -259,29 +277,6 @@ const breadcrumbSchemaString = breadcrumbSchema
 
   <!-- Font Architecture: Rendering enforcement -->
   <style is:inline>
-    @font-face {
-      font-family: "Source Sans Pro";
-      font-style: normal;
-      font-display: swap;
-      font-weight: 400;
-      src: url("/fonts/source-sans-pro-latin-400-normal.woff2") format("woff2");
-      size-adjust: 100%;
-      ascent-override: 90%;
-      descent-override: 22%;
-      line-gap-override: 0%;
-    }
-    @font-face {
-      font-family: "Source Serif 4 Variable";
-      font-style: normal;
-      font-display: swap;
-      font-weight: 200 900;
-      src: url("/fonts/source-serif-4-latin-wght-normal.woff2")
-        format("woff2-variations");
-      size-adjust: 100%;
-      ascent-override: 90%;
-      descent-override: 22%;
-      line-gap-override: 0%;
-    }
     @font-face {
       font-family: "Inter";
       font-style: normal;
@@ -312,8 +307,10 @@ const breadcrumbSchemaString = breadcrumbSchema
       <meta name="robots" content="noindex, nofollow, noarchive" />
     ) : (
       <>
-        <meta name="robots" content="index, follow" />
-        <meta name="robots" content="max-image-preview:large" />
+        <meta
+          name="robots"
+          content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+        />
       </>
     )
   }
@@ -339,6 +336,12 @@ const breadcrumbSchemaString = breadcrumbSchema
 
   <!-- RSS & Sitemap -->
   <link rel="sitemap" href="/sitemap-index.xml" />
+  <link
+    rel="sitemap"
+    type="application/xml"
+    title="News Sitemap"
+    href="/sitemap-news.xml"
+  />
   <link
     rel="alternate"
     type="application/rss+xml"
@@ -426,14 +429,17 @@ const breadcrumbSchemaString = breadcrumbSchema
     {
       "prerender": [
         {
+          "source": "list",
+          "urls": ["/", "/articles", "/categories"]
+        },
+        {
           "where": {
             "and": [
               { "href_matches": "/*" },
-              { "not": { "href_matches": ["/admin/*", "/keystatic/*"] } },
-              { "not": { "selector_matches": "[rel~=nofollow]" } }
+              { "not": { "href_matches": ["/admin/*", "/keystatic/*"] } }
             ]
           },
-          "eagerness": "conservative"
+          "eagerness": "immediate"
         }
       ]
     }

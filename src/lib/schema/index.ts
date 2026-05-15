@@ -11,7 +11,7 @@ export const articleSchema = (image: ImageFunction) =>
       isFeatured: z.boolean().default(false),
     }),
     tags: z.array(z.string()).default([]),
-    cover: image(),
+    cover: image().optional(),
     coverAlt: z.string().optional(),
     title: z.string().max(60).optional(),
     description: z.string().max(160, "Too long, max 160 characters"),
@@ -20,11 +20,15 @@ export const articleSchema = (image: ImageFunction) =>
       value: z.string().nullish(),
     })).min(1),
     publishedTime: z.string().datetime().or(z.date()),
+    lastModified: z.string().datetime().or(z.date()).optional(),
     authors: z.array(z.any()).min(1),
     seo: z.object({
-      metaTitle: z.string().optional(),
-      metaDescription: z.string().optional(),
+      metaTitle: z.string().max(60, "Keep under 60 chars for Google title").optional(),
+      metaDescription: z.string().max(160, "Keep under 160 chars").optional(),
       metaKeywords: z.string().optional(),
+      ogTitle: z.string().max(60).optional(),
+      ogImageUrl: z.string().url().optional(),
+      canonicalUrl: z.string().url().optional(),
     }).optional(),
   });
 

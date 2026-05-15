@@ -41,8 +41,8 @@ export const articlesKs = collection({
     title: fields.text({ label: "Title", validation: { isRequired: true } }),
     cover: fields.image({
       label: "Cover Image",
-      directory: "src/assets/images/articles",
-      publicPath: "@assets/images/articles/",
+      directory: "./",
+      publicPath: "./",
     }),
     coverAlt: fields.text({
       label: "Cover Image Alt Text (SEO)",
@@ -120,8 +120,8 @@ export const articlesKs = collection({
       label: "Content",
       options: {
         image: {
-          directory: "src/assets/images/articles",
-          publicPath: "@assets/images/articles",
+          directory: "./",
+          publicPath: "./",
         },
       },
     }),

@@ -19,7 +19,11 @@ export async function GET(context) {
       media: "http://search.yahoo.com/mrss/",
       dc: "http://purl.org/dc/elements/1.1/"
     },
-    customData: `<language>${SITE.locale.toLowerCase()}</language>`,
+    lastBuildDate: new Date(),
+    customData: `
+      <language>${SITE.locale.toLowerCase()}</language>
+      <ttl>60</ttl>
+    `.trim(),
     items: sortedArticles.map((article) => {
       // Resolve the cover image source correctly (Ensure large 1200px+ images for Discover)
       const imageUrl = article.data.cover?.src;
@@ -40,6 +44,11 @@ export async function GET(context) {
         description: article.data.description,
         link: articleLink,
         guid: articleLink,
+        items: [
+          {
+            content: article.data.description,
+          }
+        ],
         customData: `
           <content:encoded><![CDATA[${article.data.description}]]></content:encoded>
           ${categoryTags}

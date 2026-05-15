@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { getImage } from "astro:assets";
 import Divider from "../bases/divider.astro";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import {
@@ -15,22 +16,26 @@ type Props = {
 };
 const { article, isLast, isFirst } = Astro.props;
 
-// Zenith High-Performance Execution: Manual AVIF Generation
-import { getImage } from "astro:assets";
 const q = 75; // Zenith Density: Perfect clarity for sub-headlines
-const img200 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 200,
-  quality: q,
-});
-const img400 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 400,
-  quality: q,
-});
-const lcpSrcset = `${img200.src} 200w, ${img400.src} 400w`;
+const hasCover = !!article.data.cover;
+
+const img200 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 200,
+      quality: q,
+    })
+  : null;
+const img400 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 400,
+      quality: q,
+    })
+  : null;
+const lcpSrcset = hasCover ? `${img200?.src} 200w, ${img400?.src} 400w` : "";
 ---
 
 <article
@@ -39,12 +44,13 @@ const lcpSrcset = `${img200.src} 200w, ${img400.src} 400w`;
     isFirst ? "pt-0" : "pt-2",
     isLast ? "border-b-0 pb-0" : "border-b border-base-300",
   ]}
+  style="content-visibility: auto; contain-intrinsic-size: 100% 120px;"
 >
   <div class="flex flex-col flex-1">
     <div class="flex items-center gap-2 mb-1">
       <div class="flex-1">
         <h3
-          class="text-[17px] leading-6 font-bold lg:group-hover:underline underline-offset-2 line-clamp-2 text-pretty"
+          class="text-[18px] font-semibold leading-tight tracking-tight lg:group-hover:underline underline-offset-2 line-clamp-2 text-pretty"
         >
           <a href={`/articles/${article.id}`}>
             <span class="absolute inset-0 z-10"></span>
@@ -52,16 +58,16 @@ const lcpSrcset = `${img200.src} 200w, ${img400.src} 400w`;
           </a>
         </h3>
         <p
-          class="text-sm text-base-content/80 text-balance md:line-clamp-2 lg:line-clamp-3"
+          class="text-[13.3px] text-base-content/75 text-balance md:line-clamp-2 lg:line-clamp-3 leading-snug"
         >
           {article.data.description}
         </p>
       </div>
     </div>
-    <div class="flex items-center text-xs text-base-content/80 mt-1 lg:mt-auto">
-      <p
-        class="text-[13px] font-medium text-[#0A8BF3] dark:text-secondary capitalize"
-      >
+    <div
+      class="flex items-center text-[12.7px] text-base-content/70 mt-1 lg:mt-auto"
+    >
+      <p class="font-medium text-[#0A8BF3] dark:text-secondary capitalize">
         {
           catProvider.getDisplayPath(
             normalizeCategoryData(article.data.category)[0]?.discriminant ||
@@ -77,20 +83,26 @@ const lcpSrcset = `${img200.src} 200w, ${img400.src} 400w`;
   </div>
 
   <div
-    class="overflow-hidden w-[165px] h-[125px] md:w-[120px] md:h-full shrink-0 relative"
+    class="overflow-hidden w-[100px] sm:w-[130px] md:w-[165px] h-auto shrink-0 relative bg-base-300 rounded"
+    style="aspect-ratio: 4 / 3;"
   >
-    <img
-      src={img200.src}
-      srcset={lcpSrcset}
-      alt={article.data.coverAlt || article.data.title || "Sub Headline News"}
-      sizes="(max-width: 768px) 165px, 120px"
-      loading="lazy"
-      fetchpriority="low"
-      decoding="async"
-      class="object-cover rounded w-full h-full"
-      width="200"
-      height="150"
-      style="aspect-ratio: 4/3; content-visibility: auto; contain-intrinsic-size: 125px;"
-    />
+    {
+      hasCover && img200 && (
+        <img
+          src={img200.src}
+          srcset={lcpSrcset}
+          alt={
+            article.data.coverAlt || article.data.title || "Sub Headline News"
+          }
+          sizes="(max-width: 768px) 165px, 120px"
+          loading="lazy"
+          fetchpriority="auto"
+          decoding="async"
+          class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+          width="200"
+          height="150"
+        />
+      )
+    }
   </div>
 </article>

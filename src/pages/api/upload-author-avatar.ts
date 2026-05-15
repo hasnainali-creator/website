@@ -12,7 +12,7 @@ async function log(message: string) {
 
 export const POST: APIRoute = async ({ request }) => {
     await log("--- START BINARY UPLOAD V3 (STABLE REVERT) ---");
-    
+
     try {
         const slug = request.headers.get("X-Author-Slug");
         if (!slug) {
@@ -29,12 +29,12 @@ export const POST: APIRoute = async ({ request }) => {
         await log(`Slug from header: ${slug}`);
         await log(`Received binary size: ${buffer.byteLength} bytes`);
 
-        const dir = path.join(process.cwd(), "src/assets/images/authors", slug);
+        const dir = path.join(process.cwd(), "src/content/authors", slug);
         await fs.mkdir(dir, { recursive: true });
 
         const filename = "avatar.jpg";
         const filePath = path.join(dir, filename);
-        const relativePath = `@assets/images/authors/${slug}/${filename}`;
+        const relativePath = `./${filename}`;
 
         await log(`Target file: ${filePath}`);
         await fs.writeFile(filePath, Buffer.from(buffer));
@@ -50,7 +50,7 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         return new Response(
-            JSON.stringify({ success: true, path: relativePath }), 
+            JSON.stringify({ success: true, path: relativePath }),
             { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
 

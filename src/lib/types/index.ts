@@ -18,6 +18,8 @@ export type Link = {
 type Author = {
   name: string;
   link: string;
+  jobTitle?: string;
+  description?: string;
 };
 
 export type Meta = {
@@ -31,6 +33,8 @@ export type Meta = {
   breadcrumbs?: { label: string; url: string }[];
   prev?: string | undefined;
   next?: string | undefined;
+  wikidataId?: string; // Omega: Link to Wikidata for supreme authority
+  itemLocation?: string; // Omega: Geographic targeting
 };
 
 export type ArticleMeta = Meta & {
@@ -39,6 +43,7 @@ export type ArticleMeta = Meta & {
   authors: Author[];
   tags?: string[];
   category?: string[];
+  articleBody?: string; // Omega: Semantic content depth
 };
 
 export type Entry = CollectionEntry<"articles" | "views">;

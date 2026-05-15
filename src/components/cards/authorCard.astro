@@ -9,43 +9,23 @@ type Props = {
 
 const { author, loading = "lazy", fetchpriority = "auto" } = Astro.props;
 
-// Zenith High-Performance Execution: Manual AVIF Generation
-import { getImage } from "astro:assets";
-const q = 90; // Zenith Portrait: High-quality avatar rendering
-const img160 = author.data.avatar
-  ? await getImage({
-      src: author.data.avatar,
-      format: "avif",
-      width: 160,
-      quality: q,
-    })
-  : null;
-const img320 = author.data.avatar
-  ? await getImage({
-      src: author.data.avatar,
-      format: "avif",
-      width: 320,
-      quality: q,
-    })
-  : null;
-const lcpSrcset =
-  img160 && img320 ? `${img160.src} 160w, ${img320.src} 320w` : "";
+import { Picture } from "astro:assets";
 ---
 
 <li class="group relative isolate mx-auto w-full">
   {
-    author.data.avatar && img160 ? (
-      <img
-        class="w-320 aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md bg-slate-800"
-        src={img160.src}
-        srcset={lcpSrcset}
+    author.data.avatar ? (
+      <Picture
+        src={author.data.avatar}
+        formats={["avif", "webp"]}
+        widths={[240, 480, 600]}
         alt={author.data.name || "Author Profile"}
-        sizes="160px"
+        sizes="(max-width: 640px) 240px, 240px"
         loading={loading}
         fetchpriority={fetchpriority}
         decoding="async"
-        width="160"
-        height="160"
+        class="w-full aspect-square max-w-full object-cover filter grayscale group-hover:grayscale-0 rounded-md bg-slate-800"
+        quality={100}
       />
     ) : (
       <div class="w-full aspect-square max-w-full rounded-md bg-base-300 filter grayscale group-hover:grayscale-0 flex items-center justify-center border border-base-content/10 transition-all duration-300">

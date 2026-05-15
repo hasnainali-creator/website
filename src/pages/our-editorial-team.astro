@@ -31,13 +31,17 @@ const teamSchema = {
     data: { title: "Our Editorial Team", description: meta.description },
   } as any}
 >
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(teamSchema)} />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(teamSchema)}
+  />
 
   <main class="container py-12 max-w-4xl mx-auto" data-pagefind-body>
     <header class="mb-20 pb-10 border-b border-base-content/10 text-center">
       <h1
-        class="text-5xl md:text-7xl font-black font-sans text-center mb-6 leading-[1.1]"
-        style="font-family: 'Inter', sans-serif; font-weight: 900 !important;"
+        class="text-4xl md:text-5xl font-extrabold font-sans text-center mb-6 leading-tight tracking-tight"
+        style="font-weight: 800 !important;"
       >
         Our Editorial Team
       </h1>
@@ -76,10 +80,10 @@ const teamSchema = {
                     </div>
                   )}
                   <div>
-                    <h2 class="text-3xl font-black font-sans m-0 leading-tight tracking-tight">
+                    <h2 class="text-[18px] font-semibold leading-tight tracking-tight font-sans m-0 tracking-tight">
                       {author.data.name}
                     </h2>
-                    <p class="text-sm font-bold text-primary uppercase tracking-wider mt-2">
+                    <p class="text-[12.8px] font-bold text-primary uppercase tracking-wider mt-2">
                       {author.data.job}
                     </p>
                   </div>

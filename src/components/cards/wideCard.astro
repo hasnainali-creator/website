@@ -27,32 +27,43 @@ await render(article);
 // Zenith High-Performance Execution: Manual AVIF Generation
 import { getImage } from "astro:assets";
 const q = 80; // Zenith Fidelity: Professional grade wide-aspect rendering
-const img400 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 400,
-  quality: q,
-});
-const img800 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 800,
-  quality: q,
-});
-const img1200 = await getImage({
-  src: article.data.cover,
-  format: "avif",
-  width: 1200,
-  quality: q,
-});
-const lcpSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`;
+const hasCover = !!article.data.cover;
+
+const img400 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 400,
+      quality: q,
+    })
+  : null;
+const img800 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 800,
+      quality: q,
+    })
+  : null;
+const img1200 = hasCover
+  ? await getImage({
+      src: article.data.cover!,
+      format: "avif",
+      width: 1200,
+      quality: q,
+    })
+  : null;
+const lcpSrcset = hasCover
+  ? `${img400?.src} 400w, ${img800?.src} 800w, ${img1200?.src} 1200w`
+  : "";
 ---
 
 <li
   class="group w-full max-w-md mx-auto lg:max-w-full relative isolate flex flex-col lg:flex-row gap-4"
+  style="content-visibility: auto; contain-intrinsic-size: 800px 200px;"
 >
   <time
-    class="flex-shrink-0 aspect-square w-32 text-sm text-base-content/60 text-pretty capitalize hidden lg:flex pt-1"
+    class="flex-shrink-0 aspect-square w-32 text-[12.7px] text-base-content/60 text-pretty capitalize hidden lg:flex pt-1"
     datetime={normalizeDate(article.data.publishedTime)}
     data-relative
   >
@@ -64,22 +75,30 @@ const lcpSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`
       isLast ? "border-b-0" : "border-b border-base-300",
     ]}
   >
-    <div class="w-full lg:w-60 aspect-video relative">
-      <img
-        src={img800.src}
-        srcset={lcpSrcset}
-        alt={article.data.coverAlt ||
-          article.data.title ||
-          "Sports News Article"}
-        sizes="(max-width: 1024px) 100vw, 300px"
-        loading={loading}
-        fetchpriority={fetchpriority}
-        decoding={loading === "eager" ? "sync" : "async"}
-        class="aspect-video rounded w-full h-full object-cover"
-        width="800"
-        height="450"
-        style="aspect-ratio: 16/9; content-visibility: auto; contain-intrinsic-size: 225px;"
-      />
+    <div
+      class="w-full lg:w-60 overflow-hidden rounded relative bg-base-300"
+      style="aspect-ratio: 16 / 9;"
+    >
+      {
+        hasCover && img800 && (
+          <img
+            src={img800.src}
+            srcset={lcpSrcset}
+            alt={
+              article.data.coverAlt ||
+              article.data.title ||
+              "Sports News Article"
+            }
+            sizes="(max-width: 1024px) 100vw, 300px"
+            loading={loading}
+            fetchpriority={fetchpriority}
+            decoding={loading === "eager" ? "sync" : "async"}
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            width="800"
+            height="450"
+          />
+        )
+      }
     </div>
     <div class="flex-1 space-y-2">
       <h3 class="text-xl font-semibold lg:group-hover:underline">
@@ -88,11 +107,15 @@ const lcpSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`
           {article.data.title}
         </a>
       </h3>
-      <p class="text-base-content/80 max-w-xl text-pretty">
+      <p
+        class="text-[13.3px] text-base-content/75 max-w-xl text-pretty leading-snug"
+      >
         {article.data.description}
       </p>
     </div>
-    <div class="text-sm lg:hidden flex item-center text-base-content/70 pt-2">
+    <div
+      class="text-[12.7px] lg:hidden flex item-center text-base-content/70 pt-2"
+    >
       <time
         class="flex items-center gap-1"
         datetime={normalizeDate(article.data.publishedTime)}
@@ -104,9 +127,7 @@ const lcpSrcset = `${img400.src} 400w, ${img800.src} 800w, ${img1200.src} 1200w`
       </time>
       <Divider />
       <small class="flex items-center gap-1">
-        <span
-          class="text-[13px] font-medium text-[#0A8BF3] dark:text-secondary capitalize"
-        >
+        <span class="font-medium text-[#0A8BF3] dark:text-secondary capitalize">
           {
             catProvider.getDisplayPath(
               normalizeCategoryData(article.data.category)[0]?.discriminant ||

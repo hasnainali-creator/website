@@ -8,10 +8,10 @@ export const authorsKs = collection({
   format: { contentField: "content" },
   entryLayout: "form",
   schema: {
-    id: fields.text({ 
-        label: "Internal ID / Slug (DO NOT CHANGE)", 
-        validation: { isRequired: true },
-        description: "This determines the folder name. Keep it as-is to prevent broken images."
+    id: fields.text({
+      label: "Internal ID / Slug (DO NOT CHANGE)",
+      validation: { isRequired: true },
+      description: "This determines the folder name. Keep it as-is to prevent broken images."
     }),
     name: fields.text({ label: "Full Name (Display)", validation: { isRequired: true } }),
     job: fields.text({ label: "Job Title/Role", validation: { isRequired: true } }),

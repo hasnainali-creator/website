@@ -16,3 +16,5 @@
   X-XSS-Protection: 1; mode=block
   Cache-Control: public, max-age=0, must-revalidate
   Link: </fonts/source-sans-pro-latin-400-normal.woff2>; rel=preload; as=font; crossorigin; nopush
+  Link: </fonts/source-serif-4-latin-wght-normal.woff2>; rel=preload; as=font; crossorigin; nopush
+  Link: </fonts/inter-latin-wght-normal.woff2>; rel=preload; as=font; crossorigin; nopush

@@ -3,7 +3,7 @@ import ListLayout from "@/layouts/list.astro";
 import { getEntry } from "astro:content";
 import { categoriesHandler } from "@/lib/handlers/categories";
 import NewsCard from "@/components/cards/newsCard.astro";
-import ArrowRight02 from "@/assets/svgs/arrow-right-02.astro";
+import ArrowRight02 from "@/components/common/icons/arrow-right-02.astro";
 
 const entry = await getEntry("views", "categories");
 

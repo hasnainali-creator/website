@@ -67,9 +67,21 @@ async function indexSitemap() {
 
     const indexing = google.indexing({ version: 'v3', auth });
 
-    const sitemapPath = path.join(process.cwd(), 'dist', 'sitemap-0.xml');
+    // AUTO-DISCOVERY: Find any sitemap in the dist folder (sitemap-0.xml, sitemap-index.xml, etc.)
+    const distDir = path.join(process.cwd(), 'dist');
+    let sitemapPath = path.join(distDir, 'sitemap-0.xml');
+
     if (!fs.existsSync(sitemapPath)) {
-        console.warn(`⚠️ Sitemap not found at ${sitemapPath}. Build may have failed or sitemap name is different.`);
+        const files = fs.readdirSync(distDir);
+        const xmlSitemap = files.find(f => f.startsWith('sitemap') && f.endsWith('.xml'));
+        if (xmlSitemap) {
+            sitemapPath = path.join(distDir, xmlSitemap);
+            console.log(`📡 Auto-Discovered Sitemap: ${xmlSitemap}`);
+        }
+    }
+
+    if (!fs.existsSync(sitemapPath)) {
+        console.warn(`⚠️ Sitemap not found in dist. Build may have failed.`);
         return;
     }
     const sitemapContent = fs.readFileSync(sitemapPath, 'utf8');

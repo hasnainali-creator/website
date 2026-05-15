@@ -6,3 +6,4 @@ Disallow: /
 # To allow indexing, set SHIELD_MODE: false in src/lib/config/index.ts and update this file.
 
 Sitemap: https://omnysports.pages.dev/sitemap-index.xml
+Sitemap: https://omnysports.pages.dev/sitemap-news.xml
