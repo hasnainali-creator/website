@@ -20,6 +20,7 @@ const isWindows = os.platform() === "win32";
 const adapter = isWindows
   ? node({ mode: "standalone" })
   : cloudflare({
+    imageService: "passthrough",
     platformProxy: { enabled: false }
   });
 
